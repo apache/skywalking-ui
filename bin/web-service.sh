@@ -22,7 +22,7 @@ done
 
 echo "Starting web service...."
 eval exec "\"$_RUNJAVA\" ${JAVA_OPTS} -classpath $CLASSPATH com.a.eye.skywalking.ui.ApplicationStartUp \
-        2>${WEB_LOGS_DIR}/collector.log 1> /dev/null &"
+        & >>${WEB_LOGS_DIR}/web-ui.log&"
 
 if [ $? -eq 0 ]; then
     sleep 1
