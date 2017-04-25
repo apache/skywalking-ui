@@ -2,11 +2,10 @@
 
 setlocal
 set WEB_PROCESS_TITLE=Skywalking-Web
-set WEB_BASE_PATH=%~dp0%..
 set WEB_RUNTIME_OPTIONS="-Xms256M -Xmx512M"
 
-set CLASSPATH=%WEB_BASE_PATH%\config;
-SET CLASSPATH=%WEB_BASE_PATH%\libs\*;%CLASSPATH%
+set CLASSPATH=%~dp0%..\config;
+SET CLASSPATH=%CLASSPATH%;%~dp0%..\libs\*;
 
 if ""%JAVA_HOME%"" == """" (
   set _EXECJAVA=java
