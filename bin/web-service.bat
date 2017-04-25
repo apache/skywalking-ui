@@ -1,5 +1,4 @@
 @echo off
-
 setlocal
 set WEB_PROCESS_TITLE=Skywalking-Web
 set WEB_BASE_PATH=%~dp0%..
