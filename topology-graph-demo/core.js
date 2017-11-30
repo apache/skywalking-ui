@@ -87,12 +87,31 @@ cy.nodeHtmlLabel(
         valignBox: 'center', // title relative box vertical position. Can be 'top',''center, 'bottom'
         cssClass: 'node-html', // any classes will be as attribute of <div> container for every title
         tpl: function(data){return  '<div class="node-percentage">95%</div><div>' + data.calls + ' calls/s</div>'
-         + '<div> <img src="app.jpg" class="logo"/>0 <img src="data.jpg" class="logo"/>15 <img src="alert.jpg" class="logo"/>99</div>'
+         + '<div> <img src="app.jpg" class="logo"/>0 <img src="data.jpg" class="logo"/><a href="www.baidu.com">15</a> <img src="alert.jpg" class="logo"/>99</div>'
          + '<div>App Engine</div><div>0.95 Apdex</div>'} // your html template here
     }
 ]);
 
+cy.$('node').on('tap', function(evt){
+  document.getElementById('selected-id').innerHTML = evt.target.id();
+})
+
 var updateData = function() {
   var target = cy.$id("1")
   target.data("calls", target.data("calls") + 100)
+}
+
+var updateLine = function() {
+  cy.$("edge").style("label", "dubbo")
+}
+
+var index = 21;
+var addNode = function() {
+  cy.add([{data: { id: index, name: 'frontend', calls: 1240}}, {data: { source: '20', target: index }}])
+  cy.layout({
+      name: 'cose-bilkent',
+      animate: 'end',
+      idealEdgeLength: 100,
+  }).run()
+  index = index + 1
 }
