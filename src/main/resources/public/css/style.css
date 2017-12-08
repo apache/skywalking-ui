@@ -74,6 +74,12 @@
     margin-top: 0;
 }
 
+.panel-body {
+    overflow: auto;
+    word-wrap: break-word;
+    height: 400px;
+}
+
 /* Tabs */
 .tabs-container .panel-body {
     background: #fff;

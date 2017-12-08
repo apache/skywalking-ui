@@ -34,7 +34,7 @@
                     <ul class="nav nav-tabs">
                         <li class="active"><a data-toggle="tab" href="#tags">Tags</a></li>
                         {{for logMessage}}
-                          <li class=""><a data-toggle="tab" href="#logData{{: #index+1}}">Log Data{{: #index+1}}</a></li>
+                          <li class=""><a data-toggle="tab" href="#logData{{> #index+1}}">Log Data{{> #index+1}}</a></li>
                         {{/for}}
                     </ul>
                     <div class="tab-content ">
@@ -46,11 +46,11 @@
                             </div>
                         </div>
                         {{for logMessage}}
-                        <div id="logData{{: #index+1}}" class="tab-pane">
+                        <div id="logData{{> #index+1}}" class="tab-pane">
                             <div class="panel-body">
-                                <strong>time</strong><p>{{dateFormat:time}}</p>
+                                <strong>time</strong><p>{{> dateFormat:time}}</p>
                                 {{for logInfo}}
-                                    <strong>{{:key}}</strong><p>{{tabCharacter:value}}</p>
+                                    <strong>{{> key}}</strong><p>{{> tabCharacter:value}}</p>
                                 {{/for}}
                             </div>
                         </div>
