@@ -1,0 +1,30 @@
+body {
+  font: 14px helvetica neue, helvetica, arial, sans-serif;
+}
+
+#cy {
+  height: 100%;
+  width: 80%;
+  float: left;
+}
+
+.node-html {
+  text-align: center;
+}
+
+button {
+  background-color: white;
+}
+
+div#panel {
+  background-color: #DDDDDD;
+  float: left;
+  width: 20%;
+  height: 100%;
+}
+
+img.logo {
+  height: 15px;
+  vertical-align: middle;
+  margin: -3px 2px 0px 0px;
+}
