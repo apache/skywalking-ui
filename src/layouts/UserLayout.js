@@ -22,7 +22,7 @@ import DocumentTitle from 'react-document-title';
 import { Icon } from 'antd';
 import GlobalFooter from '../components/GlobalFooter';
 import styles from './UserLayout.less';
-import logo from '../assets/logo.svg';
+import logo from '../assets/sw-2.png';
 import { getRoutes } from '../utils/utils';
 
 const links = [{
@@ -31,11 +31,11 @@ const links = [{
   href: '',
 }, {
   key: 'privacy',
-  title: '隐私',
+  title: 'Privacy',
   href: '',
 }, {
   key: 'terms',
-  title: '条款',
+  title: 'Terms',
   href: '',
 }];
 
@@ -61,10 +61,10 @@ class UserLayout extends React.PureComponent {
               <div className={styles.header}>
                 <Link to="/">
                   <img alt="logo" className={styles.logo} src={logo} />
-                  <span className={styles.title}>Ant Design</span>
+                  <span className={styles.title}>Apache SkyWaling</span>
                 </Link>
               </div>
-              <div className={styles.desc}>Ant Design 是西湖区最具影响力的 Web 设计规范</div>
+              <div className={styles.desc}>Apache SkyWaling Opensource APM System</div>
             </div>
             <Switch>
               {getRoutes(match.path, routerData).map(item =>
