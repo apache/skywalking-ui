@@ -23,6 +23,7 @@ import {
   ChartCard, MiniArea, MiniBar, Sankey,
 } from '../../components/Charts';
 import { axis } from '../../utils/time';
+import { avgTimeSeries } from '../../utils/utils';
 import { Panel, Search } from '../../components/Page';
 
 const { Item: FormItem } = Form;
@@ -63,8 +64,6 @@ export default class Service extends PureComponent {
       payload: { variables },
     });
   }
-  avg = list => (list.length > 0 ?
-    (list.reduce((acc, curr) => acc + curr) / list.length).toFixed(2) : 0)
   renderSankey = (data) => {
     if (data.nodes.length < 2) {
       return <span style={{ display: 'none' }} />;
@@ -135,7 +134,7 @@ export default class Service extends PureComponent {
             <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 24 }}>
               <ChartCard
                 title="Avg Throughout"
-                total={`${this.avg(getServiceTPSTrend.trendList)}`}
+                total={`${avgTimeSeries(getServiceTPSTrend.trendList)}`}
                 contentHeight={46}
               >
                 <MiniArea
@@ -147,7 +146,7 @@ export default class Service extends PureComponent {
             <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 24 }}>
               <ChartCard
                 title="Avg Response Time"
-                total={`${this.avg(getServiceResponseTimeTrend.trendList)} ms`}
+                total={`${avgTimeSeries(getServiceResponseTimeTrend.trendList)} ms`}
                 contentHeight={46}
               >
                 <MiniArea
@@ -158,7 +157,7 @@ export default class Service extends PureComponent {
             <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 24 }}>
               <ChartCard
                 title="Avg SLA"
-                total={`${this.avg(getServiceSLATrend.trendList) / 100} %`}
+                total={`${(avgTimeSeries(getServiceSLATrend.trendList) / 100).toFixed(2)} %`}
               >
                 <MiniBar
                   animate={false}
