@@ -133,7 +133,7 @@ export default class Service extends PureComponent {
           <Row gutter={24}>
             <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 24 }}>
               <ChartCard
-                title="Avg Throughout"
+                title="Avg Throughput"
                 total={`${avgTimeSeries(getServiceTPSTrend.trendList)}`}
                 contentHeight={46}
               >
