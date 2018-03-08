@@ -64,6 +64,7 @@ export default class Service extends PureComponent {
       payload: { variables },
     });
   }
+  edgeWith = edge => edge.callsPerSec * edge.avgResponseTime;
   renderSankey = (data) => {
     if (data.nodes.length < 2) {
       return <span style={{ display: 'none' }} />;
@@ -75,7 +76,7 @@ export default class Service extends PureComponent {
     const nData = {
       nodes: data.nodes,
       edges: data.calls.map(_ =>
-        ({ ..._, value: (_.callsPerSec < 1 ? 1000 : _.callsPerSec * _.avgResponseTime), source: nodesMap.get(`${_.source}`), target: nodesMap.get(`${_.target}`) })),
+        ({ ..._, value: (this.edgeWith(_) < 1 ? 1000 : this.edgeWith(_)), source: nodesMap.get(`${_.source}`), target: nodesMap.get(`${_.target}`) })),
     };
     return (
       <Row gutter={24}>
