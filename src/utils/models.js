@@ -49,6 +49,9 @@ export function generateModal({ namespace, dataQuery, optionsQuery, defaultOptio
       *fetchData({ payload }, { call, put }) {
         const { variables, reducer = undefined } = payload;
         const response = yield call(queryService, namespace, { variables, query: dataQuery });
+        if (!response.data) {
+          return;
+        }
         if (reducer) {
           yield put({
             type: reducer,
