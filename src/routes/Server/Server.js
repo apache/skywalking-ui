@@ -111,7 +111,7 @@ export default class Server extends PureComponent {
               <Description term="Host Name">{serverInfo.host}</Description>
               <Description term="IPv4">{serverInfo.ipv4 ? serverInfo.ipv4.join() : ''}</Description>
               <Description term="Process Id">{serverInfo.pid}</Description>
-              <Description term="OS">{serverInfo.name}</Description>
+              <Description term="OS">{serverInfo.osName}</Description>
             </DescriptionList>
           </Card>
           <Row gutter={24}>
