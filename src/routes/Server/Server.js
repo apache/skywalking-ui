@@ -87,7 +87,7 @@ export default class Server extends PureComponent {
                   query SearchServer($keyword: String!, $duration: Duration!) {
                     searchServer(keyword: $keyword, duration: $duration) {
                       key: id
-                      name
+                      osName
                       host
                       pid
                       ipv4
