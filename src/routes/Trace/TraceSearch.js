@@ -85,7 +85,9 @@ export default class Trace extends PureComponent {
       const condition = { ...fieldsValue };
       delete condition['range-time-picker'];
       const rangeTime = fieldsValue['range-time-picker'];
-      const duration = generateDuration({ from: () => rangeTime[0], to: () => rangeTime[1] });
+      const duration = rangeTime && rangeTime.length ?
+        generateDuration({ from: () => rangeTime[0], to: () => rangeTime[1] }) :
+        this.getDefaultDuration();
       dispatch({
         type: 'trace/saveVariables',
         payload: {
