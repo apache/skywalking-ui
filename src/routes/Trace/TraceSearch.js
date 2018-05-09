@@ -85,9 +85,7 @@ export default class Trace extends PureComponent {
       const condition = { ...fieldsValue };
       delete condition['range-time-picker'];
       const rangeTime = fieldsValue['range-time-picker'];
-      const duration = rangeTime && rangeTime.length ?
-        generateDuration({ from: () => rangeTime[0], to: () => rangeTime[1] }) :
-        this.getDefaultDuration();
+      const duration = generateDuration({ from: () => rangeTime[0], to: () => rangeTime[1] });
       dispatch({
         type: 'trace/saveVariables',
         payload: {
@@ -212,7 +210,12 @@ export default class Trace extends PureComponent {
     return (
       <Form onSubmit={this.handleSearch} layout="vertical">
         <FormItem label="Time Range">
-          {getFieldDecorator('range-time-picker')(
+          {getFieldDecorator('range-time-picker', {
+            rules: [{
+              required: true,
+              message: 'Please select the correct date',
+            }],
+          })(
             <RangePicker
               showTime
               disabledDate={current => current && current.valueOf() >= Date.now()}
