@@ -37,7 +37,30 @@ export default {
     res.json(mockjs.mock(
       {
         data: {
-          'searchService|5': [{}],
+          getTrace: () => {
+            let offset = 0;
+            let duration = 2500;
+            return mockjs.mock(
+              {
+                'traces|20': [{
+                  key: '@id',
+                  operationName: '@url(200)',
+                  duration: () => {
+                    duration -= 100;
+                    return duration;
+                  },
+                  start: function() { // eslint-disable-line
+                    offset = offset + 3600000; // eslint-disable-line
+                    const now = new Date().getTime(); // eslint-disable-line
+                    return `${now + offset}`;
+                  },// eslint-disable-line
+                  'isError|1': true,
+                  'traceIds|1-3': ['@guid'],
+                }],
+                total: '@natural(20, 1000)',
+              },
+            );
+          },
           getServiceResponseTimeTrend: {
             'trendList|60': ['@natural(100, 1000)'],
           },
