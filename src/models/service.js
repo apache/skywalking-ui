@@ -16,8 +16,17 @@
  */
 
 
-import { generateModal } from '../utils/models';
+import { generateModal, saveOptionsInState } from '../utils/models';
 import { query } from '../services/graphql';
+
+const optionsQuery = `
+  query ApplicationOption($duration: Duration!) {
+    applicationId: getAllApplication(duration: $duration) {
+      key: id
+      label: name
+    }
+  }
+`;
 
 const dataQuery = `
   query Service($serviceId: ID!, $duration: Duration!, $traceCondition: TraceQueryCondition!) {
@@ -124,6 +133,7 @@ export default generateModal({
     },
   },
   dataQuery,
+  optionsQuery,
   effects: {
     *fetchSpans({ payload }, { call, put }) {
       const response = yield call(query, 'spans', { query: spanQuery, variables: payload.variables });
@@ -144,6 +154,21 @@ export default generateModal({
           queryTrace: payload.data.queryTrace,
           currentTraceId: traceId,
           showTimeline: true,
+        },
+      };
+    },
+    saveAppInfo(preState, { payload: allOptions }) {
+      const rawState = saveOptionsInState(null, preState, { payload: allOptions });
+      const { data } = rawState;
+      if (data.appInfo) {
+        return rawState;
+      }
+      const { variables: { values } } = rawState;
+      return {
+        ...rawState,
+        data: {
+          ...data,
+          appInfo: { applicationId: values.applicationId },
         },
       };
     },

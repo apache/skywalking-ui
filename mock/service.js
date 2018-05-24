@@ -44,7 +44,7 @@ export default {
               {
                 'traces|20': [{
                   key: '@id',
-                  operationName: '@url(200)',
+                  operationName: '200://wgmb.ev/jcknolzq',
                   duration: () => {
                     duration -= 100;
                     return duration;
