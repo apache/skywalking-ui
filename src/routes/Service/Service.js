@@ -212,8 +212,10 @@ export default class Service extends PureComponent {
     });
     const nData = {
       nodes: data.nodes,
-      edges: data.calls.map(_ =>
-        ({ ..._, value: (this.edgeWith(_) < 1 ? 1000 : this.edgeWith(_)), source: nodesMap.get(`${_.source}`), target: nodesMap.get(`${_.target}`) })),
+      edges: data.calls
+        .filter(_ => nodesMap.has(`${_.source}`) && nodesMap.has(`${_.target}`))
+        .map(_ =>
+          ({ ..._, value: (this.edgeWith(_) < 1 ? 1000 : this.edgeWith(_)), source: nodesMap.get(`${_.source}`), target: nodesMap.get(`${_.target}`) })),
     };
     return (
       <Row gutter={8}>

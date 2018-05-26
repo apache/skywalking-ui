@@ -104,6 +104,7 @@ export default {
                 },
               ],
             });
+            downNodes.nodes.push({ id: -111 });
             const nodes = upNodes.nodes.concat(centerNodes.nodes, downNodes.nodes);
             const calls = upNodes.nodes.map(node => (mockjs.mock({
               source: node.id,
@@ -120,6 +121,7 @@ export default {
               'cpm|0-2000': 1,
               'avgResponseTime|500-5000': 1,
             }))));
+            calls.push({ source: '-175', target: 1, isAlert: false, callType: 'GRPC', cpm: 0, avgResponseTime: 52 });
             return {
               nodes,
               calls,
