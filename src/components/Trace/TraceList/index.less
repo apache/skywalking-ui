@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,19 +15,38 @@
  * limitations under the License.
  */
 
+@import '~antd/lib/style/themes/default.less';
 
-const conf = {
-  zoom: 1,
-  maxZoom: 1,
-  boxSelectionEnabled: true,
-  autounselectify: true,
-  wheelSensitivity: 0.2,
-  layout: {
-    name: 'cose-bilkent',
-    animate: false,
-    idealEdgeLength: 200,
-    edgeElasticity: 0.1,
-  },
-};
-
-export default conf;
+.traceList {
+  padding: 5px 0;
+  position: relative;
+  width: 100%;
+  .progressWrap {
+    background-color: @background-color-base;
+    position: relative;
+    height: 25px;
+  }
+  .progress {
+    position: absolute;
+    z-index: 10;
+    transition: all 0.4s cubic-bezier(0.08, 0.82, 0.17, 1) 0s;
+    border-radius: 1px 0 0 1px;
+    background-color: @primary-color;
+    width: 0;
+    height: 100%;
+  }
+  .mainInfo {
+    position: absolute;
+    z-index: 20;
+    width: 100%;
+    .duration {
+      float: right;
+    }
+  }
+  .startTime {
+    float: right;
+  }
+  .content {
+    width: 30%;
+  }
+}

@@ -18,9 +18,13 @@
 
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Row, Col, Select, Card, Form } from 'antd';
+import { Row, Col, Select, Card, Form, Breadcrumb } from 'antd';
+import Server from './Server';
 import { AppTopology } from '../../components/Topology';
-import { Panel, Ranking } from '../../components/Page';
+import { Panel } from '../../components/Page';
+import RankList from '../../components/RankList';
+import ServerLitePanel from '../../components/ServerLitePanel';
+import { getServerId, redirect } from '../../utils/utils';
 
 const { Option } = Select;
 const { Item: FormItem } = Form;
@@ -31,11 +35,12 @@ const middleColResponsiveProps = {
   md: 12,
   lg: 12,
   xl: 12,
-  style: { marginBottom: 24, marginTop: 24 },
+  style: { marginTop: 8 },
 };
 
 @connect(state => ({
   application: state.application,
+  duration: state.global.duration,
   globalVariables: state.global.globalVariables,
 }))
 @Form.create({
@@ -74,12 +79,34 @@ export default class Application extends PureComponent {
     });
   }
   handleChange = (variables) => {
+    const { data: { serverInfo, showServer } } = this.props.application;
+    if (showServer) {
+      this.handleSelectServer(serverInfo.key, serverInfo);
+    } else {
+      this.props.dispatch({
+        type: 'application/fetchData',
+        payload: { variables, reducer: 'saveApplication' },
+      });
+    }
+  }
+  handleGoApplication = () => {
     this.props.dispatch({
-      type: 'application/fetchData',
-      payload: { variables },
+      type: 'application/hideServer',
     });
   }
-  render() {
+  handleGoServer = () => {
+    this.props.dispatch({
+      type: 'application/showServer',
+    });
+  }
+  handleSelectServer = (serverId, serverInfo) => {
+    const { globalVariables: { duration } } = this.props;
+    this.props.dispatch({
+      type: 'application/fetchServer',
+      payload: { variables: { duration, serverId }, serverInfo },
+    });
+  }
+  renderApp = () => {
     const { getFieldDecorator } = this.props.form;
     const { variables: { values, options }, data } = this.props.application;
     return (
@@ -89,14 +116,14 @@ export default class Application extends PureComponent {
             {getFieldDecorator('applicationId')(
               <Select
                 showSearch
+                optionFilterProp="children"
                 style={{ width: 200 }}
                 placeholder="Select a application"
                 labelInValue
                 onSelect={this.handleSelect.bind(this)}
               >
-                {options.applicationId && options.applicationId.map((app) => {
-                    return (<Option key={app.key} value={app.key}>{app.label}</Option>);
-                  })}
+                {options.applicationId && options.applicationId.map(app =>
+                  <Option key={app.key} value={app.key}>{app.label}</Option>)}
               </Select>
             )}
           </FormItem>
@@ -106,34 +133,114 @@ export default class Application extends PureComponent {
           globalVariables={this.props.globalVariables}
           onChange={this.handleChange}
         >
-          <Card
-            bordered={false}
-            bodyStyle={{ padding: 0, marginTop: 24 }}
-          >
-            <AppTopology elements={data.getApplicationTopology} layout={{ name: 'concentric', startAngle: Math.PI, minNodeSpacing: 250 }} />
-          </Card>
-          <Row gutter={24}>
-            <Col {...middleColResponsiveProps}>
+          <Row gutter={0}>
+            <Col {...{ ...middleColResponsiveProps, xl: 16, lg: 12, md: 24 }}>
+              <Card
+                title="Application Map"
+                bordered={false}
+                bodyStyle={{ padding: 0 }}
+              >
+                <AppTopology
+                  elements={data.getApplicationTopology}
+                  height={335}
+                  layout={{
+                    name: 'dagre',
+                    rankDir: 'LR',
+                    minLen: 4,
+                  }}
+                />
+              </Card>
+            </Col>
+            <Col {...{ ...middleColResponsiveProps, xl: 8, lg: 12, md: 24 }}>
+              <Card
+                bordered={false}
+                bodyStyle={{ padding: '10px 10px', height: 391 }}
+              >
+                <ServerLitePanel
+                  data={data}
+                  serverList={data.getServerThroughput}
+                  duration={this.props.duration}
+                  onSelectServer={this.handleSelectServer}
+                  onMoreServer={this.handleGoServer}
+                />
+              </Card>
+            </Col>
+          </Row>
+          <Row gutter={8}>
+            <Col {...{ ...middleColResponsiveProps, xl: 12, lg: 12, md: 24 }}>
+              <Card
+                title="Running Server"
+                bordered={false}
+                bodyStyle={{ padding: 5 }}
+              >
+                <RankList
+                  data={data.getServerThroughput}
+                  renderLabel={getServerId}
+                  renderValue={_ => `${_.value} cpm`}
+                  renderBadge={_ => ([
+                    {
+                      key: 'host',
+                      label: 'Host',
+                      value: _.host,
+                    },
+                    {
+                      key: 'os',
+                      label: 'OS',
+                      value: _.osName,
+                    },
+                  ])}
+                  color="#965fe466"
+                />
+              </Card>
+            </Col>
+            <Col {...{ ...middleColResponsiveProps, xl: 12, lg: 12, md: 24 }}>
               <Card
                 title="Slow Service"
                 bordered={false}
                 bodyStyle={{ padding: '0px 10px' }}
               >
-                <Ranking data={data.getSlowService} title="name" content="avgResponseTime" unit="ms" />
-              </Card>
-            </Col>
-            <Col {...middleColResponsiveProps}>
-              <Card
-                title="Servers Throughput"
-                bordered={false}
-                bodyStyle={{ padding: '0px 10px' }}
-              >
-                <Ranking data={data.getServerThroughput} title="name" content="callsPerSec" unit="t/s" />
+                <RankList
+                  data={data.getSlowService}
+                  renderValue={_ => `${_.value} ms`}
+                  onClick={(key, item) => redirect(this.props.history, '/monitor/service', { key, label: item.label })}
+                />
               </Card>
             </Col>
           </Row>
         </Panel>
       </div>
+    );
+  }
+  render() {
+    const { application, duration } = this.props;
+    const { variables, data } = application;
+    const { showServer, serverInfo } = data;
+    return (
+      <Row type="flex" justify="start">
+        {showServer ? (
+          <Col span={showServer ? 24 : 0}>
+            <Breadcrumb>
+              <Breadcrumb.Item>
+                Application
+              </Breadcrumb.Item>
+              <Breadcrumb.Item>
+                <a onClick={this.handleGoApplication}>{variables.labels.applicationId}</a>
+              </Breadcrumb.Item>
+              <Breadcrumb.Item>{getServerId(serverInfo)}</Breadcrumb.Item>
+            </Breadcrumb>
+            <Panel
+              variables={variables.values}
+              globalVariables={this.props.globalVariables}
+              onChange={this.handleChange}
+            >
+              <Server data={data} duration={duration} />
+            </Panel>
+          </Col>
+         ) : null}
+        <Col span={showServer ? 0 : 24}>
+          {this.renderApp()}
+        </Col>
+      </Row>
     );
   }
 }

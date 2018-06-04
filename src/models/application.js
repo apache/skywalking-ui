@@ -17,6 +17,7 @@
 
 
 import { generateModal } from '../utils/models';
+import { query as queryService } from '../services/graphql';
 
 const optionsQuery = `
   query ApplicationOption($duration: Duration!) {
@@ -31,13 +32,16 @@ const dataQuery = `
   query Application($applicationId: ID!, $duration: Duration!) {
     getSlowService(applicationId: $applicationId, duration: $duration, topN: 10) {
       key: id
-      name
-      avgResponseTime
+      label: name
+      value: avgResponseTime
     }
-    getServerThroughput(applicationId: $applicationId, duration: $duration, topN: 10) {
+    getServerThroughput(applicationId: $applicationId, duration: $duration, topN: 999999) {
       key: id
       osName
-      callsPerSec
+      host
+      pid
+      ipv4
+      value: cpm
     }
     getApplicationTopology(applicationId: $applicationId, duration: $duration) {
       nodes {
@@ -46,7 +50,7 @@ const dataQuery = `
         type
         ... on ApplicationNode {
           sla
-          callsPerSec
+          cpm
           avgResponseTime
           apdex
           isAlarm
@@ -60,11 +64,37 @@ const dataQuery = `
         target
         isAlert
         callType
-        callsPerSec
+        cpm
         avgResponseTime
       }
     }
   }
+`;
+
+const serverQuery = `
+query Application($serverId: ID!, $duration: Duration!) {
+  getServerResponseTimeTrend(serverId: $serverId, duration: $duration) {
+    trendList
+  }
+  getServerThroughputTrend(serverId: $serverId, duration: $duration) {
+    trendList
+  }
+  getCPUTrend(serverId: $serverId, duration: $duration) {
+    cost
+  }
+  getGCTrend(serverId: $serverId, duration: $duration) {
+    youngGCCount
+    oldGCount
+    youngGCTime
+    oldGCTime
+  }
+  getMemoryTrend(serverId: $serverId, duration: $duration) {
+    heap
+    maxHeap
+    noheap
+    maxNoheap
+  }
+}
 `;
 
 export default generateModal({
@@ -77,7 +107,128 @@ export default generateModal({
       nodes: [],
       calls: [],
     },
+    showServer: false,
+    serverInfo: {},
+    getServerResponseTimeTrend: {
+      trendList: [],
+    },
+    getServerThroughputTrend: {
+      trendList: [],
+    },
+    getCPUTrend: {
+      cost: [],
+    },
+    getMemoryTrend: {
+      heap: [],
+      maxHeap: [],
+      noheap: [],
+      maxNoheap: [],
+    },
+    getGCTrend: {
+      youngGCCount: [],
+      oldGCount: [],
+      youngGCTime: [],
+      oldGCTime: [],
+    },
   },
   optionsQuery,
   dataQuery,
+  effects: {
+    *fetchServer({ payload }, { call, put }) {
+      const { variables, serverInfo } = payload;
+      const response = yield call(queryService, 'server', { variables, query: serverQuery });
+      if (!response.data) {
+        return;
+      }
+      yield put({
+        type: 'saveServer',
+        payload: response.data,
+        serverInfo,
+      });
+    },
+  },
+  reducers: {
+    saveApplication(preState, { payload }) {
+      const { data } = preState;
+      return {
+        ...preState,
+        data: {
+          ...data,
+          ...payload,
+          serverInfo: {},
+          getServerResponseTimeTrend: {
+            trendList: [],
+          },
+          getServerThroughputTrend: {
+            trendList: [],
+          },
+          getCPUTrend: {
+            cost: [],
+          },
+          getMemoryTrend: {
+            heap: [],
+            maxHeap: [],
+            noheap: [],
+            maxNoheap: [],
+          },
+          getGCTrend: {
+            youngGCCount: [],
+            oldGCount: [],
+            youngGCTime: [],
+            oldGCTime: [],
+          },
+        },
+      };
+    },
+    saveServer(preState, { payload, serverInfo }) {
+      const { data } = preState;
+      return {
+        ...preState,
+        data: {
+          ...data,
+          serverInfo,
+          ...payload,
+        },
+      };
+    },
+    showServer(preState) {
+      const { data } = preState;
+      return {
+        ...preState,
+        data: {
+          ...data,
+          showServer: true,
+        },
+      };
+    },
+    hideServer(preState) {
+      const { data } = preState;
+      return {
+        ...preState,
+        data: {
+          ...data,
+          showServer: false,
+        },
+      };
+    },
+  },
+  subscriptions: {
+    setup({ history, dispatch }) {
+      return history.listen(({ pathname, state }) => {
+        if (pathname === '/monitor/application' && state) {
+          dispatch({
+            type: 'saveVariables',
+            payload: {
+              values: {
+                applicationId: `${state.key}`,
+              },
+              labels: {
+                applicationId: state.label,
+              },
+            },
+          });
+        }
+      });
+    },
+  },
 });

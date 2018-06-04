@@ -23,7 +23,7 @@ const dataQuery = `
     getServiceResponseTimeTrend(serviceId: $serviceId, duration: $duration) {
       trendList
     }
-    getServiceTPSTrend(serviceId: $serviceId, duration: $duration) {
+    getServiceThroughputTrend(serviceId: $serviceId, duration: $duration) {
       trendList
     }
     getServiceSLATrend(serviceId: $serviceId, duration: $duration) {
@@ -45,7 +45,7 @@ const dataQuery = `
         target
         isAlert
         callType
-        callsPerSec
+        cpm
         avgResponseTime
       }
     }
@@ -58,7 +58,7 @@ export default generateModal({
     getServiceResponseTimeTrend: {
       trendList: [],
     },
-    getServiceTPSTrend: {
+    getServiceThroughputTrend: {
       trendList: [],
     },
     getServiceSLATrend: {
@@ -70,4 +70,23 @@ export default generateModal({
     },
   },
   dataQuery,
+  subscriptions: {
+    setup({ history, dispatch }) {
+      return history.listen(({ pathname, state }) => {
+        if (pathname === '/monitor/service' && state) {
+          dispatch({
+            type: 'saveVariables',
+            payload: {
+              values: {
+                serviceId: state.key,
+              },
+              labels: {
+                serviceId: state.label,
+              },
+            },
+          });
+        }
+      });
+    },
+  },
 });

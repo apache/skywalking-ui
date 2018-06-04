@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-
+import moment from 'moment';
 import { query } from '../services/graphql';
 import { generateModal } from '../utils/models';
+import { generateDuration } from '../utils/time';
 
 const optionsQuery = `
   query ApplicationOption($duration: Duration!) {
@@ -38,7 +39,7 @@ const dataQuery = `
         start
         isError
         traceIds
-  }
+      }
       total
     }
   }
@@ -86,11 +87,25 @@ export default generateModal({
   state: {
     queryBasicTraces: {
       traces: [],
-      pagination: {
-        current: 1,
-        pageSize: 10,
-        total: 0,
-      },
+      total: 0,
+    },
+    queryTrace: {
+      spans: [],
+    },
+    showTimeline: false,
+  },
+  varState: {
+    values: {
+      duration: generateDuration({
+        from() {
+          return moment().subtract(15, 'minutes');
+        },
+        to() {
+          return moment();
+        },
+      }),
+      traceState: 'ALL',
+      queryOrder: 'BY_START_TIME',
     },
   },
   optionsQuery,
@@ -106,23 +121,51 @@ export default generateModal({
       yield put({
         type: 'saveSpans',
         payload: response,
-        key: payload.key,
         traceId: payload.variables.traceId,
       });
     },
   },
   reducers: {
-    saveSpans(state, action) {
-      const { key, traceId } = action;
-      const { queryTrace: { spans } } = action.payload.data;
-      const { data: { queryBasicTraces: { traces } } } = state;
-      const trace = traces.find(t => t.key === key);
-      const { spansContainer = {} } = trace;
-      spansContainer[traceId] = spans;
-      trace.spansContainer = spansContainer;
+    saveSpans(state, { payload, traceId }) {
+      const { data } = state;
       return {
         ...state,
+        data: {
+          ...data,
+          queryTrace: payload.data.queryTrace,
+          currentTraceId: traceId,
+          showTimeline: true,
+        },
       };
+    },
+    hideTimeline(state) {
+      const { data } = state;
+      return {
+        ...state,
+        data: {
+          ...data,
+          showTimeline: false,
+        },
+      };
+    },
+  },
+  subscriptions: {
+    setup({ history, dispatch }) {
+      return history.listen(({ pathname, state }) => {
+        if (pathname === '/trace' && state) {
+          dispatch({
+            type: 'saveVariables',
+            payload: {
+              values: {
+                applicationId: state.key,
+              },
+              labels: {
+                applicationId: state.label,
+              },
+            },
+          });
+        }
+      });
     },
   },
 });

@@ -31,11 +31,12 @@ export default generateModal({
     getAlarmTrend: {
       numOfAlarmRate: [],
     },
-    getConjecturalApps: {
-      apps: [],
+    getThermodynamic: {
+      nodes: [],
+      responseTimeStep: 0,
     },
     getTopNSlowService: [],
-    getTopNServerThroughput: [],
+    getTopNApplicationThroughput: [],
   },
   dataQuery: `
     query Dashboard($duration: Duration!) {
@@ -49,21 +50,19 @@ export default generateModal({
       getAlarmTrend(duration: $duration) {
         numOfAlarmRate
       }
-      getConjecturalApps(duration: $duration) {
-        apps {
-          name
-          num
-        }
+      getThermodynamic(duration: $duration, type: ALL) {
+        nodes
+        responseTimeStep
       }
       getTopNSlowService(duration: $duration, topN: 10) {
         key: id
-        name
-        avgResponseTime
+        label: name
+        value: avgResponseTime
       }
       getTopNApplicationThroughput(duration: $duration, topN: 10) {
         key: applicationId
-        applicationCode
-        callsPerSec
+        label: applicationCode
+        value: cpm
       }
     }
   `,

@@ -25,12 +25,12 @@ export default {
         data: {
           getClusterTopology: () => {
             const application = mockjs.mock({
-              'nodes|2': [
+              'nodes|2-3': [
                 {
                   'id|+1': 1,
                   name: '@name',
                   'type|1': ['DUBBO', 'tomcat', 'SPRINGMVC'],
-                  'callsPerSec|1000-2000': 1,
+                  'cpm|10-2000': 1,
                   'sla|1-100.1-2': 1,
                   'apdex|0.2': 1,
                   'avgResponseTime|500-1000': 1,
@@ -67,7 +67,7 @@ export default {
                   target: 1,
                   'isAlert|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
-                  'callsPerSec|100-2000': 1,
+                  'cpm|100-2000': 1,
                   'avgResponseTime|500-5000': 1,
                 },
                 {
@@ -75,7 +75,15 @@ export default {
                   target: 2,
                   'isAlert|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
-                  'callsPerSec|100-2000': 1,
+                  'cpm|100-2000': 1,
+                  'avgResponseTime|500-5000': 1,
+                },
+                {
+                  source: 2,
+                  target: 1,
+                  'isAlert|1': true,
+                  'callType|1': ['rpc', 'http', 'dubbo'],
+                  'cpm|100-2000': 1,
                   'avgResponseTime|500-5000': 1,
                 },
                 {
@@ -83,7 +91,7 @@ export default {
                   target: 200,
                   'isAlert|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
-                  'callsPerSec|100-2000': 1,
+                  'cpm|100-2000': 1,
                   'avgResponseTime|500-5000': 1,
                 },
                 {
@@ -91,7 +99,7 @@ export default {
                   target: 201,
                   'isAlert|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
-                  'callsPerSec|100-2000': 1,
+                  'cpm|100-2000': 1,
                   'avgResponseTime|500-5000': 1,
                 },
                 {
@@ -99,7 +107,7 @@ export default {
                   target: 202,
                   'isAlert|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
-                  'callsPerSec|100-2000': 1,
+                  'cpm|100-2000': 1,
                   'avgResponseTime|500-5000': 1,
                 },
                 {
@@ -107,7 +115,7 @@ export default {
                   target: 203,
                   'isAlert|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
-                  'callsPerSec|100-2000': 1,
+                  'cpm|100-2000': 1,
                   'avgResponseTime|500-5000': 1,
                 },
                 {
@@ -115,7 +123,7 @@ export default {
                   target: 204,
                   'isAlert|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
-                  'callsPerSec|100-2000': 1,
+                  'cpm|100-2000': 1,
                   'avgResponseTime|500-5000': 1,
                 },
               ],

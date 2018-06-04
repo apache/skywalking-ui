@@ -32,8 +32,15 @@ export default {
     res.json(mockjs.mock(
       {
         data: {
-          'getSlowService|10': [{ 'key|+1': 1, name: '@name', 'avgResponseTime|200-1000': 1 }],
-          'getServerThroughput|10': [{ 'key|+1': 1, name: '@name', 'callsPerSec|100-10000': 1 }],
+          'getSlowService|10': [{ 'key|+1': 1, label: '@url', 'value|200-1000': 1 }],
+          'getServerThroughput|10': [{
+            'key|+1': 3,
+            osName: 'Linux-@name',
+            host: 'WORKSAPCE-@name',
+            pid: '@natural(4, 20)',
+            'ipv4|1-3': ['@ip'],
+            'value|100-10000': 1,
+          }],
           getApplicationTopology: () => {
             const application = mockjs.mock({
               nodes: [
@@ -41,7 +48,7 @@ export default {
                   id: 1,
                   name: '@name',
                   'type|1': ['DUBBO', 'tomcat', 'SPRINGMVC'],
-                  'callsPerSec|1000-2000': 1,
+                  'cpm|1000-2000': 1,
                   'sla|1-100.1-2': 1,
                   'apdex|0.2': 1,
                   'numOfServer|1-100': 1,
@@ -68,7 +75,7 @@ export default {
                   target: 200,
                   'isAlert|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
-                  'callsPerSec|100-2000': 1,
+                  'cpm|100-2000': 1,
                   'avgResponseTime|500-5000': 1,
                 },
                 {
@@ -76,7 +83,7 @@ export default {
                   target: 201,
                   'isAlert|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
-                  'callsPerSec|100-2000': 1,
+                  'cpm|100-2000': 1,
                   'avgResponseTime|500-5000': 1,
                 },
                 {
@@ -84,7 +91,7 @@ export default {
                   target: 202,
                   'isAlert|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
-                  'callsPerSec|100-2000': 1,
+                  'cpm|100-2000': 1,
                   'avgResponseTime|500-5000': 1,
                 },
                 {
@@ -92,7 +99,7 @@ export default {
                   target: 203,
                   'isAlert|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
-                  'callsPerSec|100-2000': 1,
+                  'cpm|100-2000': 1,
                   'avgResponseTime|500-5000': 1,
                 },
                 {
@@ -100,7 +107,7 @@ export default {
                   target: 204,
                   'isAlert|1': true,
                   'callType|1': ['rpc', 'http', 'dubbo'],
-                  'callsPerSec|100-2000': 1,
+                  'cpm|100-2000': 1,
                   'avgResponseTime|500-5000': 1,
                 },
               ],
