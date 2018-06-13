@@ -14,13 +14,48 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+ 
+@import '~antd/lib/style/themes/default.less';
 
+.login {
+  .tabs {
+    padding: 0 2px;
+    margin: 0 -2px;
+    :global {
+      .ant-tabs-tab {
+        font-size: 16px;
+        line-height: 24px;
+      }
+      .ant-input-affix-wrapper .ant-input:not(:first-child) {
+        padding-left: 34px;
+      }
+    }
+  }
 
-// use localStorage to store the authority info, which might be sent from server in actual project.
-export function getAuthority() {
-  return localStorage.getItem('skywalking-authority');
-}
+  :global {
+    .ant-tabs .ant-tabs-bar {
+      border-bottom: 0;
+      margin-bottom: 24px;
+      text-align: center;
+    }
 
-export function setAuthority(authority) {
-  return localStorage.setItem('skywalking-authority', authority);
+    .ant-form-item {
+      margin-bottom: 24px;
+    }
+  }
+
+  .prefixIcon {
+    font-size: @font-size-base;
+    color: @disabled-color;
+  }
+
+  .getCaptcha {
+    display: block;
+    width: 100%;
+  }
+
+  .submit {
+    width: 100%;
+    margin-top: 24px;
+  }
 }
