@@ -26,18 +26,16 @@ const proxy = {
   'POST /api/trace': getTrace,
   'POST /api/spans': getSpans,
   'POST /api/login/account': (req, res) => {
-    const { password, userName, type } = req.body;
+    const { password, userName } = req.body;
     if (password === '888888' && userName === 'admin') {
       res.send({
         status: 'ok',
-        type,
         currentAuthority: 'admin',
       });
       return;
     }
     res.send({
       status: 'error',
-      type,
       currentAuthority: 'guest',
     });
   },
