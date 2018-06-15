@@ -90,7 +90,7 @@ function generator({ defaultProps, defaultRules, type }) {
                     size="large"
                     onClick={this.onGetCaptcha}
                   >
-                    {count ? `${count} s` : '获取验证码'}
+                    {count ? `${count} s` : 'Get Verification code'}
                   </Button>
                 </Col>
               </Row>
