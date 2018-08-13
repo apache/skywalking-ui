@@ -34,7 +34,7 @@ const dataQuery = `
     queryBasicTraces(condition: $condition) {
       traces {
         key: segmentId
-        operationName
+        operationNames
         duration
         start
         isError
@@ -153,15 +153,12 @@ export default generateModal({
     setup({ history, dispatch }) {
       return history.listen(({ pathname, state }) => {
         if (pathname === '/trace' && state) {
+          const { traceState = 'ALL', queryOrder = 'BY_START_TIME' } = state;
           dispatch({
-            type: 'saveVariables',
+            type: 'initVariables',
             payload: {
-              values: {
-                applicationId: state.key,
-              },
-              labels: {
-                applicationId: state.label,
-              },
+              values: { ...state.values, traceState, queryOrder },
+              labels: state.labels,
             },
           });
         }

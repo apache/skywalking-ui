@@ -22,7 +22,7 @@ import { Row, Col, Card, Tooltip, Icon } from 'antd';
 import {
   ChartCard, MiniArea, Field, HeatMap,
 } from '../../components/Charts';
-import { axis } from '../../utils/time';
+import { axis, generateDuration } from '../../utils/time';
 import { avgTimeSeries, redirect } from '../../utils/utils';
 import { Panel } from '../../components/Page';
 import RankList from '../../components/RankList';
@@ -105,6 +105,17 @@ export default class Dashboard extends PureComponent {
                 data={data.getThermodynamic}
                 duration={this.props.duration}
                 height={200}
+                onClick={(duration, responseTimeRange) => redirect(this.props.history, '/trace', { values: { duration: generateDuration({
+                  from() {
+                    return duration.start;
+                  },
+                  to() {
+                    return duration.end;
+                  },
+                }),
+                minTraceDuration: responseTimeRange.min,
+                maxTraceDuration: responseTimeRange.max,
+              } })}
               />
             </ChartCard>
           </Col>
@@ -139,9 +150,12 @@ export default class Dashboard extends PureComponent {
               bodyStyle={{ padding: '0px 10px' }}
             >
               <RankList
-                data={data.getTopNSlowService}
+                data={data.getTopNSlowService.map(_ => ({ ..._.service, value: _.value }))}
                 renderValue={_ => `${_.value} ms`}
-                onClick={(key, item) => redirect(this.props.history, '/monitor/service', { key, label: item.label })}
+                onClick={(key, item) => redirect(this.props.history, '/monitor/service', { key,
+                    label: item.label,
+                    applicationId: item.applicationId,
+                    applicationName: item.applicationName })}
               />
             </Card>
           </Col>
