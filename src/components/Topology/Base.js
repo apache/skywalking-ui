@@ -37,6 +37,7 @@ export default class Base extends Component {
     height: '600px',
     display: 'block',
   }
+
   componentDidMount() {
     const { elements, layout = config.layout } = this.props;
     this.layout = layout;
@@ -58,6 +59,7 @@ export default class Base extends Component {
       this.bindEvent(this.cy);
     }
   }
+
   componentWillReceiveProps(nextProps) {
     if (nextProps.elements === this.elements && nextProps.layout === this.layout) {
       return;
@@ -79,15 +81,19 @@ export default class Base extends Component {
     });
     layout.run();
   }
+
   shouldComponentUpdate() {
     return false;
   }
+
   componentWillUnmount() {
     this.cy.destroy();
   }
+
   getCy() {
     return this.cy;
   }
+
   isSame = (nodes, nextNodes) => {
     if (nodes.length !== nextNodes.length) {
       return false;
@@ -95,6 +101,7 @@ export default class Base extends Component {
     const diff = nextNodes.diff(nodes);
     return diff.left.length < 1 && diff.right.length < 1;
   }
+
   transform(elements) {
     if (!elements) {
       return [];
@@ -108,6 +115,7 @@ export default class Base extends Component {
         .map(call => ({ data: { ...call, id: `${call.source}-${call.target}` } })),
     };
   }
+
   render() {
     return (<div style={{ ...this.props }} ref={(el) => { this.container = el; }} />);
   }

@@ -32,6 +32,7 @@ export default class GlobalHeader extends PureComponent {
   componentWillUnmount() {
     this.triggerResizeEvent.cancel();
   }
+
   getNoticeData() {
     const { notices = [] } = this.props;
     if (notices.length === 0) {
@@ -59,17 +60,20 @@ export default class GlobalHeader extends PureComponent {
     });
     return groupBy(newNotices, 'type');
   }
+
   toggle = () => {
     const { collapsed, onCollapse } = this.props;
     onCollapse(!collapsed);
     this.triggerResizeEvent();
   }
+
   @Debounce(600)
   triggerResizeEvent() { // eslint-disable-line
     const event = document.createEvent('HTMLEvents');
     event.initEvent('resize', true, false);
     window.dispatchEvent(event);
   }
+
   render() {
     const {
       collapsed, notices: { applicationAlarmList, serverAlarmList },

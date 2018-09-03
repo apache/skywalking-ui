@@ -32,6 +32,7 @@ export default class Trace extends PureComponent {
       type: 'trace/hideTimeline',
     });
   }
+
   render() {
     const { trace: { data: { showTimeline } } } = this.props;
     return (

@@ -39,6 +39,7 @@ export default class Dashboard extends PureComponent {
       payload: { variables },
     });
   }
+
   renderAction = (prompt, path) => {
     return (
       <Tooltip title={prompt}>
@@ -46,6 +47,7 @@ export default class Dashboard extends PureComponent {
       </Tooltip>
     );
   }
+
   render() {
     const { data } = this.props.dashboard;
     const { numOfAlarmRate } = data.getAlarmTrend;

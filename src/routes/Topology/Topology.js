@@ -72,18 +72,21 @@ export default class Topology extends PureComponent {
   static defaultProps = {
     graphHeight: 600,
   };
+
   handleChange = (variables) => {
     this.props.dispatch({
       type: 'topology/fetchData',
       payload: { variables },
     });
   }
+
   handleLayoutChange = ({ target: { value } }) => {
     this.props.dispatch({
       type: 'topology/saveData',
       payload: { layout: value },
     });
   }
+
   handleSelectedApplication = (appInfo) => {
     if (appInfo) {
       this.props.dispatch({
@@ -97,12 +100,14 @@ export default class Topology extends PureComponent {
       });
     }
   }
+
   handleFilterApplication = (aa) => {
     this.props.dispatch({
       type: 'topology/filterApplication',
       payload: { aa },
     });
   }
+
   filter = () => {
     const { topology: { variables: { appRegExps }, data: { getClusterTopology } } } = this.props;
     if (!appRegExps) {
@@ -118,6 +123,7 @@ export default class Topology extends PureComponent {
       calls: cc,
     };
   }
+
   renderActions = () => {
     const { data: { appInfo } } = this.props.topology;
     return [
@@ -135,6 +141,7 @@ export default class Topology extends PureComponent {
       appInfo.isAlarm ? <Icon type="bell" onClick={() => redirect(this.props.history, '/monitor/alarm')} /> : null,
     ];
   }
+
   renderNodeType = (topologData) => {
     const typeMap = new Map();
     topologData.nodes.forEach((_) => {
@@ -148,6 +155,7 @@ export default class Topology extends PureComponent {
     typeMap.forEach((v, k) => result.push(<Description term={k}>{v}</Description>));
     return result;
   }
+
   render() {
     const { data, variables: { appFilters = [] } } = this.props.topology;
     const { layout = 0 } = data;
@@ -201,7 +209,7 @@ export default class Topology extends PureComponent {
                   {data.getClusterTopology.nodes.filter(_ => _.sla)
                     .map(_ => <Option key={_.name}>{_.name}</Option>)}
                 </Select>
-                <DescriptionList layout="vertical" >
+                <DescriptionList layout="vertical">
                   <Description term="Total">{topologData.nodes.length}</Description>
                   {this.renderNodeType(topologData)}
                 </DescriptionList>

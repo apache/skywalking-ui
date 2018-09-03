@@ -48,6 +48,7 @@ export default class Alarm extends PureComponent {
       });
     }
   }
+
   handleSearch = (keyword) => {
     this.props.dispatch({
       type: 'alarm/saveVariables',
@@ -57,6 +58,7 @@ export default class Alarm extends PureComponent {
       } },
     });
   }
+
   handlePageChange = (pag) => {
     this.props.dispatch({
       type: 'alarm/saveVariables',
@@ -69,6 +71,7 @@ export default class Alarm extends PureComponent {
       } },
     });
   }
+
   changeAlarmType = (alarmType) => {
     this.props.dispatch({
       type: 'alarm/saveVariables',
@@ -78,6 +81,7 @@ export default class Alarm extends PureComponent {
       } },
     });
   }
+
   handleChange = (variables) => {
     const type = variables.alarmType.charAt(0) + variables.alarmType.slice(1).toLowerCase();
     const { paging = defaultPaging } = variables;
@@ -86,6 +90,7 @@ export default class Alarm extends PureComponent {
       payload: { variables: { ...variables, paging }, reducer: `save${type}AlarmList` },
     });
   }
+
   renderList = ({ items, total }) => {
     const { alarm: { variables: { values: { paging = defaultPaging } } }, loading } = this.props;
     const pagination = {
@@ -117,6 +122,7 @@ export default class Alarm extends PureComponent {
         )}
       />);
   }
+
   render() {
     const extraContent = (
       <div className={styles.extraContent}>

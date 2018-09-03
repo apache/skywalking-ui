@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 import React, { Component } from 'react';
 import { Chart, Axis, Tooltip, Geom } from 'bizcharts';
 import Debounce from 'lodash-decorators/debounce';
@@ -29,6 +28,7 @@ class Area extends Component {
     limitColor: 'rgb(255, 144, 24)',
     color: 'rgb(24, 144, 255)',
   };
+
   state = {
     autoHideXLabels: false,
   };
@@ -68,26 +68,19 @@ class Area extends Component {
     }
   }
 
-  handleRoot = (n) => {
+  handleRoot = n => {
     this.root = n;
   };
 
-  handleRef = (n) => {
+  handleRef = n => {
     this.node = n;
   };
 
   render() {
-    const {
-      height,
-      title,
-      forceFit = true,
-      data,
-      color,
-      limitColor,
-    } = this.props;
+    const { height, title, forceFit = true, data, color, limitColor } = this.props;
 
     if (!data || data.length < 1) {
-      return (<span style={{ display: 'none' }} />);
+      return <span style={{ display: 'none' }} />;
     }
 
     const { autoHideXLabels } = this.state;
@@ -104,8 +97,10 @@ class Area extends Component {
     };
     const offset = Math.floor(data.length / 2);
     const xData = data.slice(0, offset);
-    const yData = data.slice(offset).map((v, i) => ({ ...v,
-      y: ((v.y - xData[i].y) > 0 ? parseFloat(((v.y - xData[i].y).toFixed(2))) : 0) }));
+    const yData = data.slice(offset).map((v, i) => ({
+      ...v,
+      y: v.y - xData[i].y > 0 ? parseFloat((v.y - xData[i].y).toFixed(2)) : 0,
+    }));
     return (
       <div className={styles.chart} style={{ height }} ref={this.handleRoot}>
         <div ref={this.handleRef}>
@@ -124,9 +119,7 @@ class Area extends Component {
               tickLine={autoHideXLabels ? false : {}}
             />
             <Axis name="y" min={0} />
-            <Tooltip
-              crosshairs={{ type: 'line' }}
-            />
+            <Tooltip crosshairs={{ type: 'line' }} />
             <Geom type="areaStack" position="x*y" color={['type', [color, limitColor]]} />
             <Geom type="lineStack" position="x*y" size={2} color={['type', [color, limitColor]]} />
           </Chart>

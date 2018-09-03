@@ -15,9 +15,7 @@
  * limitations under the License.
  */
 
-
-import '@babel/polyfill';
-import 'url-polyfill';
+import './polyfill';
 import dva from 'dva';
 
 import createHistory from 'history/createHashHistory';
@@ -26,10 +24,7 @@ import createHistory from 'history/createHashHistory';
 import createLoading from 'dva-loading';
 import 'moment/locale/zh-cn';
 
-import 'ant-design-pro/dist/ant-design-pro.css';
-
 import './index.less';
-
 // 1. Initialize
 const app = dva({
   history: createHistory(),
@@ -47,5 +42,4 @@ app.router(require('./router').default);
 // 5. Start
 app.start('#root');
 
-
-export default app._store;  // eslint-disable-line
+export default app._store; // eslint-disable-line

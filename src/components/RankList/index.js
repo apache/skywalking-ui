@@ -29,6 +29,7 @@ class RankList extends PureComponent {
     }
     return renderLabel(item);
   }
+
   renderValue = (item) => {
     const { renderValue } = this.props;
     if (!renderValue) {
@@ -36,6 +37,7 @@ class RankList extends PureComponent {
     }
     return renderValue(item);
   }
+
   renderTitle = (item, maxValue) => {
     const { onClick, color = '#87CEFA' } = this.props;
     return (
@@ -60,6 +62,7 @@ class RankList extends PureComponent {
         </div>
       </div>);
   }
+
   renderBadges = (item) => {
     const { renderBadge } = this.props;
     return (
@@ -80,6 +83,7 @@ class RankList extends PureComponent {
       </Row>
     );
   }
+
   render() {
     const { data, loading, renderBadge } = this.props;
     let maxValue = 0;

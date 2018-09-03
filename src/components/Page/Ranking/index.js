@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 import React, { PureComponent } from 'react';
 import { List, Avatar } from 'antd';
 
@@ -32,16 +31,19 @@ export default class Ranking extends PureComponent {
           <List.Item>
             <List.Item.Meta
               avatar={
-                <Avatar
-                  style={{ color: '#ff3333', backgroundColor: '#ffb84d' }}
-                >
-                  {(() => { index += 1; return index; })()}
-                </Avatar>}
+                <Avatar style={{ color: '#ff3333', backgroundColor: '#ffb84d' }}>
+                  {(() => {
+                    index += 1;
+                    return index;
+                  })()}
+                </Avatar>
+              }
               title={item[title]}
               description={`${item[content]} ${unit}`}
             />
           </List.Item>
         )}
-      />);
+      />
+    );
   }
 }

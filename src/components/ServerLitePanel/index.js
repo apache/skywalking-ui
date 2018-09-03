@@ -20,8 +20,8 @@ import React, { PureComponent } from 'react';
 import { Row, Col, Card, Select, Icon } from 'antd';
 import {
   ChartCard, MiniArea, MiniBar,
-} from '../../components/Charts';
-import DescriptionList from '../../components/DescriptionList';
+} from "../Charts";
+import DescriptionList from "../DescriptionList";
 import { axis } from '../../utils/time';
 import { avgTimeSeries, getServerId } from '../../utils/utils';
 
@@ -30,6 +30,7 @@ const { Description } = DescriptionList;
 
 export default class ServerLitePanel extends PureComponent {
   bytesToMB = list => list.map(_ => parseFloat((_ / (1024 ** 2)).toFixed(2)))
+
   render() {
     const { serverList, duration, data, onSelectServer, onMoreServer } = this.props;
     if (serverList.length < 1) {

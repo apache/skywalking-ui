@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 import React, { Component } from 'react';
 import { Chart, Geom, Tooltip, View, Label } from 'bizcharts';
 import { DataSet } from '@antv/data-set';
@@ -29,11 +28,11 @@ class Sankey extends Component {
     color: 'rgb(24, 144, 255)',
   };
 
-  handleRoot = (n) => {
+  handleRoot = n => {
     this.root = n;
   };
 
-  handleRef = (n) => {
+  handleRef = n => {
     this.node = n;
   };
 
@@ -44,12 +43,15 @@ class Sankey extends Component {
       forceFit = true,
       data,
       edgeColor = '#bbb',
-      edgeTooltip = ['target*source*value', (target, source, value) => {
-        return {
-          name: `${source.name} to ${target.name} </span>`,
-          value,
-        };
-      }],
+      edgeTooltip = [
+        'target*source*value',
+        (target, source, value) => {
+          return {
+            name: `${source.name} to ${target.name} </span>`,
+            value,
+          };
+        },
+      ],
     } = this.props;
 
     const ds = new DataSet();
@@ -67,7 +69,7 @@ class Sankey extends Component {
         sync: true,
       },
     };
-    const ignoreNodes = dv.nodes.filter(_ => (_.y1 - _.y0) < 0.1).map(_ => _.name);
+    const ignoreNodes = dv.nodes.filter(_ => _.y1 - _.y0 < 0.1).map(_ => _.name);
     return (
       <div className={styles.chart} style={{ height }} ref={this.handleRoot}>
         <div ref={this.handleRef}>
@@ -91,12 +93,7 @@ class Sankey extends Component {
               />
             </View>
             <View data={dv.nodes}>
-              <Geom
-                type="polygon"
-                position="x*y"
-                color="name"
-                tooltip={false}
-              >
+              <Geom type="polygon" position="x*y" color="name" tooltip={false}>
                 <Label
                   content="name"
                   textStyle={{
@@ -104,13 +101,12 @@ class Sankey extends Component {
                     textAlign: 'start',
                   }}
                   offset={0}
-                  formatter={(val) => {
-                      if (ignoreNodes.findIndex(_ => _ === val) > -1) {
-                        return '';
-                      }
-                      return `  ${val}`;
+                  formatter={val => {
+                    if (ignoreNodes.findIndex(_ => _ === val) > -1) {
+                      return '';
                     }
-                  }
+                    return `  ${val}`;
+                  }}
                 />
               </Geom>
             </View>

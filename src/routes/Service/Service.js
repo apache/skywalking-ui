@@ -57,6 +57,7 @@ export default class Service extends PureComponent {
       payload: { variables: this.props.globalVariables, reducer: 'saveAppInfo' },
     });
   }
+
   componentWillUpdate(nextProps) {
     if (nextProps.globalVariables.duration === this.props.globalVariables.duration) {
       return;
@@ -66,6 +67,7 @@ export default class Service extends PureComponent {
       payload: { variables: nextProps.globalVariables, reducer: 'saveAppInfo' },
     });
   }
+
   handleAppSelect = (selected) => {
     this.props.dispatch({
       type: 'service/save',
@@ -80,6 +82,7 @@ export default class Service extends PureComponent {
       },
     });
   }
+
   handleSelect = (selected) => {
     this.props.dispatch({
       type: 'service/save',
@@ -94,6 +97,7 @@ export default class Service extends PureComponent {
       },
     });
   }
+
   handleChange = (variables) => {
     const { variables: { values } } = this.props.service;
     if (!values.applicationId) {
@@ -123,6 +127,7 @@ export default class Service extends PureComponent {
       } },
     });
   }
+
   handleShowTrace = (traceId) => {
     const { dispatch } = this.props;
     dispatch({
@@ -130,12 +135,15 @@ export default class Service extends PureComponent {
       payload: { variables: { traceId } },
     });
   }
+
   handleGoBack = () => {
     this.props.dispatch({
       type: 'service/hideTimeline',
     });
   }
+
   edgeWith = edge => edge.cpm * edge.avgResponseTime;
+
   renderPanel = () => {
     const { service, duration } = this.props;
     const { variables: { values }, data } = service;
@@ -205,6 +213,7 @@ export default class Service extends PureComponent {
       </Panel>
     );
   }
+
   renderSankey = (data) => {
     if (data.nodes.length < 2) {
       return <span style={{ display: 'none' }} />;
@@ -241,6 +250,7 @@ export default class Service extends PureComponent {
         </Col>
       </Row>);
   }
+
   render() {
     const { form, service } = this.props;
     const { getFieldDecorator } = form;

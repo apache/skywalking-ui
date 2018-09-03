@@ -60,6 +60,7 @@ export default class Application extends PureComponent {
       payload: { variables: this.props.globalVariables },
     });
   }
+
   componentWillUpdate(nextProps) {
     if (nextProps.globalVariables.duration === this.props.globalVariables.duration) {
       return;
@@ -69,6 +70,7 @@ export default class Application extends PureComponent {
       payload: { variables: nextProps.globalVariables },
     });
   }
+
   handleSelect = (selected) => {
     this.props.dispatch({
       type: 'application/saveVariables',
@@ -78,6 +80,7 @@ export default class Application extends PureComponent {
       },
     });
   }
+
   handleChange = (variables) => {
     const { data: { serverInfo, showServer } } = this.props.application;
     if (showServer) {
@@ -89,16 +92,19 @@ export default class Application extends PureComponent {
       });
     }
   }
+
   handleGoApplication = () => {
     this.props.dispatch({
       type: 'application/hideServer',
     });
   }
+
   handleGoServer = () => {
     this.props.dispatch({
       type: 'application/showServer',
     });
   }
+
   handleSelectServer = (serverId, serverInfo) => {
     const { globalVariables: { duration } } = this.props;
     this.props.dispatch({
@@ -106,6 +112,7 @@ export default class Application extends PureComponent {
       payload: { variables: { duration, serverId }, serverInfo },
     });
   }
+
   renderApp = () => {
     const { getFieldDecorator } = this.props.form;
     const { variables: { values, options }, data } = this.props.application;
@@ -214,6 +221,7 @@ export default class Application extends PureComponent {
       </div>
     );
   }
+
   render() {
     const { application, duration } = this.props;
     const { variables, data } = application;

@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 import React, { Component } from 'react';
 import { Chart, Axis, Tooltip, Geom } from 'bizcharts';
 import Debounce from 'lodash-decorators/debounce';
@@ -29,6 +28,7 @@ class Area extends Component {
     limitColor: 'rgb(255, 181, 102)',
     color: 'rgb(102, 181, 255)',
   };
+
   state = {
     autoHideXLabels: false,
   };
@@ -68,26 +68,19 @@ class Area extends Component {
     }
   }
 
-  handleRoot = (n) => {
+  handleRoot = n => {
     this.root = n;
   };
 
-  handleRef = (n) => {
+  handleRef = n => {
     this.node = n;
   };
 
   render() {
-    const {
-      height,
-      title,
-      forceFit = true,
-      data,
-      color,
-      limitColor,
-    } = this.props;
+    const { height, title, forceFit = true, data, color, limitColor } = this.props;
 
     if (!data || data.length < 1) {
-      return (<span style={{ display: 'none' }} />);
+      return <span style={{ display: 'none' }} />;
     }
 
     const { autoHideXLabels } = this.state;

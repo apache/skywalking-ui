@@ -64,6 +64,7 @@ export default class Trace extends PureComponent {
     delete condition.duration;
     this.fetchData(condition, initPaging);
   }
+
   getDefaultDuration = () => {
     return generateDuration({
       from() {
@@ -74,6 +75,7 @@ export default class Trace extends PureComponent {
       },
     });
   }
+
   handleSearch = (e) => {
     if (e) {
       e.preventDefault();
@@ -99,6 +101,7 @@ export default class Trace extends PureComponent {
       this.fetchData({ ...condition, queryDuration: duration.input });
     });
   }
+
   fetchData = (queryCondition, paging = initPaging) => {
     this.props.dispatch({
       type: 'trace/fetchData',
@@ -112,6 +115,7 @@ export default class Trace extends PureComponent {
       },
     });
   }
+
   handleTableChange = (pagination) => {
     const { dispatch, trace: { variables: { values } } } = this.props;
     const condition = {
@@ -133,6 +137,7 @@ export default class Trace extends PureComponent {
     delete condition.duration;
     this.fetchData({ ...condition, queryDuration: values.duration.input }, condition.paging);
   }
+
   handleShowTrace = (traceId) => {
     const { dispatch } = this.props;
     dispatch({
@@ -140,6 +145,7 @@ export default class Trace extends PureComponent {
       payload: { variables: { traceId } },
     });
   }
+
   renderPointChart = (traces) => {
     if (!traces) {
       return null;
@@ -204,6 +210,7 @@ export default class Trace extends PureComponent {
         />
       </Chart>);
   }
+
   renderForm() {
     const { getFieldDecorator } = this.props.form;
     const { trace: { variables: { options } } } = this.props;
@@ -285,6 +292,7 @@ export default class Trace extends PureComponent {
       </Form>
     );
   }
+
   renderPage = (values, total) => {
     if (total < 1) {
       return null;
@@ -317,6 +325,7 @@ export default class Trace extends PureComponent {
         </Col>
       </Row>);
   }
+
   render() {
     const { trace: { variables: { values }, data: { queryBasicTraces } }, loading } = this.props;
     return (

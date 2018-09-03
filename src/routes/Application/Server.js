@@ -30,6 +30,7 @@ const { Description } = DescriptionList;
 
 export default class Server extends PureComponent {
   bytesToMB = list => list.map(_ => parseFloat((_ / (1024 ** 2)).toFixed(2)))
+
   render() {
     const { duration, data } = this.props;
     const { serverInfo, getServerResponseTimeTrend, getServerThroughputTrend,
@@ -39,7 +40,7 @@ export default class Server extends PureComponent {
         <Row gutter={8}>
           <Col xs={24} sm={24} md={24} lg={6} xl={6} style={{ marginTop: 8 }}>
             <Card style={{ marginTop: 8 }} bordered={false}>
-              <DescriptionList col={1} layout="vertical" >
+              <DescriptionList col={1} layout="vertical">
                 <Description term="Host">{serverInfo.host}</Description>
                 <Description term="IPv4">{serverInfo.ipv4 ? serverInfo.ipv4.join() : ''}</Description>
                 <Description term="Pid">{serverInfo.pid}</Description>
@@ -120,14 +121,14 @@ export default class Server extends PureComponent {
                     <div>
                       <div style={{ marginBottom: 10 }}>
                         <span style={{ marginRight: 10 }}>Young GC</span>
-                        <Tag color="#66b5ff" >
+                        <Tag color="#66b5ff">
                           {getGCTrend.youngGCCount.reduce((sum, v) => sum + v)}
                         </Tag>
                         <span>collections</span>
                       </div>
                       <div>
                         <span style={{ marginRight: 10 }}>Old GC</span>
-                        <Tag color="#ffb566" >
+                        <Tag color="#ffb566">
                           {getGCTrend.oldGCount.reduce((sum, v) => sum + v)}
                         </Tag>
                         <span>collections</span>

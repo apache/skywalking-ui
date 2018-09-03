@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 import numeral from 'numeral';
 import './g2';
 import ChartCard from './ChartCard';
@@ -32,7 +31,23 @@ import HeatMap from './HeatMap';
 
 const yuan = val => `&yen; ${numeral(val).format('0,0')}`;
 
+const Charts = {
+  yuan,
+  Bar,
+  Pie,
+  Field,
+  MiniBar,
+  MiniArea,
+  ChartCard,
+  Line,
+  Area,
+  StackBar,
+  Sankey,
+  HeatMap,
+};
+
 export {
+  Charts as default,
   yuan,
   Bar,
   Pie,

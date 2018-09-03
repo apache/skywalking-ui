@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 import React, { Component } from 'react';
 import { Chart, Axis, Tooltip, Geom } from 'bizcharts';
 import Debounce from 'lodash-decorators/debounce';
@@ -64,25 +63,19 @@ class Line extends Component {
     }
   }
 
-  handleRoot = (n) => {
+  handleRoot = n => {
     this.root = n;
   };
 
-  handleRef = (n) => {
+  handleRef = n => {
     this.node = n;
   };
 
   render() {
-    const {
-      height,
-      title,
-      forceFit = true,
-      data,
-      color = 'rgba(24, 144, 255, 0.85)',
-    } = this.props;
+    const { height, title, forceFit = true, data, color = 'rgba(24, 144, 255, 0.85)' } = this.props;
 
     if (!data || data.length < 1) {
-      return (<span style={{ display: 'none' }} />);
+      return <span style={{ display: 'none' }} />;
     }
 
     const { autoHideXLabels } = this.state;

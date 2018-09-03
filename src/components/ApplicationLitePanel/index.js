@@ -17,7 +17,7 @@
 
 import React, { PureComponent } from 'react';
 import { Avatar } from 'antd';
-import DescriptionList from '../../components/DescriptionList';
+import DescriptionList from "../DescriptionList";
 
 const { Description } = DescriptionList;
 
@@ -27,7 +27,7 @@ export default class ApplicationLitePanel extends PureComponent {
     return (
       <div>
         {appInfo.isAlarm ? <Avatar style={{ backgroundColor: '#F04864', marginBottom: 10 }} icon="bell" /> : null}
-        <DescriptionList col={1} layout="vertical" >
+        <DescriptionList col={1} layout="vertical">
           <Description term="SLA">{appInfo.sla}%</Description>
           <Description term="Calls Per Minute">{appInfo.cpm}</Description>
           <Description term="Avg Response Time">{appInfo.avgResponseTime} ms</Description>

@@ -47,6 +47,7 @@ export default class AppTopology extends Base {
       }).concat(eleWithNewUsers.nodes),
     };
   }
+
   supplyUserNode = (edges) => {
     let i = 0;
     const nodes = [];
@@ -76,6 +77,7 @@ export default class AppTopology extends Base {
       }),
     };
   }
+
   bindEvent = (cy) => {
     const { onSelectedApplication } = this.props;
     if (onSelectedApplication) {
@@ -88,6 +90,7 @@ export default class AppTopology extends Base {
       });
     }
   }
+
   getStyle = () => {
     return cytoscape.stylesheet()
       .selector('node[sla]')

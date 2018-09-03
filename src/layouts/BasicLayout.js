@@ -80,6 +80,7 @@ class BasicLayout extends React.PureComponent {
     location: PropTypes.object,
     breadcrumbNameMap: PropTypes.object,
   }
+
   getChildContext() {
     const { location, routerData } = this.props;
     return {
@@ -87,6 +88,7 @@ class BasicLayout extends React.PureComponent {
       breadcrumbNameMap: routerData,
     };
   }
+
   componentWillUpdate(nextProps) {
     const { globalVariables: { duration }, isMonitor } = nextProps;
     if (!isMonitor) {
@@ -104,6 +106,7 @@ class BasicLayout extends React.PureComponent {
       payload: { variables: { duration } },
     });
   }
+
   getPageTitle() {
     const { routerData, location } = this.props;
     const { pathname } = location;
@@ -113,6 +116,7 @@ class BasicLayout extends React.PureComponent {
     }
     return title;
   }
+
   getBashRedirect = () => {
     // According to the url parameter to redirect
     const urlParams = new URL(window.location.href);
@@ -127,17 +131,20 @@ class BasicLayout extends React.PureComponent {
     }
     return redirect;
   }
+
   handleDurationToggle = () => {
     this.props.dispatch({
       type: 'global/changeDurationCollapsed',
       payload: this.props.duration.collapsed,
     });
   }
+
   handleDurationReload = () => {
     this.props.dispatch({
       type: 'global/reloadDuration',
     });
   }
+
   handleDurationSelected = (selectedDuration) => {
     this.props.dispatch({
       type: 'global/changeDuration',
@@ -152,12 +159,14 @@ class BasicLayout extends React.PureComponent {
     }
     this.intervalId = setInterval(this.handleDurationReload, step);
   }
+
   handleMenuCollapse = (collapsed) => {
     this.props.dispatch({
       type: 'global/changeLayoutCollapsed',
       payload: collapsed,
     });
   }
+
   handleMenuClick = ({ key }) => {
     if (key === 'triggerError') {
       this.props.dispatch(routerRedux.push('/exception/trigger'));
@@ -169,6 +178,7 @@ class BasicLayout extends React.PureComponent {
       });
     }
   }
+
   handleNoticeVisibleChange = (visible) => {
     if (visible) {
       this.props.dispatch({
@@ -176,6 +186,7 @@ class BasicLayout extends React.PureComponent {
       });
     }
   }
+
   handleRedirect = (path) => {
     const { history } = this.props;
     if (history.location.pathname === path.pathname) {
@@ -183,6 +194,7 @@ class BasicLayout extends React.PureComponent {
     }
     history.push(path);
   }
+
   render() {
     const {
       isMonitor, collapsed, fetching, notices, routerData, match, location,

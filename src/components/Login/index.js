@@ -50,6 +50,7 @@ class Login extends Component {
     tabs: [],
     active: {},
   };
+
   getChildContext() {
     return {
       tabUtil: {
@@ -78,12 +79,14 @@ class Login extends Component {
       },
     };
   }
+
   onSwitch = (type) => {
     this.setState({
       type,
     });
     this.props.onTabChange(type);
   };
+
   handleSubmit = (e) => {
     e.preventDefault();
     const { active, type } = this.state;
@@ -92,6 +95,7 @@ class Login extends Component {
       this.props.onSubmit(err, values);
     });
   };
+
   render() {
     const { className, children } = this.props;
     const { type, tabs } = this.state;

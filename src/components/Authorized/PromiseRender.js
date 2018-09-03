@@ -23,6 +23,7 @@ export default class PromiseRender extends React.PureComponent {
   state = {
     component: false,
   };
+
   async componentDidMount() {
     this.props.promise
       .then(() => {
@@ -36,6 +37,7 @@ export default class PromiseRender extends React.PureComponent {
         });
       });
   }
+
   render() {
     const C = this.state.component;
     return C ? (

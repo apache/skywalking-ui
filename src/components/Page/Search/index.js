@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 import React, { PureComponent } from 'react';
 import { Select, Spin } from 'antd';
 import debounce from 'lodash.debounce';
@@ -30,20 +29,24 @@ export default class Search extends PureComponent {
     this.originFetchServer = this.fetchServer;
     this.fetchServer = debounce(this.fetchServer, 800);
   }
+
   state = {
     data: [],
     fetching: false,
-  }
+  };
+
   componentDidMount() {
     if (this.props.variables && Object.keys(this.props.variables).length > 0) {
       this.originFetchServer('', !this.props.value.key);
     }
   }
+
   componentDidUpdate(prevProps) {
     if (prevProps.variables !== this.props.variables) {
       this.originFetchServer('', true);
     }
   }
+
   fetchServer = (value, isSelectOne) => {
     if (value === undefined) {
       return;
@@ -62,23 +65,25 @@ export default class Search extends PureComponent {
         },
         query,
       },
-    })
-      .then((body) => {
-        if (!body.data || fetchId !== this.lastFetchId) { // for fetch callback order
-          return;
-        }
-        const list = body.data[Object.keys(body.data)[0]];
-        this.setState({ data: (transform ? list.map(transform) : list), fetching: false });
-        if (isSelectOne && this.state.data.length > 0) {
-          this.handleSelect(this.state.data[0]);
-        }
-      });
-  }
-  handleSelect = (value) => {
+    }).then(body => {
+      if (!body.data || fetchId !== this.lastFetchId) {
+        // for fetch callback order
+        return;
+      }
+      const list = body.data[Object.keys(body.data)[0]];
+      this.setState({ data: transform ? list.map(transform) : list, fetching: false });
+      if (isSelectOne && this.state.data.length > 0) {
+        this.handleSelect(this.state.data[0]);
+      }
+    });
+  };
+
+  handleSelect = value => {
     const { onSelect } = this.props;
     const selected = this.state.data.find(_ => _.key === value.key);
     onSelect(selected);
-  }
+  };
+
   render() {
     const { placeholder, value } = this.props;
     return (
@@ -93,9 +98,13 @@ export default class Search extends PureComponent {
         onSearch={this.fetchServer}
         value={value}
       >
-        {this.state.data.map((_) => {
-            return (<Option key={_.key} value={_.key}>{_.label}</Option>);
-          })}
+        {this.state.data.map(_ => {
+          return (
+            <Option key={_.key} value={_.key}>
+              {_.label}
+            </Option>
+          );
+        })}
       </Select>
     );
   }
