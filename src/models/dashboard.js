@@ -16,57 +16,65 @@
  */
 
 
-import { generateModal } from '../utils/models';
+import { base } from '../utils/models';
 
-export default generateModal({
+export default base({
   namespace: 'dashboard',
   state: {
-    getClusterBrief: {
-      numOfApplication: 0,
+    getGlobalBrief: {
       numOfService: 0,
+      numOfEndpoint: 0,
       numOfDatabase: 0,
       numOfCache: 0,
       numOfMQ: 0,
     },
     getAlarmTrend: {
-      numOfAlarmRate: [],
+      numOfAlarm: [],
     },
     getThermodynamic: {
       nodes: [],
       responseTimeStep: 0,
     },
-    getTopNSlowService: [],
-    getTopNApplicationThroughput: [],
+    getTopNSlowEndpoint: [],
+    getTopNServiceThroughput: [],
   },
   dataQuery: `
     query Dashboard($duration: Duration!) {
-      getClusterBrief(duration: $duration) {
-        numOfApplication
+      getGlobalBrief(duration: $duration) {
         numOfService
+        numOfEndpoint
         numOfDatabase
         numOfCache
         numOfMQ
       }
       getAlarmTrend(duration: $duration) {
-        numOfAlarmRate
+        numOfAlarm
       }
-      getThermodynamic(duration: $duration, type: ALL) {
+      getThermodynamic(duration: $duration, metric: {
+        name: "Endpoint_avg"
+      }) {
         nodes
-        responseTimeStep
+        responseTimeStep: axisYStep
       }
-      getTopNSlowService(duration: $duration, topN: 10) {
-        service {
-          key: id
-          label: name
-          applicationId
-          applicationName
-        }
-        value: avgResponseTime
+      getTopNSlowEndpoint: getTopN(duration: $duration, condition: {
+        name: "slowEndpoint",
+        topN: 10,
+        order: DES,
+        filterScope: ENDPOINT
+      }) {
+        key: id
+        label: name
+        value
       }
-      getTopNApplicationThroughput(duration: $duration, topN: 10) {
-        key: applicationId
-        label: applicationCode
-        value: cpm
+      getTopNServiceThroughput: getTopN(duration: $duration, condition: {
+        name: "serviceThroughput",
+        topN: 10,
+        order: DES,
+        filterScope: SERVICE
+      }) {
+        key: id
+        label: name
+        value
       }
     }
   `,

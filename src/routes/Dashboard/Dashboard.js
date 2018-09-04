@@ -50,50 +50,50 @@ export default class Dashboard extends PureComponent {
 
   render() {
     const { data } = this.props.dashboard;
-    const { numOfAlarmRate } = data.getAlarmTrend;
+    const { numOfAlarm } = data.getAlarmTrend;
     const accuracy = 100;
     let visitData = [];
     let avg = 0;
     let max = 0;
     let min = 0;
-    if (numOfAlarmRate && numOfAlarmRate.length > 0) {
-      visitData = axis(this.props.duration, numOfAlarmRate, ({ x, y }) => ({ x, y: y / accuracy }));
-      avg = avgTimeSeries(numOfAlarmRate) / accuracy;
-      max = numOfAlarmRate.reduce((acc, curr) => { return acc < curr ? curr : acc; }) / accuracy;
-      min = numOfAlarmRate.reduce((acc, curr) => { return acc > curr ? curr : acc; }) / accuracy;
+    if (numOfAlarm && numOfAlarm.length > 0) {
+      visitData = axis(this.props.duration, numOfAlarm, ({ x, y }) => ({ x, y: y / accuracy }));
+      avg = avgTimeSeries(numOfAlarm) / accuracy;
+      max = numOfAlarm.reduce((acc, curr) => { return acc < curr ? curr : acc; }) / accuracy;
+      min = numOfAlarm.reduce((acc, curr) => { return acc > curr ? curr : acc; }) / accuracy;
     }
     return (
       <Panel globalVariables={this.props.globalVariables} onChange={this.handleDurationChange}>
         <Row gutter={8}>
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard
-              title="App"
-              action={this.renderAction('Show application details', '/monitor/application')}
-              avatar={<img style={{ width: 56, height: 56 }} src="img/icon/app.png" alt="app" />}
-              total={data.getClusterBrief.numOfApplication}
+              title="Service"
+              action={this.renderAction('Show service details', '/monitor/service')}
+              avatar={<img style={{ width: 56, height: 56 }} src="img/icon/app.png" alt="service" />}
+              total={data.getGlobalBrief.numOfService}
             />
           </Col>
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard
-              title="Service"
-              action={this.renderAction('Show service details', '/monitor/service')}
-              avatar={<img style={{ width: 56, height: 56 }} src="img/icon/service.png" alt="service" />}
-              total={data.getClusterBrief.numOfService}
+              title="Endpoint"
+              action={this.renderAction('Show endpoint details', '/monitor/endpoint')}
+              avatar={<img style={{ width: 56, height: 56 }} src="img/icon/service.png" alt="endpoint" />}
+              total={data.getGlobalBrief.numOfEndpoint}
             />
           </Col>
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard
               title="DB & Cache"
               avatar={<img style={{ width: 56, height: 56 }} src="img/icon/database.png" alt="database" />}
-              total={data.getClusterBrief.numOfDatabase
-                + data.getClusterBrief.numOfCache}
+              total={data.getGlobalBrief.numOfDatabase
+                + data.getGlobalBrief.numOfCache}
             />
           </Col>
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard
               title="MQ"
               avatar={<img style={{ width: 56, height: 56 }} src="img/icon/mq.png" alt="mq" />}
-              total={data.getClusterBrief.numOfMQ}
+              total={data.getGlobalBrief.numOfMQ}
             />
           </Col>
         </Row>
@@ -147,31 +147,28 @@ export default class Dashboard extends PureComponent {
         <Row gutter={8}>
           <Col xs={24} sm={24} md={24} lg={16} xl={16} style={{ marginTop: 8 }}>
             <Card
-              title="Slow Service"
+              title="Slow Endpoint"
               bordered={false}
               bodyStyle={{ padding: '0px 10px' }}
             >
               <RankList
-                data={data.getTopNSlowService.map(_ => ({ ..._.service, value: _.value }))}
+                data={data.getTopNSlowEndpoint}
                 renderValue={_ => `${_.value} ms`}
-                onClick={(key, item) => redirect(this.props.history, '/monitor/service', { key,
-                    label: item.label,
-                    applicationId: item.applicationId,
-                    applicationName: item.applicationName })}
+                onClick={(key, item) => redirect(this.props.history, '/monitor/endpoint', { key })}
               />
             </Card>
           </Col>
           <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 8 }}>
             <Card
-              title="Application Throughput"
+              title="Service Throughput"
               bordered={false}
               bodyStyle={{ padding: '0px 10px' }}
             >
               <RankList
-                data={data.getTopNApplicationThroughput}
+                data={data.getTopNServiceThroughput}
                 renderValue={_ => `${_.value} cpm`}
                 color="#965fe466"
-                onClick={(key, item) => redirect(this.props.history, '/monitor/application', { key, label: item.label })}
+                onClick={(key, item) => redirect(this.props.history, '/monitor/service', { key })}
               />
             </Card>
           </Col>

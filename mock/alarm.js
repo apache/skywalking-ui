@@ -19,6 +19,9 @@
 import mockjs from 'mockjs';
 
 export default {
+  AlarmTrend: () => mockjs.mock({
+    'numOfAlarm|60': ['@natural(0, 9999)'],
+  }),
   getNoticeAlarm(req, res) {
     return res.json(mockjs.mock(
       {

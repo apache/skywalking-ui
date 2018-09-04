@@ -1,17 +1,43 @@
 import mockjs from 'mockjs';
+import fs from 'fs';
 import { delay } from 'roadhog-api-doc';
-import { getDashboard } from './mock/dashboard';
 import { getTopology } from './mock/topology';
 import { getAllApplication, getApplication } from './mock/application';
 import { searchServer, getServer } from './mock/server';
 import { searchService, getService } from './mock/service';
-import { getAlarm, getNoticeAlarm } from './mock/alarm';
+import { getAlarm, getNoticeAlarm, AlarmTrend } from './mock/alarm';
 import { getAllApplication as getAllApplicationForTrace, getTrace, getSpans } from './mock/trace'
+import { makeExecutableSchema, addMockFunctionsToSchema } from 'graphql-tools';
+import { graphql } from 'graphql';
+import { ClusterBrief } from './mock/metadata';
+import { Thermodynamic } from './mock/metric';
+import { getTopN } from './mock/aggregation';
 
 const noMock = process.env.NO_MOCK === 'true';
 
+const resolvers = {
+  Query: {
+    getTopN
+  }
+}
+
+const schema = makeExecutableSchema({ typeDefs: [
+  fs.readFileSync('query-protocol/common.graphqls', 'utf8'),
+  fs.readFileSync('query-protocol/metadata.graphqls', 'utf8'),
+  fs.readFileSync('query-protocol/alarm.graphqls', 'utf8'),
+  fs.readFileSync('query-protocol/metric.graphqls', 'utf8'),
+  fs.readFileSync('query-protocol/aggregation.graphqls', 'utf8'),
+], resolvers });
+
+addMockFunctionsToSchema({ schema, mocks: {
+  ClusterBrief, Thermodynamic, AlarmTrend
+}, preserveResolvers: true });
+
 const proxy = {
-  'POST /api/dashboard': getDashboard,
+  'POST /api/graphql': (req, res) => {
+    const { query: source, variables: variableValues } = req.body;
+    graphql({ schema, source, variableValues }).then((result) => res.send(result));
+  },
   'POST /api/topology': getTopology,
   'POST /api/application/options': getAllApplication,
   'POST /api/application': getApplication,

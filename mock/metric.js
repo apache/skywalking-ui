@@ -15,19 +15,19 @@
  * limitations under the License.
  */
 
+import mockjs from 'mockjs';
 
-import request from '../utils/request';
-
-export async function query(namespace, playload) {
-  return request(`/api/${namespace}`, {
-    method: 'POST',
-    body: playload,
-  });
-}
-
-export async function exec(playload) {
-  return request(`/api/graphql`, {
-    method: 'POST',
-    body: playload,
-  });
-}
+export default {
+  Thermodynamic: () => ({
+    nodes: () => {
+      const result = [];
+      for (let i = 0; i < 61; i += 1) {
+        for (let j = 0; j < 41; j += 1) {
+          result.push([i, j, mockjs.Random.natural(0, 999)]);
+        }
+      }
+      return result;
+    },
+    responseTimeStep: 50,
+  }),
+};

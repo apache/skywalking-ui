@@ -18,48 +18,12 @@
 import mockjs from 'mockjs';
 
 export default {
-  getDashboard(req, res) {
-    res.json(
-      mockjs.mock({
-        data: {
-          getGlobalBrief: {
-            'numOfService|1-100': 1,
-            'numOfEndpoint|1-100': 1,
-            'numOfDatabase|1-100': 1,
-            'numOfCache|1-100': 1,
-            'numOfMQ|1-100': 1,
-          },
-          getAlarmTrend: {
-            'numOfAlarm|60': ['@natural(0, 9999)'],
-          },
-          getThermodynamic: {
-            nodes: () => {
-              const result = [];
-              for (let i = 0; i < 61; i += 1) {
-                for (let j = 0; j < 41; j += 1) {
-                  result.push([i, j, mockjs.Random.natural(0, 999)]);
-                }
-              }
-              return result;
-            },
-            axisYStep: 50,
-          },
-          'getTopNSlowService|10': [
-            {
-              service: {
-                'key|+1': 1,
-                label: '@url',
-                'applicationId|+1': 1,
-                applicationName: '@name',
-              },
-              'value|200-1000': 1,
-            },
-          ],
-          'getTopNApplicationThroughput|10': [
-            { 'key|+1': 1, label: '@name', 'value|100-10000': 1 },
-          ],
-        },
-      })
-    );
-  },
+  ClusterBrief: () => mockjs.mock({
+      'numOfService|1-100': 1,
+      'numOfEndpoint|1-100': 1,
+      'numOfDatabase|1-100': 1,
+      'numOfCache|1-100': 1,
+      'numOfMQ|1-100': 1,
+    })
+  ,
 };
