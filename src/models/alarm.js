@@ -16,80 +16,78 @@
  */
 
 
-import { generateModal } from '../utils/models';
+import { base } from '../utils/models';
 
 const dataQuery = `
-  query Alarm($keyword: String, $alarmType: AlarmType, $duration:Duration!, $paging: Pagination!){
-    loadAlarmList(keyword: $keyword, alarmType: $alarmType, duration: $duration, paging: $paging) {
-      items {
+  query Alarm($keyword: String, $scope: Scope, $duration:Duration!, $paging: Pagination!){
+    getAlarm(keyword: $keyword, scope: $scope, duration: $duration, paging: $paging) {
+      msgs {
         key: id
-        title
-        content
+        message
         startTime
-        causeType
       }
       total
     }
   }
 `;
 
-export default generateModal({
+export default base({
   namespace: 'alarm',
   state: {
-    applicationAlarmList: {
-      items: [],
-      total: 0,
-    },
-    serverAlarmList: {
-      items: [],
-      total: 0,
-    },
     serviceAlarmList: {
-      items: [],
+      msgs: [],
+      total: 0,
+    },
+    serviceInstanceAlarmList: {
+      msgs: [],
+      total: 0,
+    },
+    endpointAlarmList: {
+      msgs: [],
       total: 0,
     },
   },
   dataQuery,
   reducers: {
-    saveApplicationAlarmList(preState, { payload }) {
-      if (!payload) {
-        return preState;
-      }
-      const { loadAlarmList } = payload;
-      const { data } = preState;
-      return {
-        ...preState,
-        data: {
-          ...data,
-          applicationAlarmList: loadAlarmList,
-        },
-      };
-    },
-    saveServerAlarmList(preState, { payload }) {
-      if (!payload) {
-        return preState;
-      }
-      const { loadAlarmList } = payload;
-      const { data } = preState;
-      return {
-        ...preState,
-        data: {
-          ...data,
-          serverAlarmList: loadAlarmList,
-        },
-      };
-    },
     saveServiceAlarmList(preState, { payload }) {
       if (!payload) {
         return preState;
       }
-      const { loadAlarmList } = payload;
+      const { getAlarm } = payload;
       const { data } = preState;
       return {
         ...preState,
         data: {
           ...data,
-          serviceAlarmList: loadAlarmList,
+          serviceAlarmList: getAlarm,
+        },
+      };
+    },
+    saveServiceInstanceAlarmList(preState, { payload }) {
+      if (!payload) {
+        return preState;
+      }
+      const { getAlarm } = payload;
+      const { data } = preState;
+      return {
+        ...preState,
+        data: {
+          ...data,
+          serviceInstanceAlarmList: getAlarm,
+        },
+      };
+    },
+    saveEndpointAlarmList(preState, { payload }) {
+      if (!payload) {
+        return preState;
+      }
+      const { getAlarm } = payload;
+      const { data } = preState;
+      return {
+        ...preState,
+        data: {
+          ...data,
+          endpointAlarmList: getAlarm,
         },
       };
     },
@@ -101,7 +99,7 @@ export default generateModal({
           dispatch({
             type: 'saveVariables',
             payload: { values: {
-              alarmType: state.type.toUpperCase(),
+              scope: state.type.toUpperCase(),
             } },
           });
         }

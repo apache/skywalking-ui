@@ -5,7 +5,7 @@ import { getTopology } from './mock/topology';
 import { getAllApplication, getApplication } from './mock/application';
 import { searchServer, getServer } from './mock/server';
 import { searchService, getService } from './mock/service';
-import { getAlarm, getNoticeAlarm, AlarmTrend } from './mock/alarm';
+import { Alarms, getNoticeAlarm, AlarmTrend } from './mock/alarm';
 import { TraceBrief, Trace } from './mock/trace'
 import { makeExecutableSchema, addMockFunctionsToSchema } from 'graphql-tools';
 import { graphql } from 'graphql';
@@ -39,6 +39,7 @@ addMockFunctionsToSchema({
     ClusterBrief,
     Thermodynamic,
     AlarmTrend,
+    Alarms,
     TraceBrief,
     Trace,
   },
@@ -58,7 +59,6 @@ const proxy = {
   'POST /api/service/search': searchService,
   'POST /api/service': getService,
   'POST /api/service/options': getAllApplication,
-  'POST /api/alarm': getAlarm,
   'POST /api/notice': getNoticeAlarm,
   'POST /api/login/account': (req, res) => {
     const { password, userName } = req.body;

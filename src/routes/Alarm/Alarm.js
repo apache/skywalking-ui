@@ -30,6 +30,12 @@ const defaultPaging = {
   needTotal: true,
 };
 
+const funcMap = {
+  "SERVICE": "saveServiceAlarmList",
+  "SERVICE_INSTANCE": "saveServiceInstanceAlarmList",
+  "ENDPOINT": "saveEndpointAlarmList",
+}
+
 @connect(state => ({
   alarm: state.alarm,
   globalVariables: state.global.globalVariables,
@@ -38,11 +44,11 @@ const defaultPaging = {
 export default class Alarm extends PureComponent {
   componentDidMount() {
     const { alarm: { variables: { values } } } = this.props;
-    if (!values.alarmType) {
+    if (!values.scope) {
       this.props.dispatch({
         type: 'alarm/saveVariables',
         payload: { values: {
-          alarmType: 'APPLICATION',
+          scope: 'SERVICE',
           paging: defaultPaging,
         } },
       });
@@ -72,26 +78,25 @@ export default class Alarm extends PureComponent {
     });
   }
 
-  changeAlarmType = (alarmType) => {
+  changeScope = (scope) => {
     this.props.dispatch({
       type: 'alarm/saveVariables',
       payload: { values: {
-        alarmType,
+        scope,
         paging: defaultPaging,
       } },
     });
   }
 
   handleChange = (variables) => {
-    const type = variables.alarmType.charAt(0) + variables.alarmType.slice(1).toLowerCase();
     const { paging = defaultPaging } = variables;
     this.props.dispatch({
       type: 'alarm/fetchData',
-      payload: { variables: { ...variables, paging }, reducer: `save${type}AlarmList` },
+      payload: { variables: { ...variables, paging }, reducer: funcMap[variables.scope] },
     });
   }
 
-  renderList = ({ items, total }) => {
+  renderList = ({ msgs, total }) => {
     const { alarm: { variables: { values: { paging = defaultPaging } } }, loading } = this.props;
     const pagination = {
       pageSize: paging.pageSize,
@@ -104,20 +109,19 @@ export default class Alarm extends PureComponent {
         className="demo-loadmore-list"
         loading={loading}
         itemLayout="horizontal"
-        dataSource={items}
+        dataSource={msgs}
         pagination={pagination}
-        renderItem={item => (
+        renderItem={msg => (
           <List.Item>
             <List.Item.Meta
               avatar={
                 <Avatar
-                  style={item.causeType === 'LOW_SUCCESS_RATE' ? { backgroundColor: '#e68a00' } : { backgroundColor: '#b32400' }}
-                  icon={item.causeType === 'LOW_SUCCESS_RATE' ? 'clock-circle-o' : 'close'}
+                  style={{ backgroundColor: '#b32400' }}
+                  icon='close'
                 />}
-              title={item.title}
-              description={item.content}
+              description={msg.message}
             />
-            <div>{item.startTime}</div>
+            <div>{msg.startTime}</div>
           </List.Item>
         )}
       />);
@@ -145,10 +149,10 @@ export default class Alarm extends PureComponent {
           bordered={false}
           extra={extraContent}
         >
-          <Tabs activeKey={values.alarmType} onChange={this.changeAlarmType}>
-            <TabPane tab="Application" key="APPLICATION">{this.renderList(data.applicationAlarmList)}</TabPane>
-            <TabPane tab="Server" key="SERVER">{this.renderList(data.serverAlarmList)}</TabPane>
+          <Tabs activeKey={values.scope} onChange={this.changeScope}>
             <TabPane tab="Service" key="SERVICE">{this.renderList(data.serviceAlarmList)}</TabPane>
+            <TabPane tab="ServiceInstance" key="SERVICE_INSTANCE">{this.renderList(data.serviceInstanceAlarmList)}</TabPane>
+            <TabPane tab="Endpoint" key="ENDPOINT">{this.renderList(data.endpointAlarmList)}</TabPane>
           </Tabs>
         </Card>
       </Panel>

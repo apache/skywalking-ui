@@ -50,6 +50,15 @@ export default {
       }
     ));
   },
+  Alarms: () => mockjs.mock({
+    'msgs|10': [{
+        'id|+1': 1,
+        message: '@paragraph(1)',
+        startTime: '@datetime("yyyy-MM-dd HH:mm:ss")',
+        scope: 'SERVICE',
+      }],
+      total: '@natural(5, 50)',
+  }),
   getAlarm(req, res) {
     const { variables: { alarmType } } = req.body;
     switch (alarmType) {
