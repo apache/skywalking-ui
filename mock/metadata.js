@@ -26,4 +26,10 @@ export default {
       'numOfMQ|1-100': 1,
     })
   ,
+  getAllServices: () => {
+    const data = mockjs.mock({
+      'serviceId|20-50': [{ 'id|+1': 3, name: function() { return `app-${this.id}`; } }], // eslint-disable-line
+    });
+    return data.serviceId;
+  }
 };

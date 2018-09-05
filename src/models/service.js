@@ -87,7 +87,7 @@ const spanQuery = `query Spans($traceId: ID!) {
         parentSpanId
         type
       }
-      applicationCode
+      serviceCode
       startTime
       endTime
       operationName

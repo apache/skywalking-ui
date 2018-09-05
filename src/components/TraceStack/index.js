@@ -54,8 +54,8 @@ class TraceStack extends PureComponent {
     let colorIndex = 0;
     spans.forEach((span) => {
       const { colorMap } = this.state;
-      if (!colorMap[span.applicationCode]) {
-        colorMap[span.applicationCode] = colors[colorIndex];
+      if (!colorMap[span.serviceCode]) {
+        colorMap[span.serviceCode] = colors[colorIndex];
         colorIndex = (colorIndex < colors.length - 1) ? (colorIndex + 1) : 0;
       }
       this.buildNode(span);
@@ -80,7 +80,7 @@ class TraceStack extends PureComponent {
   buildNode = (span) => {
     const { nodes, idMap } = this.state;
     const node = {};
-    node.applicationCode = span.applicationCode;
+    node.serviceCode = span.serviceCode;
     node.startTime = span.startTime;
     node.endTime = span.endTime;
     node.duration = span.endTime - span.startTime;
@@ -153,7 +153,7 @@ class TraceStack extends PureComponent {
     const positionMap = {};
     nodes.forEach((node, index) => {
       const { startOffset: startTime, duration, content,
-        applicationCode, spanSegId, parentSpanSegId } = node;
+        serviceCode, spanSegId, parentSpanSegId } = node;
 
       const rectWith = ((duration * width) / (bap[1] * (10 ** (bap[0] - 4)))) / 100;
       const beginX = ((startTime * width) / (bap[1] * (10 ** (bap[0] - 4)))) / 100;
@@ -176,7 +176,7 @@ class TraceStack extends PureComponent {
         .on('mouseover', () => { this.selectTimeline(container, true); })
         .on('mouseout', () => { this.selectTimeline(container, false); })
         .on('click', () => { this.showSpanModal(node, position, container); })
-        .style('fill', colorMap[applicationCode]);
+        .style('fill', colorMap[serviceCode]);
 
       bar.append('text')
         .attr('x', beginX + 5)
