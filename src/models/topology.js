@@ -16,41 +16,30 @@
  */
 
 
-import { generateModal } from '../utils/models';
+import { base } from '../utils/models';
 
-export default generateModal({
+export default base({
   namespace: 'topology',
   state: {
-    getClusterTopology: {
+    getGlobalTopology: {
       nodes: [],
       calls: [],
     },
   },
   dataQuery: `
     query Topology($duration: Duration!) {
-      getClusterTopology(duration: $duration) {
+      getGlobalTopology(duration: $duration) {
         nodes {
           id
           name
           type
-          ... on ApplicationNode {
-            sla
-            cpm
-            avgResponseTime
-            apdex
-            isAlarm
-            numOfServer
-            numOfServerAlarm
-            numOfServiceAlarm
-          }
+          isReal
         }
         calls {
           source
           target
-          isAlert
           callType
           cpm
-          avgResponseTime
         }
       }
     }

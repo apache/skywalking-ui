@@ -1,10 +1,8 @@
-import mockjs from 'mockjs';
 import fs from 'fs';
 import { delay } from 'roadhog-api-doc';
-import { getTopology, getServiceTopology } from './mock/topology';
+import { getTopology, getGlobalTopology, getServiceTopology } from './mock/topology';
 import { getAllApplication, getApplication } from './mock/application';
 import { searchServer, getServer } from './mock/server';
-import { searchService, getService } from './mock/service';
 import { Alarms, getNoticeAlarm, AlarmTrend } from './mock/alarm';
 import { TraceBrief, Trace } from './mock/trace'
 import { makeExecutableSchema, addMockFunctionsToSchema } from 'graphql-tools';
@@ -19,6 +17,7 @@ const resolvers = {
   Query: {
     getTopN,
     getAllServices,
+    getGlobalTopology,
     getServiceTopology,
     searchEndpoint,
   }
@@ -60,9 +59,6 @@ const proxy = {
   'POST /api/application': getApplication,
   'POST /api/server/search': searchServer,
   'POST /api/server': getServer,
-  'POST /api/service/search': searchService,
-  'POST /api/service': getService,
-  'POST /api/service/options': getAllApplication,
   'POST /api/notice': getNoticeAlarm,
   'POST /api/login/account': (req, res) => {
     const { password, userName } = req.body;

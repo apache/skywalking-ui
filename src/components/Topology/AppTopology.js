@@ -28,23 +28,10 @@ const conf = {
 export default class AppTopology extends Base {
   setUp = (elements) => {
     const { nodes } = elements;
-    const cpmArray = nodes.filter(_ => _.data && _.data.cpm).map(_ => _.data.cpm);
-    const minCPM = Math.min(...cpmArray);
-    const maxCPM = Math.max(...cpmArray);
-    const { nodeSize: { min, max } } = conf;
-    const scale = maxCPM > minCPM ? (max - min) / (maxCPM - minCPM) : 0;
     const eleWithNewUsers = this.supplyUserNode(elements.edges);
     return {
       edges: eleWithNewUsers.edges,
-      nodes: nodes.filter(_ => !_.data || _.data.id !== '1').map((_) => {
-        return {
-          ..._,
-          data: {
-            ..._.data,
-            size: (_.data && _.data.cpm && scale > 0) ? (scale * (_.data.cpm - minCPM)) + min : min,
-          },
-        };
-      }).concat(eleWithNewUsers.nodes),
+      nodes: nodes.filter(_ => !_.data || _.data.id !== '1').concat(eleWithNewUsers.nodes),
     };
   }
 
@@ -81,11 +68,11 @@ export default class AppTopology extends Base {
   bindEvent = (cy) => {
     const { onSelectedApplication } = this.props;
     if (onSelectedApplication) {
-      cy.on('select', 'node[sla]', (evt) => {
+      cy.on('select', 'node[?isReal]', (evt) => {
         const node = evt.target;
         onSelectedApplication(node.data());
       });
-      cy.on('unselect', 'node[sla]', () => {
+      cy.on('unselect', 'node[?isReal]', () => {
         onSelectedApplication();
       });
     }
@@ -93,37 +80,32 @@ export default class AppTopology extends Base {
 
   getStyle = () => {
     return cytoscape.stylesheet()
-      .selector('node[sla]')
+      .selector('node[?isReal]')
       .css({
-        width: 'data(size)',
-        height: 'data(size)',
+        width: 60,
+        height: 60,
         'text-valign': 'bottom',
         'text-halign': 'center',
         'font-family': 'Microsoft YaHei',
         content: 'data(name)',
         'text-margin-y': 10,
-        'border-width': ele => (ele.data('isAlarm') ? 10 : 0),
+        'border-width': 0,
         'border-color': '#A8071A',
-        'pie-1-background-color': '#2FC25B',
-        'pie-1-background-size': 'data(sla)',
-        'pie-1-background-opacity': 0.8,
-        'pie-2-background-color': '#F04864',
-        'pie-2-background-size': '100 - data(sla)',
-        'pie-2-background-opacity': 0.8,
+        'background-image': ele => `img/node/${ele.data('type') ? ele.data('type').toUpperCase() : 'UNDEFINED'}.png`,
+        'background-width': '60%',
+        'background-height': '60%',
+        'background-color': '#fff',
       })
       .selector(':selected')
       .css({
-        'pie-size': '80%',
-        'background-color': ele => (ele.data('isAlarm') ? '#A8071A' : '#1890FF'),
-        'pie-1-background-opacity': 1,
-        'pie-2-background-opacity': 1,
+        'border-width': 4,
       })
       .selector('.faded')
       .css({
         opacity: 0.25,
         'text-opacity': 0,
       })
-      .selector('node[!sla]')
+      .selector('node[!isReal]')
       .css({
         width: 60,
         height: 60,
@@ -144,10 +126,10 @@ export default class AppTopology extends Base {
         'control-point-step-size': 100,
         'target-arrow-shape': 'triangle',
         'arrow-scale': 1.7,
-        'target-arrow-color': ele => (ele.data('isAlert') ? 'rgb(204, 0, 51)' : 'rgb(147, 198, 174)'),
-        'line-color': ele => (ele.data('isAlert') ? 'rgb(204, 0, 51)' : 'rgb(147, 198, 174)'),
+        'target-arrow-color': 'rgb(147, 198, 174)',
+        'line-color': 'rgb(147, 198, 174)',
         width: 3,
-        label: ele => `${ele.data('callType')} \n ${ele.data('cpm')} cpm / ${ele.data('avgResponseTime')} ms`,
+        label: ele => `${ele.data('callType')} \n ${ele.data('cpm')} cpm`,
         'text-wrap': 'wrap',
         color: 'rgb(110, 112, 116)',
         'text-rotation': 'autorotate',

@@ -109,16 +109,16 @@ export default class Topology extends PureComponent {
   }
 
   filter = () => {
-    const { topology: { variables: { appRegExps }, data: { getClusterTopology } } } = this.props;
+    const { topology: { variables: { appRegExps }, data: { getGlobalTopology } } } = this.props;
     if (!appRegExps) {
-      return getClusterTopology;
+      return getGlobalTopology;
     }
-    const nn = getClusterTopology.nodes.filter(_ => appRegExps
+    const nn = getGlobalTopology.nodes.filter(_ => appRegExps
       .findIndex(r => _.name.match(r)) > -1);
-    const cc = getClusterTopology.calls.filter(_ => nn
+    const cc = getGlobalTopology.calls.filter(_ => nn
       .findIndex(n => n.id === _.source || n.id === _.target) > -1);
     return {
-      nodes: getClusterTopology.nodes.filter(_ => cc
+      nodes: getGlobalTopology.nodes.filter(_ => cc
         .findIndex(c => c.source === _.id || c.target === _.id) > -1),
       calls: cc,
     };
@@ -206,7 +206,7 @@ export default class Topology extends PureComponent {
                   tokenSeparators={[',']}
                   value={appFilters}
                 >
-                  {data.getClusterTopology.nodes.filter(_ => _.sla)
+                  {data.getGlobalTopology.nodes.filter(_ => _.sla)
                     .map(_ => <Option key={_.name}>{_.name}</Option>)}
                 </Select>
                 <DescriptionList layout="vertical">

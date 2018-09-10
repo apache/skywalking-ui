@@ -68,6 +68,95 @@ export default {
       calls,
     };
   },
+  getGlobalTopology: () => {
+    const application = mockjs.mock({
+      'nodes|2-3': [
+        {
+          'id|+1': 2,
+          name: '@name',
+          'type|1': ['DUBBO', 'tomcat', 'SPRINGMVC'],
+          isReal: true,
+        },
+      ],
+    });
+    const users = mockjs.mock({
+      nodes: [
+        {
+          id: 1,
+          name: 'User',
+          type: 'USER',
+          isReal: false,
+        },
+      ],
+    });
+    const resources = mockjs.mock({
+      'nodes|5': [
+        {
+          'id|+1': 200,
+          name: '@name',
+          'type|1': ['Oracle', 'MYSQL', 'REDIS'],
+          isReal: false,
+        },
+      ],
+    });
+    const nodes = users.nodes.concat(application.nodes, resources.nodes);
+    const userConnectApplication = mockjs.mock({
+      calls: [
+        {
+          source: 1,
+          target: 2,
+          'callType|1': ['rpc', 'http', 'dubbo'],
+          'cpm|100-2000': 1,
+        },
+        {
+          source: 2,
+          target: 3,
+          'callType|1': ['rpc', 'http', 'dubbo'],
+          'cpm|100-2000': 1,
+        },
+        {
+          source: 3,
+          target: 2,
+          'callType|1': ['rpc', 'http', 'dubbo'],
+          'cpm|100-2000': 1,
+        },
+        {
+          source: 2,
+          target: 200,
+          'callType|1': ['rpc', 'http', 'dubbo'],
+          'cpm|100-2000': 1,
+        },
+        {
+          source: 2,
+          target: 201,
+          'callType|1': ['rpc', 'http', 'dubbo'],
+          'cpm|100-2000': 1,
+        },
+        {
+          source: 3,
+          target: 202,
+          'callType|1': ['rpc', 'http', 'dubbo'],
+          'cpm|100-2000': 1,
+        },
+        {
+          source: 3,
+          target: 203,
+          'callType|1': ['rpc', 'http', 'dubbo'],
+          'cpm|100-2000': 1,
+        },
+        {
+          source: 3,
+          target: 204,
+          'callType|1': ['rpc', 'http', 'dubbo'],
+          'cpm|100-2000': 1,
+        },
+      ],
+    });
+    return {
+      nodes,
+      calls: userConnectApplication.calls,
+    };
+  },
   getTopology(req, res) {
     res.json(mockjs.mock(
       {
