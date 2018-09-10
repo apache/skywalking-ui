@@ -22,6 +22,11 @@ export function axis({ display }, data, tranformFunc) {
     (tranformFunc ? tranformFunc({ x: v, y: data[i] }) : { x: v, y: data[i] }));
 }
 
+export function axisY({ display }, data, tranformFunc) {
+  return display.range.map((v, i) =>
+    (tranformFunc ? tranformFunc({ x: v, y: data[i] ? data[i].value : null }) : { x: v, y: data[i] ? data[i].value : null }));
+}
+
 export function generateDuration({ from, to }) {
   const start = from();
   const end = to();

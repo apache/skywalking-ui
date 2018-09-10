@@ -27,6 +27,13 @@ export function avgTimeSeries(list) {
       (acc, curr) => acc + curr) / filteredList.length).toFixed(2)) : 0;
 }
 
+export function avgTS(list) {
+  const filteredList = list.map(_ => _.value).filter(_ => _ > 0);
+  return filteredList.length > 0 ?
+    parseFloat((filteredList.reduce(
+      (acc, curr) => acc + curr) / filteredList.length).toFixed(2)) : 0;
+}
+
 export function getPlainNode(nodeList, parentPath = '') {
   const arr = [];
   nodeList.forEach((node) => {

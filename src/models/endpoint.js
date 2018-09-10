@@ -16,12 +16,12 @@
  */
 
 
-import { generateModal, saveOptionsInState } from '../utils/models';
-import { query } from '../services/graphql';
+import { base, saveOptionsInState } from '../utils/models';
+import { exec } from '../services/graphql';
 
 const optionsQuery = `
-  query ApplicationOption($duration: Duration!) {
-    applicationId: getAllApplication(duration: $duration) {
+  query ServiceOption($duration: Duration!) {
+    serviceId: getAllServices(duration: $duration) {
       key: id
       label: name
     }
@@ -29,15 +29,30 @@ const optionsQuery = `
 `;
 
 const dataQuery = `
-  query Service($serviceId: ID!, $duration: Duration!, $traceCondition: TraceQueryCondition!) {
-    getServiceResponseTimeTrend(serviceId: $serviceId, duration: $duration) {
-      trendList
+  query Endpoint($endpointId: ID!, $duration: Duration!, $traceCondition: TraceQueryCondition!) {
+    getEndpointResponseTimeTrend: getLinearIntValues(metric: {
+      name: "endpointResponseTimeTrend"
+      id: $endpointId
+    }, duration: $duration) {
+      values {
+        value
+      }
     }
-    getServiceThroughputTrend(serviceId: $serviceId, duration: $duration) {
-      trendList
+    getEndpointThroughputTrend: getLinearIntValues(metric: {
+      name: "endpointResponseTimeTrend"
+      id: $endpointId
+    }, duration: $duration) {
+      values {
+        value
+      }
     }
-    getServiceSLATrend(serviceId: $serviceId, duration: $duration) {
-      trendList
+    getEndpointSLATrend: getLinearIntValues(metric: {
+      name: "endpointResponseTimeTrend"
+      id: $endpointId
+    }, duration: $duration) {
+      values {
+        value
+      }
     }
     queryBasicTraces(condition: $traceCondition) {
       traces {
@@ -49,26 +64,6 @@ const dataQuery = `
         traceIds
       }
       total
-    }
-    getServiceTopology(serviceId: $serviceId, duration: $duration) {
-      nodes {
-        id
-        name
-        type
-        ... on ServiceNode {
-          sla
-          calls
-          numOfServiceAlarm
-        }
-      }
-      calls {
-        source
-        target
-        isAlert
-        callType
-        cpm
-        avgResponseTime
-      }
     }
   }
 `;
@@ -111,19 +106,19 @@ const spanQuery = `query Spans($traceId: ID!) {
   }
 }`;
 
-export default generateModal({
-  namespace: 'service',
+export default base({
+  namespace: 'endpoint',
   state: {
-    getServiceResponseTimeTrend: {
-      trendList: [],
+    getEndpointResponseTimeTrend: {
+      values: [],
     },
-    getServiceThroughputTrend: {
-      trendList: [],
+    getEndpointThroughputTrend: {
+      values: [],
     },
-    getServiceSLATrend: {
-      trendList: [],
+    getEndpointSLATrend: {
+      values: [],
     },
-    getServiceTopology: {
+    getEndpointTopology: {
       nodes: [],
       calls: [],
     },
@@ -136,7 +131,7 @@ export default generateModal({
   optionsQuery,
   effects: {
     *fetchSpans({ payload }, { call, put }) {
-      const response = yield call(query, 'spans', { query: spanQuery, variables: payload.variables });
+      const response = yield call(exec, { query: spanQuery, variables: payload.variables });
       yield put({
         type: 'saveSpans',
         payload: response,
@@ -157,21 +152,21 @@ export default generateModal({
         },
       };
     },
-    saveAppInfo(preState, { payload: allOptions }) {
+    saveServiceInfo(preState, { payload: allOptions }) {
       const rawState = saveOptionsInState(null, preState, { payload: allOptions });
       const { data } = rawState;
-      if (data.appInfo) {
+      if (data.serviceInfo) {
         return rawState;
       }
       const { variables: { values } } = rawState;
-      if (!values.applicationId) {
+      if (!values.serviceId) {
         return rawState;
       }
       return {
         ...rawState,
         data: {
           ...data,
-          appInfo: { applicationId: values.applicationId },
+          serviceInfo: { serviceId: values.serviceId },
         },
       };
     },
@@ -189,26 +184,25 @@ export default generateModal({
   subscriptions: {
     setup({ history, dispatch }) {
       return history.listen(({ pathname, state }) => {
-        if (pathname === '/monitor/service' && state) {
-          console.info(state);
+        if (pathname === '/monitor/endpoint' && state) {
           dispatch({
             type: 'saveVariables',
             payload: {
               values: {
-                serviceId: state.key,
-                applicationId: state.applicationId,
+                endpointId: state.key,
+                serviceId: state.serviceId,
               },
               labels: {
-                serviceId: state.label,
-                applicationId: state.applicationName,
+                endpointId: state.label,
+                serviceId: state.serviceName,
               },
             },
           });
           dispatch({
             type: 'saveData',
             payload: {
-              appInfo: { applicationId: state.applicationId },
-              serviceInfo: { key: state.key, label: state.label },
+              serviceInfo: { serviceId: state.serviceId },
+              endpointInfo: { key: state.key, label: state.label },
             },
           });
         }

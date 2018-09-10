@@ -1,7 +1,7 @@
 import mockjs from 'mockjs';
 import fs from 'fs';
 import { delay } from 'roadhog-api-doc';
-import { getTopology } from './mock/topology';
+import { getTopology, getServiceTopology } from './mock/topology';
 import { getAllApplication, getApplication } from './mock/application';
 import { searchServer, getServer } from './mock/server';
 import { searchService, getService } from './mock/service';
@@ -9,8 +9,8 @@ import { Alarms, getNoticeAlarm, AlarmTrend } from './mock/alarm';
 import { TraceBrief, Trace } from './mock/trace'
 import { makeExecutableSchema, addMockFunctionsToSchema } from 'graphql-tools';
 import { graphql } from 'graphql';
-import { ClusterBrief, getAllServices } from './mock/metadata';
-import { Thermodynamic } from './mock/metric';
+import { ClusterBrief, getAllServices, searchEndpoint } from './mock/metadata';
+import { IntValues, Thermodynamic } from './mock/metric';
 import { getTopN } from './mock/aggregation';
 
 const noMock = process.env.NO_MOCK === 'true';
@@ -19,6 +19,8 @@ const resolvers = {
   Query: {
     getTopN,
     getAllServices,
+    getServiceTopology,
+    searchEndpoint,
   }
 }
 
@@ -30,6 +32,7 @@ const schema = makeExecutableSchema({ typeDefs: [
   fs.readFileSync('query-protocol/metric.graphqls', 'utf8'),
   fs.readFileSync('query-protocol/aggregation.graphqls', 'utf8'),
   fs.readFileSync('query-protocol/trace.graphqls', 'utf8'),
+  fs.readFileSync('query-protocol/topology.graphqls', 'utf8'),
 ], resolvers });
 
 addMockFunctionsToSchema({
@@ -42,6 +45,7 @@ addMockFunctionsToSchema({
     Alarms,
     TraceBrief,
     Trace,
+    IntValues,
   },
   preserveResolvers: true 
 });

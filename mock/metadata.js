@@ -28,8 +28,14 @@ export default {
   ,
   getAllServices: () => {
     const data = mockjs.mock({
-      'serviceId|20-50': [{ 'id|+1': 3, name: function() { return `app-${this.id}`; } }], // eslint-disable-line
+      'serviceId|20-50': [{ 'id|+1': 3, name: function() { return `service-${this.id}`; } }], // eslint-disable-line
     });
     return data.serviceId;
-  }
+  },
+  searchEndpoint: () => {
+    const data = mockjs.mock({
+      'endpointId|20-50': [{ 'id|+1': 3, name: function() { return `endpoint-${this.id}`; } }], // eslint-disable-line
+    });
+    return data.endpointId;
+  },
 };

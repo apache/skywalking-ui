@@ -30,4 +30,12 @@ export default {
     },
     responseTimeStep: 50,
   }),
+  IntValues: () => (mockjs.mock(
+    {
+      'values|60': [{
+        'id|+1': 1,
+        value: '@natural(0, 1000)',
+      }],
+    }
+  )),
 };

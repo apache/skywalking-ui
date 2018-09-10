@@ -19,6 +19,55 @@
 import mockjs from 'mockjs';
 
 export default {
+  getServiceTopology: () => {
+    const upNodes = mockjs.mock({
+      'nodes|1-5': [
+        {
+          'id|+1': 100,
+          name: '@url',
+          'type|1': ['DUBBO', 'USER', 'SPRINGMVC'],
+        },
+      ],
+    });
+    const centerNodes = mockjs.mock({
+      nodes: [
+        {
+          'id|+1': 1,
+          name: '@url',
+          'type|1': ['DUBBO', 'tomcat', 'SPRINGMVC'],
+        },
+      ],
+    });
+    const downNodes = mockjs.mock({
+      'nodes|2-5': [
+        {
+          'id|+1': 200,
+          name: '@url',
+          'type|1': ['Oracle', 'MYSQL', 'REDIS'],
+        },
+      ],
+    });
+    downNodes.nodes.push({ id: -111 });
+    const nodes = upNodes.nodes.concat(centerNodes.nodes, downNodes.nodes);
+    const calls = upNodes.nodes.map(node => (mockjs.mock({
+      source: node.id,
+      target: 1,
+      'isAlert|1': true,
+      'callType|1': ['rpc', 'http', 'dubbo'],
+      'cpm|0-1000': 1,
+    }))).concat(downNodes.nodes.map(node => (mockjs.mock({
+      source: 1,
+      target: node.id,
+      'isAlert|1': true,
+      'callType|1': ['rpc', 'http', 'dubbo'],
+      'cpm|0-2000': 1,
+    }))));
+    calls.push({ source: '-175', target: 1, isAlert: false, callType: 'GRPC', cpm: 0, avgResponseTime: 52 });
+    return {
+      nodes,
+      calls,
+    };
+  },
   getTopology(req, res) {
     res.json(mockjs.mock(
       {

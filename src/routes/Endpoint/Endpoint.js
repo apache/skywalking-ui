@@ -21,9 +21,9 @@ import { connect } from 'dva';
 import { Row, Col, Form, Button, Icon, Select } from 'antd';
 import {
   ChartCard, MiniArea, MiniBar, Sankey,
-} from '../../components/Charts';
-import { axis } from '../../utils/time';
-import { avgTimeSeries } from '../../utils/utils';
+} from 'components/Charts';
+import { axisY } from '../../utils/time';
+import { avgTS } from '../../utils/utils';
 import { Panel, Search } from '../../components/Page';
 import TraceList from '../../components/Trace/TraceList';
 import TraceTimeline from '../Trace/TraceTimeline';
@@ -32,29 +32,29 @@ const { Item: FormItem } = Form;
 const { Option } = Select;
 
 @connect(state => ({
-  service: state.service,
+  endpoint: state.endpoint,
   duration: state.global.duration,
   globalVariables: state.global.globalVariables,
-  loading: state.loading.models.service,
+  loading: state.loading.models.endpoint,
 }))
 @Form.create({
   mapPropsToFields(props) {
-    const { variables: { values, labels } } = props.service;
+    const { variables: { values, labels } } = props.endpoint;
     return {
-      applicationId: Form.createFormField({
-        value: { key: values.applicationId ? values.applicationId : '', label: labels.applicationId ? labels.applicationId : '' },
-      }),
       serviceId: Form.createFormField({
         value: { key: values.serviceId ? values.serviceId : '', label: labels.serviceId ? labels.serviceId : '' },
+      }),
+      endpointId: Form.createFormField({
+        value: { key: values.endpointId ? values.endpointId : '', label: labels.endpointId ? labels.endpointId : '' },
       }),
     };
   },
 })
-export default class Service extends PureComponent {
+export default class Endpoint extends PureComponent {
   componentDidMount() {
     this.props.dispatch({
-      type: 'service/initOptions',
-      payload: { variables: this.props.globalVariables, reducer: 'saveAppInfo' },
+      type: 'endpoint/initOptions',
+      payload: { variables: this.props.globalVariables, reducer: 'saveServiceInfo' },
     });
   }
 
@@ -63,21 +63,21 @@ export default class Service extends PureComponent {
       return;
     }
     this.props.dispatch({
-      type: 'service/initOptions',
-      payload: { variables: nextProps.globalVariables, reducer: 'saveAppInfo' },
+      type: 'endpoint/initOptions',
+      payload: { variables: nextProps.globalVariables, reducer: 'saveServiceInfo' },
     });
   }
 
-  handleAppSelect = (selected) => {
+  handleServiceSelect = (selected) => {
     this.props.dispatch({
-      type: 'service/save',
+      type: 'endpoint/save',
       payload: {
         variables: {
-          values: { applicationId: selected.key, serviceId: null },
-          labels: { applicationId: selected.label, serviceId: null },
+          values: { serviceId: selected.key, endpointId: null },
+          labels: { serviceId: selected.label, endpointId: null },
         },
         data: {
-          appInfo: { applicationId: selected.key },
+          serviceInfo: { serviceId: selected.key },
         },
       },
     });
@@ -85,36 +85,36 @@ export default class Service extends PureComponent {
 
   handleSelect = (selected) => {
     this.props.dispatch({
-      type: 'service/save',
+      type: 'endpoint/save',
       payload: {
         variables: {
-          values: { serviceId: selected.key },
-          labels: { serviceId: selected.label },
+          values: { endpointId: selected.key },
+          labels: { endpointId: selected.label },
         },
         data: {
-          serviceInfo: selected,
+          endpointInfo: selected,
         },
       },
     });
   }
 
   handleChange = (variables) => {
-    const { variables: { values } } = this.props.service;
-    if (!values.applicationId) {
+    const { variables: { values } } = this.props.endpoint;
+    if (!values.serviceId) {
       return;
     }
-    const { key: serviceId, label: serviceName, duration } = variables;
-    if (!serviceId) {
+    const { key: endpointId, label: endpointName, duration } = variables;
+    if (!endpointId) {
       return;
     }
     this.props.dispatch({
-      type: 'service/fetchData',
+      type: 'endpoint/fetchData',
       payload: { variables: {
-        serviceId,
+        endpointId,
         duration,
         traceCondition: {
-          applicationId: values.applicationId,
-          operationName: serviceName,
+          endpointId: parseInt(values.endpointId, 10),
+          operationName: endpointName,
           queryDuration: duration,
           traceState: 'ALL',
           queryOrder: 'BY_DURATION',
@@ -131,30 +131,30 @@ export default class Service extends PureComponent {
   handleShowTrace = (traceId) => {
     const { dispatch } = this.props;
     dispatch({
-      type: 'service/fetchSpans',
+      type: 'endpoint/fetchSpans',
       payload: { variables: { traceId } },
     });
   }
 
   handleGoBack = () => {
     this.props.dispatch({
-      type: 'service/hideTimeline',
+      type: 'endpoint/hideTimeline',
     });
   }
 
-  edgeWith = edge => edge.cpm * edge.avgResponseTime;
+  edgeWith = edge => edge.cpm;
 
   renderPanel = () => {
-    const { service, duration } = this.props;
-    const { variables: { values }, data } = service;
-    const { getServiceResponseTimeTrend, getServiceThroughputTrend,
-      getServiceSLATrend, getServiceTopology, queryBasicTraces } = data;
-    if (!values.serviceId) {
+    const { endpoint, duration } = this.props;
+    const { variables: { values }, data } = endpoint;
+    const { getEndpointResponseTimeTrend, getEndpointThroughputTrend,
+      getEndpointSLATrend, getEndpointTopology, queryBasicTraces } = data;
+    if (!values.endpointId) {
       return null;
     }
     return (
       <Panel
-        variables={data.serviceInfo}
+        variables={data.endpointInfo}
         globalVariables={this.props.globalVariables}
         onChange={this.handleChange}
       >
@@ -162,35 +162,35 @@ export default class Service extends PureComponent {
           <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 8 }}>
             <ChartCard
               title="Avg Throughput"
-              total={`${avgTimeSeries(getServiceThroughputTrend.trendList)} cpm`}
+              total={`${avgTS(getEndpointThroughputTrend.values)} cpm`}
               contentHeight={46}
             >
               <MiniArea
                 color="#975FE4"
-                data={axis(duration, getServiceThroughputTrend.trendList)}
+                data={axisY(duration, getEndpointThroughputTrend.values)}
               />
             </ChartCard>
           </Col>
           <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 8 }}>
             <ChartCard
               title="Avg Response Time"
-              total={`${avgTimeSeries(getServiceResponseTimeTrend.trendList)} ms`}
+              total={`${avgTS(getEndpointResponseTimeTrend.values)} ms`}
               contentHeight={46}
             >
               <MiniArea
-                data={axis(duration, getServiceResponseTimeTrend.trendList)}
+                data={axisY(duration, getEndpointResponseTimeTrend.values)}
               />
             </ChartCard>
           </Col>
           <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 8 }}>
             <ChartCard
               title="Avg SLA"
-              total={`${(avgTimeSeries(getServiceSLATrend.trendList) / 100).toFixed(2)} %`}
+              total={`${(avgTS(getEndpointSLATrend.values) / 100).toFixed(2)} %`}
             >
               <MiniBar
                 animate={false}
                 height={46}
-                data={axis(duration, getServiceSLATrend.trendList,
+                data={axisY(duration, getEndpointSLATrend.values,
                   ({ x, y }) => ({ x, y: y / 100 }))}
               />
             </ChartCard>
@@ -209,7 +209,7 @@ export default class Service extends PureComponent {
             </ChartCard>
           </Col>
         </Row>
-        {this.renderSankey(getServiceTopology)}
+        {this.renderSankey(getEndpointTopology)}
       </Panel>
     );
   }
@@ -238,13 +238,13 @@ export default class Service extends PureComponent {
           >
             <Sankey
               data={nData}
-              edgeTooltip={['target*source*cpm*avgResponseTime*isAlert', (target, source, cpm, avgResponseTime) => {
+              edgeTooltip={['target*source*cpm', (target, source, cpm) => {
                 return {
                   name: `${source.name} to ${target.name} </span>`,
-                  value: `${cpm < 1 ? '<1' : cpm} cpm ${avgResponseTime}ms`,
+                  value: `${cpm} cpm`,
                 };
               }]}
-              edgeColor={['isAlert', isAlert => (isAlert ? '#DC143C' : '#bbb')]}
+              edgeColor="#bbb"
             />
           </ChartCard>
         </Col>
@@ -252,9 +252,9 @@ export default class Service extends PureComponent {
   }
 
   render() {
-    const { form, service } = this.props;
+    const { form, endpoint } = this.props;
     const { getFieldDecorator } = form;
-    const { variables: { options }, data } = service;
+    const { variables: { options }, data } = endpoint;
     const { showTimeline, queryTrace, currentTraceId } = data;
     return (
       <div>
@@ -271,31 +271,31 @@ export default class Service extends PureComponent {
           <Col span={showTimeline ? 0 : 24}>
             <Form layout="inline">
               <FormItem>
-                {getFieldDecorator('applicationId')(
+                {getFieldDecorator('serviceId')(
                   <Select
                     showSearch
                     optionFilterProp="children"
                     style={{ width: 200 }}
-                    placeholder="Select a application"
+                    placeholder="Select a service"
                     labelInValue
-                    onSelect={this.handleAppSelect.bind(this)}
+                    onSelect={this.handleServiceSelect.bind(this)}
                   >
-                    {options.applicationId && options.applicationId.map(app =>
-                      <Option key={app.key} value={app.key}>{app.label}</Option>)}
+                    {options.serviceId && options.serviceId.map(service =>
+                      <Option key={service.key} value={service.key}>{service.label}</Option>)}
                   </Select>
                 )}
               </FormItem>
-              {data.appInfo ? (
+              {data.serviceInfo ? (
                 <FormItem>
-                  {getFieldDecorator('serviceId')(
+                  {getFieldDecorator('endpointId')(
                     <Search
-                      placeholder="Search a service"
+                      placeholder="Search a endpoint"
                       onSelect={this.handleSelect.bind(this)}
-                      url="/service/search"
-                      variables={data.appInfo}
+                      url="/graphql"
+                      variables={data.serviceInfo}
                       query={`
-                        query SearchService($applicationId: ID!, $keyword: String!) {
-                          searchService(applicationId: $applicationId, keyword: $keyword, topN: 10) {
+                        query SearchEndpoint($serviceId: ID!, $keyword: String!) {
+                          searchEndpoint(serviceId: $serviceId, keyword: $keyword, limit: 10) {
                             key: id
                             label: name
                           }
