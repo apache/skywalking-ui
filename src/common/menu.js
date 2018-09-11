@@ -31,8 +31,8 @@ const menuData = [{
       name: 'Topology',
       path: 'topology',
     }, {
-      name: 'Application',
-      path: 'application',
+      name: 'Service',
+      path: 'service',
     }, {
       name: 'Endpoint',
       path: 'endpoint',

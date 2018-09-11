@@ -1,13 +1,11 @@
 import fs from 'fs';
 import { delay } from 'roadhog-api-doc';
-import { getTopology, getGlobalTopology, getServiceTopology } from './mock/topology';
-import { getAllApplication, getApplication } from './mock/application';
-import { searchServer, getServer } from './mock/server';
+import { getGlobalTopology, getServiceTopology } from './mock/topology';
 import { Alarms, getNoticeAlarm, AlarmTrend } from './mock/alarm';
 import { TraceBrief, Trace } from './mock/trace'
 import { makeExecutableSchema, addMockFunctionsToSchema } from 'graphql-tools';
 import { graphql } from 'graphql';
-import { ClusterBrief, getAllServices, searchEndpoint } from './mock/metadata';
+import { ClusterBrief, getServiceInstances, getAllServices, searchEndpoint } from './mock/metadata';
 import { IntValues, Thermodynamic } from './mock/metric';
 import { getTopN } from './mock/aggregation';
 
@@ -17,6 +15,7 @@ const resolvers = {
   Query: {
     getTopN,
     getAllServices,
+    getServiceInstances,
     getGlobalTopology,
     getServiceTopology,
     searchEndpoint,
@@ -54,11 +53,6 @@ const proxy = {
     const { query: source, variables: variableValues } = req.body;
     graphql({ schema, source, variableValues }).then((result) => res.send(result));
   },
-  'POST /api/topology': getTopology,
-  'POST /api/application/options': getAllApplication,
-  'POST /api/application': getApplication,
-  'POST /api/server/search': searchServer,
-  'POST /api/server': getServer,
   'POST /api/notice': getNoticeAlarm,
   'POST /api/login/account': (req, res) => {
     const { password, userName } = req.body;

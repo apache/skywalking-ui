@@ -19,12 +19,12 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Row, Col, Select, Card, Form, Breadcrumb } from 'antd';
-import Server from './Server';
-import { AppTopology } from '../../components/Topology';
-import { Panel } from '../../components/Page';
-import RankList from '../../components/RankList';
-import ServerLitePanel from '../../components/ServerLitePanel';
-import { getServerId, redirect } from '../../utils/utils';
+import { AppTopology } from 'components/Topology';
+import { Panel } from 'components/Page';
+import RankList from 'components/RankList';
+import ServiceInstanceLitePanel from 'components/ServiceInstanceLitePanel';
+import ServiceInstance from './ServiceInstance';
+import { getServiceInstanceId, redirect } from '../../utils/utils';
 
 const { Option } = Select;
 const { Item: FormItem } = Form;
@@ -39,24 +39,24 @@ const middleColResponsiveProps = {
 };
 
 @connect(state => ({
-  application: state.application,
+  service: state.service,
   duration: state.global.duration,
   globalVariables: state.global.globalVariables,
 }))
 @Form.create({
   mapPropsToFields(props) {
-    const { variables: { values, labels } } = props.application;
+    const { variables: { values, labels } } = props.service;
     return {
-      applicationId: Form.createFormField({
-        value: { key: values.applicationId ? values.applicationId : '', label: labels.applicationId ? labels.applicationId : '' },
+      serviceId: Form.createFormField({
+        value: { key: values.serviceId ? values.serviceId : '', label: labels.serviceId ? labels.serviceId : '' },
       }),
     };
   },
 })
-export default class Application extends PureComponent {
+export default class Service extends PureComponent {
   componentDidMount() {
     this.props.dispatch({
-      type: 'application/initOptions',
+      type: 'service/initOptions',
       payload: { variables: this.props.globalVariables },
     });
   }
@@ -66,71 +66,71 @@ export default class Application extends PureComponent {
       return;
     }
     this.props.dispatch({
-      type: 'application/initOptions',
+      type: 'service/initOptions',
       payload: { variables: nextProps.globalVariables },
     });
   }
 
   handleSelect = (selected) => {
     this.props.dispatch({
-      type: 'application/saveVariables',
+      type: 'service/saveVariables',
       payload: {
-        values: { applicationId: selected.key },
-        labels: { applicationId: selected.label },
+        values: { serviceId: selected.key },
+        labels: { serviceId: selected.label },
       },
     });
   }
 
   handleChange = (variables) => {
-    const { data: { serverInfo, showServer } } = this.props.application;
-    if (showServer) {
-      this.handleSelectServer(serverInfo.key, serverInfo);
+    const { data: { serviceInstanceInfo, showServiceInstance } } = this.props.service;
+    if (showServiceInstance) {
+      this.handleSelectServiceInstance(serviceInstanceInfo.key, serviceInstanceInfo);
     } else {
       this.props.dispatch({
-        type: 'application/fetchData',
-        payload: { variables, reducer: 'saveApplication' },
+        type: 'service/fetchData',
+        payload: { variables, reducer: 'saveService' },
       });
     }
   }
 
-  handleGoApplication = () => {
+  handleGoService = () => {
     this.props.dispatch({
-      type: 'application/hideServer',
+      type: 'service/hideServiceInstance',
     });
   }
 
-  handleGoServer = () => {
+  handleGoServiceInstance = () => {
     this.props.dispatch({
-      type: 'application/showServer',
+      type: 'service/showServiceInstance',
     });
   }
 
-  handleSelectServer = (serverId, serverInfo) => {
+  handleSelectServiceInstance = (serviceInstanceId, serviceInstanceInfo) => {
     const { globalVariables: { duration } } = this.props;
     this.props.dispatch({
-      type: 'application/fetchServer',
-      payload: { variables: { duration, serverId }, serverInfo },
+      type: 'service/fetchServiceInstance',
+      payload: { variables: { duration, serviceInstanceId }, serviceInstanceInfo },
     });
   }
 
   renderApp = () => {
     const { getFieldDecorator } = this.props.form;
-    const { variables: { values, options }, data } = this.props.application;
+    const { variables: { values, options, labels }, data } = this.props.service;
     return (
       <div>
         <Form layout="inline">
           <FormItem>
-            {getFieldDecorator('applicationId')(
+            {getFieldDecorator('serviceId')(
               <Select
                 showSearch
                 optionFilterProp="children"
                 style={{ width: 200 }}
-                placeholder="Select a application"
+                placeholder="Select a service"
                 labelInValue
                 onSelect={this.handleSelect.bind(this)}
               >
-                {options.applicationId && options.applicationId.map(app =>
-                  <Option key={app.key} value={app.key}>{app.label}</Option>)}
+                {options.serviceId && options.serviceId.map(service =>
+                  <Option key={service.key} value={service.key}>{service.label}</Option>)}
               </Select>
             )}
           </FormItem>
@@ -143,12 +143,12 @@ export default class Application extends PureComponent {
           <Row gutter={0}>
             <Col {...{ ...middleColResponsiveProps, xl: 16, lg: 12, md: 24 }}>
               <Card
-                title="Application Map"
+                title="Service Map"
                 bordered={false}
                 bodyStyle={{ padding: 0 }}
               >
                 <AppTopology
-                  elements={data.getApplicationTopology}
+                  elements={data.getServiceTopology}
                   height={335}
                   layout={{
                     name: 'dagre',
@@ -163,12 +163,12 @@ export default class Application extends PureComponent {
                 bordered={false}
                 bodyStyle={{ padding: '10px 10px', height: 391 }}
               >
-                <ServerLitePanel
+                <ServiceInstanceLitePanel
                   data={data}
-                  serverList={data.getServerThroughput}
+                  serviceInstanceList={data.getServiceInstances}
                   duration={this.props.duration}
-                  onSelectServer={this.handleSelectServer}
-                  onMoreServer={this.handleGoServer}
+                  onSelectServiceInstance={this.handleSelectServiceInstance}
+                  onMoreServiceInstance={this.handleGoServiceInstance}
                 />
               </Card>
             </Col>
@@ -176,43 +176,30 @@ export default class Application extends PureComponent {
           <Row gutter={8}>
             <Col {...{ ...middleColResponsiveProps, xl: 12, lg: 12, md: 24 }}>
               <Card
-                title="Running Server"
+                title="Running ServiceInstance"
                 bordered={false}
                 bodyStyle={{ padding: 5 }}
               >
                 <RankList
-                  data={data.getServerThroughput}
-                  renderLabel={getServerId}
+                  data={data.getServiceInstanceThroughput}
                   renderValue={_ => `${_.value} cpm`}
-                  renderBadge={_ => ([
-                    {
-                      key: 'host',
-                      label: 'Host',
-                      value: _.host,
-                    },
-                    {
-                      key: 'os',
-                      label: 'OS',
-                      value: _.osName,
-                    },
-                  ])}
                   color="#965fe466"
                 />
               </Card>
             </Col>
             <Col {...{ ...middleColResponsiveProps, xl: 12, lg: 12, md: 24 }}>
               <Card
-                title="Slow Service"
+                title="Slow Endpoint"
                 bordered={false}
                 bodyStyle={{ padding: '0px 10px' }}
               >
                 <RankList
-                  data={data.getSlowService.map(_ => ({ ..._.service, value: _.value }))}
+                  data={data.getSlowEndpoint}
                   renderValue={_ => `${_.value} ms`}
-                  onClick={(key, item) => redirect(this.props.history, '/monitor/service', { key,
+                  onClick={(key, item) => redirect(this.props.history, '/monitor/endpoint', { key,
                     label: item.label,
-                    applicationId: item.applicationId,
-                    applicationName: item.applicationName })}
+                    serviceId: values.serviceId,
+                    serviceName: labels.serviceId })}
                 />
               </Card>
             </Col>
@@ -223,32 +210,32 @@ export default class Application extends PureComponent {
   }
 
   render() {
-    const { application, duration } = this.props;
-    const { variables, data } = application;
-    const { showServer, serverInfo } = data;
+    const { service, duration } = this.props;
+    const { variables, data } = service;
+    const { showServiceInstance, serviceInstanceInfo } = data;
     return (
       <Row type="flex" justify="start">
-        {showServer ? (
-          <Col span={showServer ? 24 : 0}>
+        {showServiceInstance ? (
+          <Col span={showServiceInstance ? 24 : 0}>
             <Breadcrumb>
               <Breadcrumb.Item>
-                Application
+                Service
               </Breadcrumb.Item>
               <Breadcrumb.Item>
-                <a onClick={this.handleGoApplication}>{variables.labels.applicationId}</a>
+                <a onClick={this.handleGoService}>{variables.labels.serviceId}</a>
               </Breadcrumb.Item>
-              <Breadcrumb.Item>{getServerId(serverInfo)}</Breadcrumb.Item>
+              <Breadcrumb.Item>{getServiceInstanceId(serviceInstanceInfo)}</Breadcrumb.Item>
             </Breadcrumb>
             <Panel
               variables={variables.values}
               globalVariables={this.props.globalVariables}
               onChange={this.handleChange}
             >
-              <Server data={data} duration={duration} />
+              <ServiceInstance data={data} duration={duration} />
             </Panel>
           </Col>
          ) : null}
-        <Col span={showServer ? 0 : 24}>
+        <Col span={showServiceInstance ? 0 : 24}>
           {this.renderApp()}
         </Col>
       </Row>

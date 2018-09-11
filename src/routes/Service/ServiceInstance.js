@@ -20,31 +20,32 @@ import React, { PureComponent } from 'react';
 import { Row, Col, Card, Tag } from 'antd';
 import {
   ChartCard, MiniArea, MiniBar, Line, Area, StackBar,
-} from '../../components/Charts';
-import DescriptionList from '../../components/DescriptionList';
-import { axis } from '../../utils/time';
-import { avgTimeSeries } from '../../utils/utils';
+} from 'components/Charts';
+import DescriptionList from 'components/DescriptionList';
+import { axisY } from '../../utils/time';
+import { avgTS, getAttributes } from '../../utils/utils';
 
 const { Description } = DescriptionList;
 
 
-export default class Server extends PureComponent {
-  bytesToMB = list => list.map(_ => parseFloat((_ / (1024 ** 2)).toFixed(2)))
+export default class ServiceInstance extends PureComponent {
+  bytesToMB = list => list.map(_ => ({ value: parseFloat((_.value / (1024 ** 2)).toFixed(2))}))
 
   render() {
     const { duration, data } = this.props;
-    const { serverInfo, getServerResponseTimeTrend, getServerThroughputTrend,
-      getCPUTrend, getMemoryTrend, getGCTrend } = data;
+    const { serviceInstanceInfo, getServiceInstanceResponseTimeTrend, getServiceInstanceThroughputTrend,
+      getCPUTrend, heap, maxHeap, noheap, maxNoheap, youngGCCount, oldGCCount, youngGCTime, oldGCTime } = data;
+    const { attributes } = serviceInstanceInfo;
     return (
       <div>
         <Row gutter={8}>
           <Col xs={24} sm={24} md={24} lg={6} xl={6} style={{ marginTop: 8 }}>
             <Card style={{ marginTop: 8 }} bordered={false}>
               <DescriptionList col={1} layout="vertical">
-                <Description term="Host">{serverInfo.host}</Description>
-                <Description term="IPv4">{serverInfo.ipv4 ? serverInfo.ipv4.join() : ''}</Description>
-                <Description term="Pid">{serverInfo.pid}</Description>
-                <Description term="OS">{serverInfo.osName}</Description>
+                <Description term="Host">{getAttributes(attributes, 'host')}</Description>
+                <Description term="IPv4">{getAttributes(attributes, 'ipv4')}</Description>
+                <Description term="Pid">{getAttributes(attributes, 'pid')}</Description>
+                <Description term="OS">{getAttributes(attributes, 'os')}</Description>
               </DescriptionList>
             </Card>
           </Col>
@@ -53,24 +54,24 @@ export default class Server extends PureComponent {
               <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 8 }}>
                 <ChartCard
                   title="Avg Throughput"
-                  total={`${avgTimeSeries(getServerThroughputTrend.trendList)} cpm`}
+                  total={`${avgTS(getServiceInstanceThroughputTrend.values)} cpm`}
                   contentHeight={46}
                 >
                   <MiniBar
                     color="#975FE4"
-                    data={axis(duration, getServerThroughputTrend.trendList)}
+                    data={axisY(duration, getServiceInstanceThroughputTrend.values)}
                   />
                 </ChartCard>
               </Col>
               <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 8 }}>
                 <ChartCard
                   title="Avg Response Time"
-                  total={`${avgTimeSeries(getServerResponseTimeTrend.trendList)} ms`}
+                  total={`${avgTS(getServiceInstanceResponseTimeTrend.values)} ms`}
                   contentHeight={46}
                 >
-                  {getServerResponseTimeTrend.trendList.length > 0 ? (
+                  {getServiceInstanceResponseTimeTrend.values.length > 0 ? (
                     <MiniArea
-                      data={axis(duration, getServerResponseTimeTrend.trendList)}
+                      data={axisY(duration, getServiceInstanceResponseTimeTrend.values)}
                     />
                   ) : (<span style={{ display: 'none' }} />)}
                 </ChartCard>
@@ -83,7 +84,7 @@ export default class Server extends PureComponent {
                   contentHeight={150}
                 >
                   <Line
-                    data={axis(duration, getCPUTrend.cost)}
+                    data={axisY(duration, getCPUTrend.values)}
                   />
                 </ChartCard>
               </Col>
@@ -95,8 +96,8 @@ export default class Server extends PureComponent {
                   contentHeight={150}
                 >
                   <Area
-                    data={axis(duration, this.bytesToMB(getMemoryTrend.heap), ({ x, y }) => ({ x, y, type: 'value' }))
-                      .concat(axis(duration, this.bytesToMB(getMemoryTrend.maxHeap), ({ x, y }) => ({ x, y, type: 'free' })))}
+                    data={axisY(duration, this.bytesToMB(heap.values), ({ x, y }) => ({ x, y, type: 'value' }))
+                      .concat(axisY(duration, this.bytesToMB(maxHeap.values), ({ x, y }) => ({ x, y, type: 'free' })))}
                   />
                 </ChartCard>
               </Col>
@@ -106,8 +107,8 @@ export default class Server extends PureComponent {
                   contentHeight={150}
                 >
                   <Area
-                    data={axis(duration, this.bytesToMB(getMemoryTrend.noheap), ({ x, y }) => ({ x, y, type: 'value' }))
-                    .concat(axis(duration, this.bytesToMB(getMemoryTrend.maxNoheap), ({ x, y }) => ({ x, y, type: 'free' })))}
+                    data={axisY(duration, this.bytesToMB(noheap.values), ({ x, y }) => ({ x, y, type: 'value' }))
+                    .concat(axisY(duration, this.bytesToMB(maxNoheap.values), ({ x, y }) => ({ x, y, type: 'free' })))}
                   />
                 </ChartCard>
               </Col>
@@ -122,14 +123,14 @@ export default class Server extends PureComponent {
                       <div style={{ marginBottom: 10 }}>
                         <span style={{ marginRight: 10 }}>Young GC</span>
                         <Tag color="#66b5ff">
-                          {getGCTrend.youngGCCount.reduce((sum, v) => sum + v)}
+                          {youngGCCount.values.map(_ => _.value).reduce((sum, v) => sum + v)}
                         </Tag>
                         <span>collections</span>
                       </div>
                       <div>
                         <span style={{ marginRight: 10 }}>Old GC</span>
                         <Tag color="#ffb566">
-                          {getGCTrend.oldGCount.reduce((sum, v) => sum + v)}
+                          {oldGCCount.values.map(_ => _.value).reduce((sum, v) => sum + v)}
                         </Tag>
                         <span>collections</span>
                       </div>
@@ -137,8 +138,8 @@ export default class Server extends PureComponent {
                   }
                 >
                   <StackBar
-                    data={axis(duration, getGCTrend.youngGCTime, ({ x, y }) => ({ x, y, type: 'youngGCTime' }))
-                    .concat(axis(duration, getGCTrend.oldGCTime, ({ x, y }) => ({ x, y, type: 'oldGCTime' })))}
+                    data={axisY(duration, youngGCTime.values, ({ x, y }) => ({ x, y, type: 'youngGCTime' }))
+                    .concat(axisY(duration, oldGCTime.values, ({ x, y }) => ({ x, y, type: 'oldGCTime' })))}
                   />
                 </ChartCard>
               </Col>

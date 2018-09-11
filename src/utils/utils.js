@@ -114,12 +114,25 @@ export function isUrl(path) {
   return reg.test(path);
 }
 
-export function getServerId(serverInfo) {
-  let { host } = serverInfo;
-  if (serverInfo.ipv4 && serverInfo.ipv4.length > 0) {
-    [host] = serverInfo.ipv4;
+export function getServiceInstanceId(serviceInstanceInfo) {
+  const { attributes } = serviceInstanceInfo;
+  if (!attributes || attributes.length < 1) {
+    return '';
   }
-  return `${serverInfo.pid}@${host}`;
+  let host = getAttributes(attributes, 'host');
+  const ipv4 = getAttributes(attributes, 'ipv4');
+  if (ipv4 && ipv4.length > 0) {
+    [host] = ipv4;
+  }
+  return `${getAttributes(attributes, 'pid')}@${host}`;
+}
+
+export function getAttributes(attributes, name) {
+  if (!attributes || attributes.length < 1) {
+    return '';
+  }
+  const a = attributes.find(_ => _.name === name);
+  return a ? a.value : '';
 }
 
 export function redirect(history, pathname, param) {

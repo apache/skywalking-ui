@@ -24,6 +24,8 @@ export default {
       array = mockjs.mock({ 'array|10': [{ 'id|+1': 1, name: '@url', 'value|200-1000': 1 }]});
     } else if (args.condition.filterScope === 'SERVICE') {
       array = mockjs.mock({ 'array|10': [{ 'id|+1': 1, name: '@name', 'value|100-10000': 1 }]});
+    } else if (args.condition.filterScope === 'SERVICE_INSTANCE') {
+      array = mockjs.mock({ 'array|10': [{ 'id|+1': 1, name: '@name', 'value|100-10000': 1 }]});
     }
     return array.array;
   },

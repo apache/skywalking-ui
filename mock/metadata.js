@@ -24,8 +24,35 @@ export default {
       'numOfDatabase|1-100': 1,
       'numOfCache|1-100': 1,
       'numOfMQ|1-100': 1,
-    })
-  ,
+  }),
+  getServiceInstances: () => {
+    const data = mockjs.mock({
+      'id|1-10': [{
+        'id|+1': 3,
+        name: '@natural(4, 20)',
+        attributes: [
+          {
+            name: 'os',
+            value: 'LINUX',
+          },
+          {
+            name: 'host',
+            value: 'WORKSAPCE-@name',
+          },
+          {
+            name: 'pid',
+            value: '@natural(4, 20)',
+          },
+          {
+            name: 'ipv4',
+            value: '@ip',
+          },
+        ],
+        'language|1': ['JAVA', 'RUBY', 'DOTNET'],
+    }], // eslint-disable-line
+    });
+    return data.id;
+  },
   getAllServices: () => {
     const data = mockjs.mock({
       'serviceId|20-50': [{ 'id|+1': 3, name: function() { return `service-${this.id}`; } }], // eslint-disable-line
