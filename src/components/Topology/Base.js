@@ -20,9 +20,11 @@ import React, { Component } from 'react';
 import cytoscape from 'cytoscape';
 import coseBilkent from 'cytoscape-cose-bilkent';
 import dagre from 'cytoscape-dagre';
+import cyCanvas from 'cytoscape-canvas';
 
 cytoscape.use(coseBilkent);
 cytoscape.use(dagre);
+cytoscape.use(cyCanvas);
 
 const config = {
   layout: {

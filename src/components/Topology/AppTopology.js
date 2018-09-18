@@ -17,6 +17,7 @@
 
 
 import cytoscape from 'cytoscape';
+import * as d3 from 'd3';
 import Base from './Base';
 
 const conf = {
@@ -76,6 +77,43 @@ export default class AppTopology extends Base {
         onSelectedApplication();
       });
     }
+    const layer = cy.cyCanvas();
+    const canvas = layer.getCanvas();
+    
+
+    cy.on('render cyCanvas.resize', (evt) => {
+      const ctx = canvas.getContext('2d');
+      layer.resetTransform(ctx);
+      layer.clear(ctx);
+
+      layer.setTransform(ctx);
+
+      // Draw model elements
+      cy.nodes('node[type != "USER"]').forEach( (node) => {
+        const pos = node.position();
+        layer.setTransform(ctx);
+        const colors = ["#f5222d", "#1890ff"];
+
+        const arc = d3.arc()
+            .outerRadius(33)
+            .innerRadius(27)
+            .context(ctx);
+
+        const pie = d3.pie()
+            .sort(null);
+
+        ctx.translate(pos.x, pos.y);
+
+        const arcs = pie([30, 70]);
+
+        arcs.forEach((d, i) => {
+          ctx.beginPath();
+          arc(d);
+          ctx.fillStyle = colors[i];
+          ctx.fill();
+        });
+      });
+    });
   }
 
   getStyle = () => {
@@ -89,12 +127,12 @@ export default class AppTopology extends Base {
         'font-family': 'Microsoft YaHei',
         content: 'data(name)',
         'text-margin-y': 10,
-        'border-width': 0,
-        'border-color': '#A8071A',
+        'border-width': 6,
+        'border-color': '#40a9ff',
         'background-image': ele => `img/node/${ele.data('type') ? ele.data('type').toUpperCase() : 'UNDEFINED'}.png`,
         'background-width': '60%',
         'background-height': '60%',
-        'background-color': '#fff',
+        'background-color': '#e6f7ff',
       })
       .selector(':selected')
       .css({
@@ -111,13 +149,15 @@ export default class AppTopology extends Base {
         height: 60,
         'text-valign': 'bottom',
         'text-halign': 'center',
-        'background-color': '#fff',
+        'background-color': '#e6f7ff',
         'background-image': ele => `img/node/${ele.data('type') ? ele.data('type').toUpperCase() : 'UNDEFINED'}.png`,
         'background-width': '60%',
         'background-height': '60%',
-        'border-width': 0,
+        'border-width': 6,
+        'border-color': '#40a9ff',
         'font-family': 'Microsoft YaHei',
         label: 'data(name)',
+        'text-margin-y': 10,
         // 'text-margin-y': 5,
       })
       .selector('edge')
@@ -126,10 +166,11 @@ export default class AppTopology extends Base {
         'control-point-step-size': 100,
         'target-arrow-shape': 'triangle',
         'arrow-scale': 1.7,
-        'target-arrow-color': 'rgb(147, 198, 174)',
-        'line-color': 'rgb(147, 198, 174)',
+        'target-arrow-color': '#40a9ff',
+        'line-color': 'mapData(101, 0, 100, #40a9ff, #ffa39e)',
+        'opacity': 0.666,
         width: 3,
-        label: ele => `${ele.data('callType')} \n ${ele.data('cpm')} cpm`,
+        label: ele => `${ele.data('callType')}`,
         'text-wrap': 'wrap',
         color: 'rgb(110, 112, 116)',
         'text-rotation': 'autorotate',

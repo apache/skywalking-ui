@@ -39,6 +39,7 @@
     "bizcharts-plugin-slider": "^2.0.1",
     "classnames": "^2.2.5",
     "cytoscape": "^3.2.7",
+    "cytoscape-canvas": "^3.0.1",
     "cytoscape-cose-bilkent": "^4.0.0",
     "cytoscape-dagre": "^2.2.1",
     "d3": "^4.12.2",
