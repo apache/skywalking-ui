@@ -104,52 +104,52 @@ export default {
     const userConnectApplication = mockjs.mock({
       calls: [
         {
+          id: 1,
           source: 1,
           target: 2,
           'callType|1': ['rpc', 'http', 'dubbo'],
-          'cpm|100-2000': 1,
         },
         {
+          id: 2,
           source: 2,
           target: 3,
           'callType|1': ['rpc', 'http', 'dubbo'],
-          'cpm|100-2000': 1,
         },
         {
+          id: 3,
           source: 3,
           target: 2,
           'callType|1': ['rpc', 'http', 'dubbo'],
-          'cpm|100-2000': 1,
         },
         {
+          id: 4,
           source: 2,
           target: 200,
           'callType|1': ['rpc', 'http', 'dubbo'],
-          'cpm|100-2000': 1,
         },
         {
+          id: 5,
           source: 2,
           target: 201,
           'callType|1': ['rpc', 'http', 'dubbo'],
-          'cpm|100-2000': 1,
         },
         {
+          id: 1,
           source: 3,
           target: 202,
           'callType|1': ['rpc', 'http', 'dubbo'],
-          'cpm|100-2000': 1,
         },
         {
+          id: 6,
           source: 3,
           target: 203,
           'callType|1': ['rpc', 'http', 'dubbo'],
-          'cpm|100-2000': 1,
         },
         {
+          id: 7,
           source: 3,
           target: 204,
           'callType|1': ['rpc', 'http', 'dubbo'],
-          'cpm|100-2000': 1,
         },
       ],
     });
@@ -157,123 +157,5 @@ export default {
       nodes,
       calls: userConnectApplication.calls,
     };
-  },
-  getTopology(req, res) {
-    res.json(mockjs.mock(
-      {
-        data: {
-          getClusterTopology: () => {
-            const application = mockjs.mock({
-              'nodes|2-3': [
-                {
-                  'id|+1': 1,
-                  name: '@name',
-                  'type|1': ['DUBBO', 'tomcat', 'SPRINGMVC'],
-                  'cpm|10-2000': 1,
-                  'sla|1-100.1-2': 1,
-                  'apdex|0.2': 1,
-                  'avgResponseTime|500-1000': 1,
-                  'isAlarm|1': true,
-                  'numOfServer|1-100': 1,
-                  'numOfServerAlarm|1-100': 1,
-                  'numOfServiceAlarm|1-100': 1,
-                },
-              ],
-            });
-            const users = mockjs.mock({
-              nodes: [
-                {
-                  id: 100,
-                  name: 'User',
-                  type: 'USER',
-                },
-              ],
-            });
-            const resources = mockjs.mock({
-              'nodes|5': [
-                {
-                  'id|+1': 200,
-                  name: '@name',
-                  'type|1': ['Oracle', 'MYSQL', 'REDIS'],
-                },
-              ],
-            });
-            const nodes = users.nodes.concat(application.nodes, resources.nodes);
-            const userConnectApplication = mockjs.mock({
-              calls: [
-                {
-                  source: 100,
-                  target: 1,
-                  'isAlert|1': true,
-                  'callType|1': ['rpc', 'http', 'dubbo'],
-                  'cpm|100-2000': 1,
-                  'avgResponseTime|500-5000': 1,
-                },
-                {
-                  source: 1,
-                  target: 2,
-                  'isAlert|1': true,
-                  'callType|1': ['rpc', 'http', 'dubbo'],
-                  'cpm|100-2000': 1,
-                  'avgResponseTime|500-5000': 1,
-                },
-                {
-                  source: 2,
-                  target: 1,
-                  'isAlert|1': true,
-                  'callType|1': ['rpc', 'http', 'dubbo'],
-                  'cpm|100-2000': 1,
-                  'avgResponseTime|500-5000': 1,
-                },
-                {
-                  source: 1,
-                  target: 200,
-                  'isAlert|1': true,
-                  'callType|1': ['rpc', 'http', 'dubbo'],
-                  'cpm|100-2000': 1,
-                  'avgResponseTime|500-5000': 1,
-                },
-                {
-                  source: 1,
-                  target: 201,
-                  'isAlert|1': true,
-                  'callType|1': ['rpc', 'http', 'dubbo'],
-                  'cpm|100-2000': 1,
-                  'avgResponseTime|500-5000': 1,
-                },
-                {
-                  source: 2,
-                  target: 202,
-                  'isAlert|1': true,
-                  'callType|1': ['rpc', 'http', 'dubbo'],
-                  'cpm|100-2000': 1,
-                  'avgResponseTime|500-5000': 1,
-                },
-                {
-                  source: 2,
-                  target: 203,
-                  'isAlert|1': true,
-                  'callType|1': ['rpc', 'http', 'dubbo'],
-                  'cpm|100-2000': 1,
-                  'avgResponseTime|500-5000': 1,
-                },
-                {
-                  source: 2,
-                  target: 204,
-                  'isAlert|1': true,
-                  'callType|1': ['rpc', 'http', 'dubbo'],
-                  'cpm|100-2000': 1,
-                  'avgResponseTime|500-5000': 1,
-                },
-              ],
-            });
-            return {
-              nodes,
-              calls: userConnectApplication.calls,
-            };
-          },
-        },
-      }
-    ));
   },
 };

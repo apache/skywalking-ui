@@ -77,10 +77,14 @@ export default class AppTopology extends Base {
         onSelectedApplication();
       });
     }
+    
+  }
+
+  updateMetrics = (cy, data) => {
+    const { sla: { values: slaValues } } = data;
     const layer = cy.cyCanvas();
     const canvas = layer.getCanvas();
     
-
     cy.on('render cyCanvas.resize', (evt) => {
       const ctx = canvas.getContext('2d');
       layer.resetTransform(ctx);
@@ -89,10 +93,16 @@ export default class AppTopology extends Base {
       layer.setTransform(ctx);
 
       // Draw model elements
-      cy.nodes('node[type != "USER"]').forEach( (node) => {
+      cy.nodes('node[?isReal]').forEach( (node) => {
         const pos = node.position();
         layer.setTransform(ctx);
         const colors = ["#f5222d", "#1890ff"];
+        const nodeId = node.id();
+        const nodeSla = slaValues.find(_ => _.id === nodeId);
+        let sla = 100;
+        if (nodeSla) {
+          sla = nodeSla.value;
+        }
 
         const arc = d3.arc()
             .outerRadius(33)
@@ -104,7 +114,7 @@ export default class AppTopology extends Base {
 
         ctx.translate(pos.x, pos.y);
 
-        const arcs = pie([30, 70]);
+        const arcs = pie([100 - sla, sla]);
 
         arcs.forEach((d, i) => {
           ctx.beginPath();

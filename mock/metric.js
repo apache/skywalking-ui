@@ -34,7 +34,7 @@ export default {
     {
       'values|60': [{
         'id|+1': 1,
-        value: '@natural(0, 1000)',
+        value: '@natural(0, 100)',
       }],
     }
   )),

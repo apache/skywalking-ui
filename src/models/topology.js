@@ -17,6 +17,21 @@
 
 
 import { base } from '../utils/models';
+import { exec } from '../services/graphql';
+
+const nodeMetricQuery = `
+  query NodeMetric($duration: Duration!, $ids: [ID!]!) {
+    sla: getValues(metric: {
+      name: "service_relation_server_call_sla"
+      ids: $ids
+    }, duration: $duration) {
+      values {
+        id
+        value
+      }
+    }
+  }
+`;
 
 export default base({
   namespace: 'topology',
@@ -24,6 +39,9 @@ export default base({
     getGlobalTopology: {
       nodes: [],
       calls: [],
+    },
+    sla: {
+      values: [],
     },
   },
   dataQuery: `
@@ -36,14 +54,27 @@ export default base({
           isReal
         }
         calls {
+          id
           source
           target
           callType
-          cpm
+          detectPoint
         }
       }
     }
   `,
+  effects: {
+    *fetchNodeMetrics({ payload }, { call, put }) {
+      const response = yield call(exec, { query: nodeMetricQuery, variables: payload.variables });
+      if (!response.data) {
+        return;
+      }
+      yield put({
+        type: 'saveData',
+        payload: response.data,
+      });
+    },
+  },
   reducers: {
     filterApplication(preState, { payload: { aa } }) {
       const { variables } = preState;

@@ -41,8 +41,9 @@ export default class Base extends Component {
   }
 
   componentDidMount() {
-    const { elements, layout = config.layout } = this.props;
+    const { elements, layout = config.layout, onLoadMetircs, metrics } = this.props;
     this.layout = layout;
+    this.metrics = metrics;
     let nextElements = this.transform(elements);
     if (this.setUp) {
       nextElements = this.setUp(nextElements);
@@ -60,28 +61,14 @@ export default class Base extends Component {
     if (this.bindEvent) {
       this.bindEvent(this.cy);
     }
+    if (onLoadMetircs) {
+      onLoadMetircs(nextElements.nodes.filter(_ => _.data.id.indexOf('USER') < 0).map(_ => _.data.id));
+    }
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.elements === this.elements && nextProps.layout === this.layout) {
-      return;
-    }
-    const { elements, layout: nextLayout } = nextProps;
-    const nodes = this.cy.nodes();
-    let nextElements = this.transform(elements);
-    if (this.setUp) {
-      nextElements = this.setUp(nextElements);
-    }
-    this.cy.json({ elements: nextElements, style: this.getStyle() });
-    if (nextLayout === this.layout && this.isSame(nodes, this.cy.nodes())) {
-      return;
-    }
-    this.layout = nextLayout;
-    const layout = this.cy.layout(nextLayout);
-    layout.pon('layoutstop').then(() => {
-      this.cy.minZoom(this.cy.zoom() - 0.3);
-    });
-    layout.run();
+    this.updateTopology(nextProps);
+    this.updateMetric(nextProps);
   }
 
   shouldComponentUpdate() {
@@ -102,6 +89,45 @@ export default class Base extends Component {
     }
     const diff = nextNodes.diff(nodes);
     return diff.left.length < 1 && diff.right.length < 1;
+  }
+
+  updateTopology(nextProps) {
+    if (nextProps.elements === this.elements && nextProps.layout === this.layout) {
+      return;
+    }
+    const { elements, layout: nextLayout, onLoadMetircs } = nextProps;
+    const nodes = this.cy.nodes();
+    let nextElements = this.transform(elements);
+    if (this.setUp) {
+      nextElements = this.setUp(nextElements);
+    }
+    this.cy.json({ elements: nextElements, style: this.getStyle() });
+    
+    if (this.bindEvent) {
+      this.bindEvent(this.cy);
+    }
+    if (nextLayout === this.layout && this.isSame(nodes, this.cy.nodes())) {
+      return;
+    }
+    this.layout = nextLayout;
+    const layout = this.cy.layout(nextLayout);
+    layout.pon('layoutstop').then(() => {
+      this.cy.minZoom(this.cy.zoom() - 0.3);
+    });
+    layout.run();
+    if (onLoadMetircs) {
+      onLoadMetircs(nextElements.nodes.filter(_ => _.data.id.indexOf('USER') < 0).map(_ => _.data.id));
+    }
+  }
+
+  updateMetric(nextProps) {
+    if (nextProps.metrics === this.metrics) {
+      return;
+    }
+    this.metrics = nextProps.metrics;
+    if (this.updateMetrics) {
+      this.updateMetrics(this.cy, this.metrics);
+    }
   }
 
   transform(elements) {

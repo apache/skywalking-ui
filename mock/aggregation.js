@@ -18,15 +18,7 @@
 import mockjs from 'mockjs';
 
 export default {
-  getTopN: (obj, args, context, info) => {
-    let array = null;
-    if (args.condition.filterScope === 'ENDPOINT') {
-      array = mockjs.mock({ 'array|10': [{ 'id|+1': 1, name: '@url', 'value|200-1000': 1 }]});
-    } else if (args.condition.filterScope === 'SERVICE') {
-      array = mockjs.mock({ 'array|10': [{ 'id|+1': 1, name: '@name', 'value|100-10000': 1 }]});
-    } else if (args.condition.filterScope === 'SERVICE_INSTANCE') {
-      array = mockjs.mock({ 'array|10': [{ 'id|+1': 1, name: '@name', 'value|100-10000': 1 }]});
-    }
-    return array.array;
-  },
+  getServiceTopN: () => mockjs.mock({ 'array|10': [{ 'id|+1': 1, name: '@name', 'value|100-10000': 1 }]}),
+  getAllServiceInstanceTopN: () => mockjs.mock({ 'array|10': [{ 'id|+1': 1, name: '@name', 'value|100-10000': 1 }]}),
+  getAllEndpointTopN: () => mockjs.mock({ 'array|10': [{ 'id|+1': 1, name: '@url', 'value|200-1000': 1 }]}),
 };

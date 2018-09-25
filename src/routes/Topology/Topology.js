@@ -74,27 +74,41 @@ export default class Topology extends PureComponent {
   };
 
   handleChange = (variables) => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
       type: 'topology/fetchData',
       payload: { variables },
     });
   }
 
   handleLayoutChange = ({ target: { value } }) => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
       type: 'topology/saveData',
       payload: { layout: value },
     });
   }
 
+  handleLoadMetrics = (nodeIds) => {
+    const { dispatch, globalVariables: { duration } } = this.props;
+    dispatch({
+      type: 'topology/fetchNodeMetrics',
+      payload: { variables: {
+        duration,
+        ids: nodeIds,
+      }},
+    });
+  }
+
   handleSelectedApplication = (appInfo) => {
+    const { dispatch } = this.props;
     if (appInfo) {
-      this.props.dispatch({
+      dispatch({
         type: 'topology/saveData',
         payload: { appInfo },
       });
     } else {
-      this.props.dispatch({
+      dispatch({
         type: 'topology/saveData',
         payload: { appInfo: null },
       });
@@ -102,7 +116,8 @@ export default class Topology extends PureComponent {
   }
 
   handleFilterApplication = (aa) => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
       type: 'topology/filterApplication',
       payload: { aa },
     });
@@ -180,7 +195,9 @@ export default class Topology extends PureComponent {
                 <AppTopology
                   height={this.props.graphHeight}
                   elements={topologData}
+                  metrics={data}
                   onSelectedApplication={this.handleSelectedApplication}
+                  onLoadMetircs={this.handleLoadMetrics}
                   layout={layouts[layout]}
                 />
               ) : null}
