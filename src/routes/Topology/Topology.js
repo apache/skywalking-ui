@@ -18,7 +18,7 @@
 
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Row, Col, Card, Icon, Radio, Avatar, Select } from 'antd';
+import { Row, Col, Card, Icon, Radio, Avatar, Select, Input } from 'antd';
 import { ChartCard } from '../../components/Charts';
 import { AppTopology } from '../../components/Topology';
 import { Panel } from '../../components/Page';
@@ -89,13 +89,15 @@ export default class Topology extends PureComponent {
     });
   }
 
-  handleLoadMetrics = (nodeIds) => {
+  handleLoadMetrics = (ids, idsS, idsC) => {
     const { dispatch, globalVariables: { duration } } = this.props;
     dispatch({
-      type: 'topology/fetchNodeMetrics',
+      type: 'topology/fetchMetrics',
       payload: { variables: {
         duration,
-        ids: nodeIds,
+        ids,
+        idsS,
+        idsC,
       }},
     });
   }
@@ -115,28 +117,22 @@ export default class Topology extends PureComponent {
     }
   }
 
+  handleChangeLatencyStyle = (e) => {
+    const { value } = e.target;
+    const latencyRange = value.split(',').map(_ => parseInt(_.trim(), 10));
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'topology/setLatencyStyleRange',
+      payload: { latencyRange },
+    });
+  }
+
   handleFilterApplication = (aa) => {
     const { dispatch } = this.props;
     dispatch({
       type: 'topology/filterApplication',
       payload: { aa },
     });
-  }
-
-  filter = () => {
-    const { topology: { variables: { appRegExps }, data: { getGlobalTopology } } } = this.props;
-    if (!appRegExps) {
-      return getGlobalTopology;
-    }
-    const nn = getGlobalTopology.nodes.filter(_ => appRegExps
-      .findIndex(r => _.name.match(r)) > -1);
-    const cc = getGlobalTopology.calls.filter(_ => nn
-      .findIndex(n => n.id === _.source || n.id === _.target) > -1);
-    return {
-      nodes: getGlobalTopology.nodes.filter(_ => cc
-        .findIndex(c => c.source === _.id || c.target === _.id) > -1),
-      calls: cc,
-    };
   }
 
   renderActions = () => {
@@ -172,9 +168,9 @@ export default class Topology extends PureComponent {
   }
 
   render() {
-    const { data, variables: { appFilters = [] } } = this.props.topology;
-    const { layout = 0 } = data;
-    const topologData = this.filter();
+    const { data, variables: { appRegExps, appFilters = [], latencyRange } } = this.props.topology;
+    const { metrics, layout = 0 } = data;
+    const { getGlobalTopology: topologData } = data;
     return (
       <Panel globalVariables={this.props.globalVariables} onChange={this.handleChange}>
         <Row gutter={8}>
@@ -195,10 +191,12 @@ export default class Topology extends PureComponent {
                 <AppTopology
                   height={this.props.graphHeight}
                   elements={topologData}
-                  metrics={data}
+                  metrics={metrics}
                   onSelectedApplication={this.handleSelectedApplication}
                   onLoadMetircs={this.handleLoadMetrics}
                   layout={layouts[layout]}
+                  latencyRange={latencyRange}
+                  appRegExps={appRegExps}
                 />
               ) : null}
             </ChartCard>
@@ -226,6 +224,9 @@ export default class Topology extends PureComponent {
                   {data.getGlobalTopology.nodes.filter(_ => _.sla)
                     .map(_ => <Option key={_.name}>{_.name}</Option>)}
                 </Select>
+                <h4>Latency coloring thresholds</h4>
+                <Input style={{ width: '100%', marginBottom: 20 }} onChange={this.handleChangeLatencyStyle} value={latencyRange.join(',')} />
+                <h4>Overview</h4>
                 <DescriptionList layout="vertical">
                   <Description term="Total">{topologData.nodes.length}</Description>
                   {this.renderNodeType(topologData)}

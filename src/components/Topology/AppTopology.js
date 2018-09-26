@@ -20,12 +20,8 @@ import cytoscape from 'cytoscape';
 import * as d3 from 'd3';
 import Base from './Base';
 
-const conf = {
-  nodeSize: {
-    min: 60,
-    max: 120,
-  },
-};
+const latencyColorRange = ['#40a9ff', '#d4b106', '#cf1322'];
+
 export default class AppTopology extends Base {
   setUp = (elements) => {
     const { nodes } = elements;
@@ -37,28 +33,32 @@ export default class AppTopology extends Base {
   }
 
   supplyUserNode = (edges) => {
-    let i = 0;
     const nodes = [];
-    const time = new Date().getTime();
     return {
       nodes,
       edges: edges.map((_) => {
         if (_.data.source !== '1') {
-          return _;
+          return {
+            data: {
+              ..._.data,
+              dataId: _.data.id,
+            },
+          };
         }
-        i += 1;
-        const newId = `USER-${time}-${i}`;
+        const newId = `USER-${_.data.target}`;
         nodes.push({
           data: {
             id: newId,
             name: 'User',
             type: 'USER',
+            isReal: false,
           },
         });
         return {
           data: {
             ..._.data,
             source: newId,
+            dataId: _.data.id,
             id: `${newId}-${_.data.target}`,
           },
         };
@@ -81,6 +81,11 @@ export default class AppTopology extends Base {
   }
 
   updateMetrics = (cy, data) => {
+    this.updateNodeMetrics(cy, data);
+    this.updateEdgeMetrics(cy, data);
+  }
+
+  updateNodeMetrics = (cy, data) => {
     const { sla: { values: slaValues } } = data;
     const layer = cy.cyCanvas();
     const canvas = layer.getCanvas();
@@ -96,7 +101,7 @@ export default class AppTopology extends Base {
       cy.nodes('node[?isReal]').forEach( (node) => {
         const pos = node.position();
         layer.setTransform(ctx);
-        const colors = ["#f5222d", "#1890ff"];
+        const colors = ["#cf1322", "#40a9ff"];
         const nodeId = node.id();
         const nodeSla = slaValues.find(_ => _.id === nodeId);
         let sla = 100;
@@ -126,6 +131,77 @@ export default class AppTopology extends Base {
     });
   }
 
+  updateEdgeMetrics = (cy, data) => {
+    const { cpm, latency } = data;
+    if (!cpm) {
+      return;
+    }
+    const { latencyRange } = this.props;
+    const range = [0, ...latencyRange];
+    const colorRange = range.map((_, i) => {
+      const begin = _;
+      let end = 99999;
+      if (range.length > i + 1) {
+        end = range[i + 1];
+      }
+      return {
+        range: [begin, end],
+        color: latencyColorRange[i],
+      }
+    })
+    const cpmFunc = this.mapFunc(cpm.values);
+    cy.style().selector('edge')
+    .css({
+      width: ele => cpmFunc(ele.data('dataId'), 3, 12),
+      'line-color': ele => this.lineColor(latency.values, ele.data('dataId'), colorRange),
+      'target-arrow-color': ele => this.lineColor(latency.values, ele.data('dataId'), colorRange),
+      'curve-style': 'bezier',
+      'control-point-step-size': 100,
+      'target-arrow-shape': 'triangle',
+      'arrow-scale': 1.2,
+      'opacity': 0.666,
+      'text-wrap': 'wrap',
+      'text-rotation': 'autorotate',
+    })
+    .update();
+  }
+
+  mapFunc = (values) => {
+    if (values.length < 1) {
+      return (id, rLimit) => {
+        return rLimit;
+      }; 
+    }
+    const valueData = values.map(_ => _.value);
+    const max = Math.max(...valueData);
+    const min = Math.min(...valueData);
+    const range = max - min;
+    return (id, lLimit, rLimit) => {
+      if (!id) {
+        return lLimit;
+      }
+      const value = values.find(_ => _.id === id);
+      let v = min;
+      if (value) {
+        v = value.value;
+      }
+      const r = Math.round((v - min) * (rLimit - lLimit) / range + lLimit);
+      if (r < lLimit) {
+        return lLimit;
+      }
+      return r;
+    };
+  }
+
+  lineColor = (values, id, colorRange) => {
+    const value = values.find(_ => _.id === id);
+    if (!value) {
+      return '#40a9ff';
+    }
+    const range = colorRange.find(_ => value.value >= _.range[0] && value.value < _.range[1]);
+    return range ? range.color : '#40a9ff';
+  }
+
   getStyle = () => {
     return cytoscape.stylesheet()
       .selector('node[?isReal]')
@@ -146,7 +222,9 @@ export default class AppTopology extends Base {
       })
       .selector(':selected')
       .css({
-        'border-width': 4,
+        width: 67,
+        height: 67,
+        'border-width': 13,
       })
       .selector('.faded')
       .css({
@@ -175,14 +253,9 @@ export default class AppTopology extends Base {
         'curve-style': 'bezier',
         'control-point-step-size': 100,
         'target-arrow-shape': 'triangle',
-        'arrow-scale': 1.7,
-        'target-arrow-color': '#40a9ff',
-        'line-color': 'mapData(101, 0, 100, #40a9ff, #ffa39e)',
+        'arrow-scale': 1.2,
         'opacity': 0.666,
-        width: 3,
-        label: ele => `${ele.data('callType')}`,
         'text-wrap': 'wrap',
-        color: 'rgb(110, 112, 116)',
         'text-rotation': 'autorotate',
       });
   }

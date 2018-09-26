@@ -41,9 +41,10 @@ export default class Base extends Component {
   }
 
   componentDidMount() {
-    const { elements, layout = config.layout, onLoadMetircs, metrics } = this.props;
+    const { elements, layout = config.layout, metrics } = this.props;
     this.layout = layout;
     this.metrics = metrics;
+    this.elements = elements;
     let nextElements = this.transform(elements);
     if (this.setUp) {
       nextElements = this.setUp(nextElements);
@@ -60,9 +61,6 @@ export default class Base extends Component {
     });
     if (this.bindEvent) {
       this.bindEvent(this.cy);
-    }
-    if (onLoadMetircs) {
-      onLoadMetircs(nextElements.nodes.filter(_ => _.data.id.indexOf('USER') < 0).map(_ => _.data.id));
     }
   }
 
@@ -91,21 +89,55 @@ export default class Base extends Component {
     return diff.left.length < 1 && diff.right.length < 1;
   }
 
+  loadMetrics = (elementes) => {
+    const { onLoadMetircs } = this.props;
+    if (onLoadMetircs) {
+      onLoadMetircs(
+        elementes.nodes.filter(_ => _.data.id.indexOf('USER') < 0).map(_ => _.data.id),
+        elementes.edges.filter(_ => _.data.detectPoint === 'SERVER').map(_ => _.data.id),
+        elementes.edges.filter(_ => _.data.detectPoint === 'CLIENT').map(_ => _.data.id),
+      );
+    }
+  }
+
+  transform = (elements) => {
+    if (!elements) {
+      return [];
+    }
+    const { nodes, calls } = elements;
+    return {
+      nodes: nodes.map(node => ({ data: node })),
+      edges: calls.filter(call => (nodes.findIndex(node => node.id === call.source) > -1
+        && nodes.findIndex(node => node.id === call.target) > -1))
+        .map(call => ({ data: { ...call } })),
+    };
+  }
+
   updateTopology(nextProps) {
-    if (nextProps.elements === this.elements && nextProps.layout === this.layout) {
+    const { elements, layout: nextLayout, appRegExps } = nextProps;
+    let thisElements = this.elements;
+    let nextElements = elements;
+    const filteredElements = this.filter(elements, appRegExps);
+    if (filteredElements) {
+      thisElements = this.filteredElements;
+      nextElements = filteredElements;
+      this.filteredElements = filteredElements;
+    }
+    if (thisElements === nextElements && nextLayout === this.layout) {
       return;
     }
-    const { elements, layout: nextLayout, onLoadMetircs } = nextProps;
-    const nodes = this.cy.nodes();
-    let nextElements = this.transform(elements);
+    this.elements = elements;
+    nextElements = this.transform(nextElements);
     if (this.setUp) {
       nextElements = this.setUp(nextElements);
     }
-    this.cy.json({ elements: nextElements, style: this.getStyle() });
+    const nodes = this.cy.nodes();
+    this.cy.json({ elements: nextElements });
     
     if (this.bindEvent) {
       this.bindEvent(this.cy);
     }
+    this.loadMetrics(nextElements);
     if (nextLayout === this.layout && this.isSame(nodes, this.cy.nodes())) {
       return;
     }
@@ -115,32 +147,36 @@ export default class Base extends Component {
       this.cy.minZoom(this.cy.zoom() - 0.3);
     });
     layout.run();
-    if (onLoadMetircs) {
-      onLoadMetircs(nextElements.nodes.filter(_ => _.data.id.indexOf('USER') < 0).map(_ => _.data.id));
-    }
   }
 
   updateMetric(nextProps) {
-    if (nextProps.metrics === this.metrics) {
+    if (nextProps.metrics === this.metrics && nextProps.latencyRange === this.latencyRange) {
       return;
     }
     this.metrics = nextProps.metrics;
+    this.latencyRange = nextProps.latencyRange;
     if (this.updateMetrics) {
       this.updateMetrics(this.cy, this.metrics);
     }
   }
 
-  transform(elements) {
-    if (!elements) {
-      return [];
+  filter(elements, appRegExps) {
+    if (!appRegExps) {
+      this.appRegExps = appRegExps;
+      return elements;
     }
-    this.elements = elements;
-    const { nodes, calls } = elements;
+    if (this.elements === elements && this.appRegExps === appRegExps) {
+      return this.filteredElements;
+    }
+    this.appRegExps = appRegExps;
+    const nn = elements.nodes.filter(_ => appRegExps
+      .findIndex(r => _.name.match(r)) > -1);
+    const cc = elements.calls.filter(_ => nn
+      .findIndex(n => n.id === _.source || n.id === _.target) > -1);
     return {
-      nodes: nodes.map(node => ({ data: node })),
-      edges: calls.filter(call => (nodes.findIndex(node => node.id === call.source) > -1
-        && nodes.findIndex(node => node.id === call.target) > -1))
-        .map(call => ({ data: { ...call, id: `${call.source}-${call.target}` } })),
+      nodes: elements.nodes.filter(_ => cc
+        .findIndex(c => c.source === _.id || c.target === _.id) > -1),
+      calls: cc,
     };
   }
 

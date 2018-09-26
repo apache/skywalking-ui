@@ -104,49 +104,49 @@ export default {
     const userConnectApplication = mockjs.mock({
       calls: [
         {
-          id: 1,
+          id: 11,
           source: 1,
           target: 2,
           'callType|1': ['rpc', 'http', 'dubbo'],
         },
         {
-          id: 2,
+          id: 12,
           source: 2,
           target: 3,
           'callType|1': ['rpc', 'http', 'dubbo'],
         },
         {
-          id: 3,
+          id: 13,
           source: 3,
           target: 2,
           'callType|1': ['rpc', 'http', 'dubbo'],
         },
         {
-          id: 4,
+          id: 14,
           source: 2,
           target: 200,
           'callType|1': ['rpc', 'http', 'dubbo'],
         },
         {
-          id: 5,
+          id: 15,
           source: 2,
           target: 201,
           'callType|1': ['rpc', 'http', 'dubbo'],
         },
         {
-          id: 1,
+          id: 16,
           source: 3,
           target: 202,
           'callType|1': ['rpc', 'http', 'dubbo'],
         },
         {
-          id: 6,
+          id: 17,
           source: 3,
           target: 203,
           'callType|1': ['rpc', 'http', 'dubbo'],
         },
         {
-          id: 7,
+          id: 18,
           source: 3,
           target: 204,
           'callType|1': ['rpc', 'http', 'dubbo'],

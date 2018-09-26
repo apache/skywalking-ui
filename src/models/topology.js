@@ -19,11 +19,47 @@
 import { base } from '../utils/models';
 import { exec } from '../services/graphql';
 
-const nodeMetricQuery = `
-  query NodeMetric($duration: Duration!, $ids: [ID!]!) {
+const metricQuery = `
+  query TopologyMetric($duration: Duration!, $ids: [ID!]!,  $idsS: [ID!]!, $idsC: [ID!]!) {
     sla: getValues(metric: {
       name: "service_relation_server_call_sla"
       ids: $ids
+    }, duration: $duration) {
+      values {
+        id
+        value
+      }
+    }
+    cpmS: getValues(metric: {
+      name: "service_relation_server_cpm"
+      ids: $idsS
+    }, duration: $duration) {
+      values {
+        id
+        value
+      }
+    }
+    latencyS: getValues(metric: {
+      name: "service_relation_client_resp_time"
+      ids: $idsS
+    }, duration: $duration) {
+      values {
+        id
+        value
+      }
+    }
+    cpmC: getValues(metric: {
+      name: "service_relation_client_cpm"
+      ids: $idsC
+    }, duration: $duration) {
+      values {
+        id
+        value
+      }
+    }
+    latencyC: getValues(metric: {
+      name: "service_relation_client_resp_time"
+      ids: $idsC
     }, duration: $duration) {
       values {
         id
@@ -40,9 +76,20 @@ export default base({
       nodes: [],
       calls: [],
     },
-    sla: {
-      values: [],
+    metrics: {
+      sla: {
+        values: [],
+      },
+      cpm: {
+        values: [],
+      },
+      latency: {
+        values: [],
+      },
     },
+  },
+  varState: {
+    latencyRange: [100, 500],
   },
   dataQuery: `
     query Topology($duration: Duration!) {
@@ -64,14 +111,25 @@ export default base({
     }
   `,
   effects: {
-    *fetchNodeMetrics({ payload }, { call, put }) {
-      const response = yield call(exec, { query: nodeMetricQuery, variables: payload.variables });
+    *fetchMetrics({ payload }, { call, put }) {
+      const response = yield call(exec, { query: metricQuery, variables: payload.variables });
       if (!response.data) {
         return;
       }
+      const { sla, cpmS, cpmC, latencyS, latencyC } = response.data;
       yield put({
         type: 'saveData',
-        payload: response.data,
+        payload: {
+          metrics: {
+            sla,
+            cpm: {
+              values: cpmS.values.concat(cpmC.values),
+            },
+            latency: {
+              values: latencyS.values.concat(latencyC.values),
+            },
+          },
+        },
       });
     },
   },
@@ -99,6 +157,16 @@ export default base({
               return null;
             }
           }),
+        },
+      };
+    },
+    setLatencyStyleRange(preState, { payload: { latencyRange } }) {
+      const { variables } = preState;
+      return {
+        ...preState,
+        variables: {
+          ...variables,
+          latencyRange,
         },
       };
     },
