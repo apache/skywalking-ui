@@ -51,27 +51,27 @@ export default base({
         numOfAlarm
       }
       getThermodynamic(duration: $duration, metric: {
-        name: "Endpoint_avg"
+        name: "all_heatmap"
       }) {
         nodes
         responseTimeStep: axisYStep
       }
-      getTopNSlowEndpoint: getTopN(duration: $duration, condition: {
-        name: "slowEndpoint",
+      getTopNSlowEndpoint: getAllEndpointTopN(
+        duration: $duration,
+        name: "endpoint_avg",
         topN: 10,
-        order: DES,
-        filterScope: ENDPOINT
-      }) {
+        order: DES
+      ) {
         key: id
         label: name
         value
       }
-      getTopNServiceThroughput: getTopN(duration: $duration, condition: {
-        name: "serviceThroughput",
+      getTopNServiceThroughput: getServiceTopN(
+        duration: $duration,
+        name: "service_cpm",
         topN: 10,
-        order: DES,
-        filterScope: SERVICE
-      }) {
+        order: DES
+      ) {
         key: id
         label: name
         value

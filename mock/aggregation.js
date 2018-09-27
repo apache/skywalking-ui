@@ -18,7 +18,16 @@
 import mockjs from 'mockjs';
 
 export default {
-  getServiceTopN: () => mockjs.mock({ 'array|10': [{ 'id|+1': 1, name: '@name', 'value|100-10000': 1 }]}),
-  getAllServiceInstanceTopN: () => mockjs.mock({ 'array|10': [{ 'id|+1': 1, name: '@name', 'value|100-10000': 1 }]}),
-  getAllEndpointTopN: () => mockjs.mock({ 'array|10': [{ 'id|+1': 1, name: '@url', 'value|200-1000': 1 }]}),
+  getServiceTopN: () => {
+    const data =  mockjs.mock({ 'array|10': [{ 'id|+1': 1, name: '@name', 'value|100-10000': 1 }]});
+    return data.array;
+  },
+  getAllServiceInstanceTopN: () => {
+    const data =  mockjs.mock({ 'array|10': [{ 'id|+1': 1, name: '@name', 'value|100-10000': 1 }]});
+    return data.array;
+  },
+  getAllEndpointTopN: () => {
+    const data =  mockjs.mock({ 'array|10': [{ 'id|+1': 1, name: '@name', 'value|200-1000': 1 }]});
+    return data.array;
+  },
 };

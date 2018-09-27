@@ -7,7 +7,7 @@ import { makeExecutableSchema, addMockFunctionsToSchema } from 'graphql-tools';
 import { graphql } from 'graphql';
 import { ClusterBrief, getServiceInstances, getAllServices, searchEndpoint } from './mock/metadata';
 import { IntValues, Thermodynamic } from './mock/metric';
-import {  } from './mock/aggregation';
+import { getServiceTopN, getAllEndpointTopN } from './mock/aggregation';
 
 const noMock = process.env.NO_MOCK === 'true';
 
@@ -15,6 +15,8 @@ const resolvers = {
   Query: {
     getAllServices,
     getServiceInstances,
+    getServiceTopN,
+    getAllEndpointTopN,
     getGlobalTopology,
     getServiceTopology,
     searchEndpoint,
