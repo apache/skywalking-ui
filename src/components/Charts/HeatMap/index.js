@@ -127,6 +127,7 @@ class HeatMap extends Component {
           }ms`
         );
       }
+      mergeSource.push(...source);
     }
     const cols = {
       datetime: {
