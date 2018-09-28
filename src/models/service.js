@@ -30,29 +30,29 @@ const optionsQuery = `
 
 const dataQuery = `
   query Service($serviceId: ID!, $duration: Duration!) {
-    getSlowEndpoint: getTopN(duration: $duration, condition: {
-      name: "slowEndpoint",
+    getSlowEndpoint: getEndpointTopN(
+      serviceId: $serviceId
+      duration: $duration
+      name: "endpoint_avg",
       topN: 10,
-      order: DES,
-      filterScope: ENDPOINT,
-      filterId: $serviceId
-    }) {
+      order: DES
+    ) {
       key: id
       label: name
       value
     }
-    getServiceInstanceThroughput: getTopN(duration: $duration, condition: {
-      name: "serviceInstanceThroughtput",
+    getServiceInstanceThroughput: getServiceInstanceTopN(
+      serviceId: $serviceId
+      duration: $duration
+      name: "service_instance_cpm",
       topN: 10,
-      order: DES,
-      filterScope: SERVICE_INSTANCE,
-      filterId: $serviceId
-    }) {
+      order: DES
+    ) {
       key: id
       label: name
       value
     }
-    getServiceInstances(duration: $duration, id: $serviceId) {
+    getServiceInstances(duration: $duration, serviceId: $serviceId) {
       key: id
       name
       attributes {
@@ -69,10 +69,11 @@ const dataQuery = `
         isReal
       }
       calls {
+        id
         source
         target
         callType
-        cpm
+        detectPoint
       }
     }
   }
@@ -81,7 +82,7 @@ const dataQuery = `
 const serviceInstanceQuery = `
 query ServiceInstance($serviceInstanceId: ID!, $duration: Duration!) {
   getServiceInstanceResponseTimeTrend: getLinearIntValues(metric: {
-    name: "serviceInstanceResponseTimeTrend"
+    name: "service_instance_resp_time"
     id: $serviceInstanceId
   }, duration: $duration) {
     values {
@@ -89,7 +90,7 @@ query ServiceInstance($serviceInstanceId: ID!, $duration: Duration!) {
     }
   }
   getServiceInstanceThroughputTrend: getLinearIntValues(metric: {
-    name: "serviceInstanceThroughputTrend"
+    name: "service_instance_cpm"
     id: $serviceInstanceId
   }, duration: $duration) {
     values {
@@ -97,7 +98,7 @@ query ServiceInstance($serviceInstanceId: ID!, $duration: Duration!) {
     }
   }
   getCPUTrend: getLinearIntValues(metric: {
-    name: "CPUTrend"
+    name: "instance_jvm_cpu"
     id: $serviceInstanceId
   }, duration: $duration) {
     values {
@@ -105,7 +106,7 @@ query ServiceInstance($serviceInstanceId: ID!, $duration: Duration!) {
     }
   }
   youngGCCount: getLinearIntValues(metric: {
-    name: "youngGCCount"
+    name: "instance_jvm_young_gc_count"
     id: $serviceInstanceId
   }, duration: $duration) {
     values {
@@ -113,7 +114,7 @@ query ServiceInstance($serviceInstanceId: ID!, $duration: Duration!) {
     }
   }
   oldGCCount: getLinearIntValues(metric: {
-    name: "oldGCCount"
+    name: "instance_jvm_old_gc_count"
     id: $serviceInstanceId
   }, duration: $duration) {
     values {
@@ -121,7 +122,7 @@ query ServiceInstance($serviceInstanceId: ID!, $duration: Duration!) {
     }
   }
   youngGCTime: getLinearIntValues(metric: {
-    name: "youngGCTime"
+    name: "instance_jvm_young_gc_time"
     id: $serviceInstanceId
   }, duration: $duration) {
     values {
@@ -129,7 +130,7 @@ query ServiceInstance($serviceInstanceId: ID!, $duration: Duration!) {
     }
   }
   oldGCTime: getLinearIntValues(metric: {
-    name: "oldGCTime"
+    name: "instance_jvm_old_gc_time"
     id: $serviceInstanceId
   }, duration: $duration) {
     values {
@@ -137,7 +138,7 @@ query ServiceInstance($serviceInstanceId: ID!, $duration: Duration!) {
     }
   }
   heap: getLinearIntValues(metric: {
-    name: "heap"
+    name: "instance_jvm_memory_heap"
     id: $serviceInstanceId
   }, duration: $duration) {
     values {
@@ -145,7 +146,7 @@ query ServiceInstance($serviceInstanceId: ID!, $duration: Duration!) {
     }
   }
   maxHeap: getLinearIntValues(metric: {
-    name: "maxHeap"
+    name: "instance_jvm_memory_max_heap"
     id: $serviceInstanceId
   }, duration: $duration) {
     values {
@@ -153,7 +154,7 @@ query ServiceInstance($serviceInstanceId: ID!, $duration: Duration!) {
     }
   }
   noheap: getLinearIntValues(metric: {
-    name: "noheap"
+    name: "instance_jvm_memory_noheap"
     id: $serviceInstanceId
   }, duration: $duration) {
     values {
@@ -161,7 +162,7 @@ query ServiceInstance($serviceInstanceId: ID!, $duration: Duration!) {
     }
   }
   maxNoheap: getLinearIntValues(metric: {
-    name: "maxNoheap"
+    name: "instance_jvm_memory_max_noheap"
     id: $serviceInstanceId
   }, duration: $duration) {
     values {

@@ -22,7 +22,11 @@ export default {
     const data =  mockjs.mock({ 'array|10': [{ 'id|+1': 1, name: '@name', 'value|100-10000': 1 }]});
     return data.array;
   },
-  getAllServiceInstanceTopN: () => {
+  getServiceInstanceTopN: () => {
+    const data =  mockjs.mock({ 'array|10': [{ 'id|+1': 1, name: '@name', 'value|100-10000': 1 }]});
+    return data.array;
+  },
+  getEndpointTopN: () => {
     const data =  mockjs.mock({ 'array|10': [{ 'id|+1': 1, name: '@name', 'value|100-10000': 1 }]});
     return data.array;
   },
