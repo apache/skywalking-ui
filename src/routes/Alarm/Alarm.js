@@ -31,9 +31,9 @@ const defaultPaging = {
 };
 
 const funcMap = {
-  "SERVICE": "saveServiceAlarmList",
-  "SERVICE_INSTANCE": "saveServiceInstanceAlarmList",
-  "ENDPOINT": "saveEndpointAlarmList",
+  "Service": "saveServiceAlarmList",
+  "ServiceInstance": "saveServiceInstanceAlarmList",
+  "Endpoint": "saveEndpointAlarmList",
 }
 
 @connect(state => ({
@@ -48,7 +48,7 @@ export default class Alarm extends PureComponent {
       this.props.dispatch({
         type: 'alarm/saveVariables',
         payload: { values: {
-          scope: 'SERVICE',
+          scope: 'Service',
           paging: defaultPaging,
         } },
       });
@@ -150,9 +150,9 @@ export default class Alarm extends PureComponent {
           extra={extraContent}
         >
           <Tabs activeKey={values.scope} onChange={this.changeScope}>
-            <TabPane tab="Service" key="SERVICE">{this.renderList(data.serviceAlarmList)}</TabPane>
-            <TabPane tab="ServiceInstance" key="SERVICE_INSTANCE">{this.renderList(data.serviceInstanceAlarmList)}</TabPane>
-            <TabPane tab="Endpoint" key="ENDPOINT">{this.renderList(data.endpointAlarmList)}</TabPane>
+            <TabPane tab="Service" key="Service">{this.renderList(data.serviceAlarmList)}</TabPane>
+            <TabPane tab="ServiceInstance" key="ServiceInstance">{this.renderList(data.serviceInstanceAlarmList)}</TabPane>
+            <TabPane tab="Endpoint" key="Endpoint">{this.renderList(data.endpointAlarmList)}</TabPane>
           </Tabs>
         </Card>
       </Panel>

@@ -99,7 +99,7 @@ export default base({
           dispatch({
             type: 'saveVariables',
             payload: { values: {
-              scope: state.type.toUpperCase(),
+              scope: state.type,
             } },
           });
         }

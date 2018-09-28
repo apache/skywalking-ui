@@ -16,24 +16,24 @@
  */
 
 
-import { query } from '../services/graphql';
+import { exec } from '../services/graphql';
 import { generateDuration } from '../utils/time';
 
 const noticeQuery = `
   query Notice($duration:Duration!){
-    applicationAlarmList: loadAlarmList(alarmType: APPLICATION, duration: $duration, paging: { pageNum: 1, pageSize: 5, needTotal: true }) {
-      items {
-        title
+    applicationAlarmList: getAlarm(scope: Service, duration: $duration, paging: { pageNum: 1, pageSize: 5, needTotal: true }) {
+      msgs {
+        key: id
+        message
         startTime
-        causeType
       }
       total
     }
-    serverAlarmList: loadAlarmList(alarmType: SERVER, duration: $duration, paging: { pageNum: 1, pageSize: 5, needTotal: true }) {
-      items {
-        title
+    serverAlarmList: getAlarm(scope: ServiceInstance, duration: $duration, paging: { pageNum: 1, pageSize: 5, needTotal: true }) {
+      msgs {
+        key: id
+        message
         startTime
-        causeType
       }
       total
     }
@@ -48,11 +48,11 @@ export default {
     isMonitor: false,
     notices: {
       applicationAlarmList: {
-        items: [],
+        msgs: [],
         total: 0,
       },
       serverAlarmList: {
-        items: [],
+        msgs: [],
         total: 0,
       },
     },
@@ -67,7 +67,7 @@ export default {
 
   effects: {
     *fetchNotice({ payload: { variables } }, { call, put }) {
-      const response = yield call(query, 'notice', { query: noticeQuery, variables });
+      const response = yield call(exec, { query: noticeQuery, variables });
       yield put({
         type: 'saveNotice',
         payload: response.data,

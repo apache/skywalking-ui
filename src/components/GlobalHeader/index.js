@@ -81,8 +81,8 @@ export default class GlobalHeader extends PureComponent {
       onDurationToggle, onDurationReload, onRedirect: redirect,
       onMenuClick,
     } = this.props;
-    const applications = applicationAlarmList.items.map(_ => ({ ..._, datetime: _.startTime }));
-    const servers = serverAlarmList.items.map(_ => ({ ..._, datetime: _.startTime }));
+    const applications = applicationAlarmList.msgs.map(_ => ({ ..._, title: _.message, datetime: _.startTime }));
+    const servers = serverAlarmList.msgs.map(_ => ({ ..._, title: _.message, datetime: _.startTime }));
     const menu = (
       <Menu className={styles.menu} selectedKeys={[]} onClick={onMenuClick}>
         <Menu.Item key="logout">
@@ -128,13 +128,13 @@ export default class GlobalHeader extends PureComponent {
             >
               <NoticeIcon.Tab
                 list={applications}
-                title="Application"
+                title="Service"
                 emptyText="No alarm"
                 emptyImage="alarm-backgroud.png"
               />
               <NoticeIcon.Tab
                 list={servers}
-                title="Server"
+                title="ServiceInstance"
                 emptyText="No alarm"
                 emptyImage="alarm-backgroud.png"
               />

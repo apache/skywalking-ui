@@ -1,7 +1,7 @@
 import fs from 'fs';
 import { delay } from 'roadhog-api-doc';
 import { getGlobalTopology, getServiceTopology } from './mock/topology';
-import { Alarms, getNoticeAlarm, AlarmTrend } from './mock/alarm';
+import { Alarms, AlarmTrend } from './mock/alarm';
 import { TraceBrief, Trace } from './mock/trace'
 import { makeExecutableSchema, addMockFunctionsToSchema } from 'graphql-tools';
 import { graphql } from 'graphql';
@@ -56,7 +56,6 @@ const proxy = {
     const { query: source, variables: variableValues } = req.body;
     graphql({ schema, source, variableValues }).then((result) => res.send(result));
   },
-  'POST /api/notice': getNoticeAlarm,
   'POST /api/login/account': (req, res) => {
     const { password, userName } = req.body;
     if (password === '888888' && userName === 'admin') {
