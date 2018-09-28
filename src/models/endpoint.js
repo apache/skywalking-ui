@@ -31,7 +31,7 @@ const optionsQuery = `
 const dataQuery = `
   query Endpoint($endpointId: ID!, $duration: Duration!, $traceCondition: TraceQueryCondition!) {
     getEndpointResponseTimeTrend: getLinearIntValues(metric: {
-      name: "endpointResponseTimeTrend"
+      name: "endpoint_avg"
       id: $endpointId
     }, duration: $duration) {
       values {
@@ -39,7 +39,7 @@ const dataQuery = `
       }
     }
     getEndpointThroughputTrend: getLinearIntValues(metric: {
-      name: "endpointResponseTimeTrend"
+      name: "endpoint_cpm"
       id: $endpointId
     }, duration: $duration) {
       values {
@@ -47,7 +47,7 @@ const dataQuery = `
       }
     }
     getEndpointSLATrend: getLinearIntValues(metric: {
-      name: "endpointResponseTimeTrend"
+      name: "endpoint_sla"
       id: $endpointId
     }, duration: $duration) {
       values {
