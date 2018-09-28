@@ -198,9 +198,9 @@ export default class Trace extends PureComponent {
           opacity={0.65}
           shape="circle"
           size={4}
-          tooltip={['operationName*startTime*duration', (operationName, startTime, duration) => {
+          tooltip={['endpointName*startTime*duration', (endpointName, startTime, duration) => {
             return {
-              name: operationName,
+              name: endpointName,
               value: `
                 ${startTime}
                 ${duration}ms
@@ -260,8 +260,8 @@ export default class Trace extends PureComponent {
             </Select>
           )}
         </FormItem>
-        <FormItem label="OperationName">
-          {getFieldDecorator('operationName')(
+        <FormItem label="EndpointName">
+          {getFieldDecorator('endpointName')(
             <Input placeholder="eg Kafka/Trace-topic-1/Consumer" />
           )}
         </FormItem>

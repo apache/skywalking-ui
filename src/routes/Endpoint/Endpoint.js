@@ -114,7 +114,7 @@ export default class Endpoint extends PureComponent {
         duration,
         traceCondition: {
           endpointId: parseInt(values.endpointId, 10),
-          operationName: endpointName,
+          endpointName: endpointName,
           queryDuration: duration,
           traceState: 'ALL',
           queryOrder: 'BY_DURATION',

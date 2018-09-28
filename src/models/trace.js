@@ -34,7 +34,7 @@ const dataQuery = `
     queryBasicTraces(condition: $condition) {
       traces {
         key: segmentId
-        operationNames
+        endpointNames
         duration
         start
         isError
@@ -61,7 +61,7 @@ const spanQuery = `query Spans($traceId: ID!) {
       serviceCode
       startTime
       endTime
-      operationName
+      endpointName
       type
       peer
       component

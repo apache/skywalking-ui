@@ -84,7 +84,7 @@ class TraceStack extends PureComponent {
     node.startTime = span.startTime;
     node.endTime = span.endTime;
     node.duration = span.endTime - span.startTime;
-    node.content = span.operationName;
+    node.content = span.endpointName;
     node.spanSegId = this.id(span.segmentId, span.spanId);
     node.parentSpanSegId = this.findParent(span);
     node.refs = span.refs;

@@ -22,7 +22,7 @@ import Ellipsis from 'ant-design-pro/lib/Ellipsis';
 import styles from './index.less';
 
 class TraceList extends PureComponent {
-  renderOperationName = (opName, duration, isError, maxDuration) => {
+  renderEndpointName = (opName, duration, isError, maxDuration) => {
     return (
       <div className={styles.progressWrap}>
         <div
@@ -89,8 +89,8 @@ class TraceList extends PureComponent {
                   icon={item.isError ? 'close' : 'check'}
                 />
               }
-              title={this.renderOperationName(
-                item.operationNames,
+              title={this.renderEndpointName(
+                item.endpointNames,
                 item.duration,
                 item.isError,
                 maxDuration
