@@ -20,11 +20,13 @@ import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Row, Col, Select, Card, Form, Breadcrumb } from 'antd';
 import { AppTopology } from 'components/Topology';
+import { Line } from 'components/Charts';
 import { Panel } from 'components/Page';
 import RankList from 'components/RankList';
 import ServiceInstanceLitePanel from 'components/ServiceInstanceLitePanel';
 import ServiceInstance from './ServiceInstance';
 import { getServiceInstanceId, redirect } from '../../utils/utils';
+import { axisMY } from '../../utils/time';
 
 const { Option } = Select;
 const { Item: FormItem } = Form;
@@ -169,6 +171,20 @@ export default class Service extends PureComponent {
                   duration={this.props.duration}
                   onSelectServiceInstance={this.handleSelectServiceInstance}
                   onMoreServiceInstance={this.handleGoServiceInstance}
+                />
+              </Card>
+            </Col>
+          </Row>
+          <Row>
+            <Col {...{ ...middleColResponsiveProps, xl: 24, lg: 24, md: 24 }}>
+              <Card
+                title="Response Time"
+                bordered={false}
+                bodyStyle={{ padding: 5, height: 150}}
+              >
+                <Line
+                  data={axisMY(this.props.duration, [{ title: 'p99', value: data.getServiceP99}, { title: 'p95', value: data.getServiceP95}
+                  , { title: 'p90', value: data.getServiceP90}, { title: 'p75', value: data.getServiceP75}, { title: 'p50', value: data.getServiceP50}])}
                 />
               </Card>
             </Col>

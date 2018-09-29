@@ -27,6 +27,14 @@ export function axisY({ display }, data, tranformFunc) {
     (tranformFunc ? tranformFunc({ x: v, y: data[i] ? data[i].value : null }) : { x: v, y: data[i] ? data[i].value : null }));
 }
 
+export function axisMY({ display }, data) {
+  const result = [];
+  data.forEach(({ title, value: { values } }) => {
+    result.push(...axisY({ display }, values, _ => ({ ..._, d: title})));
+  })
+  return result;
+}
+
 export function generateDuration({ from, to }) {
   const start = from();
   const end = to();

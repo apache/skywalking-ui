@@ -76,6 +76,46 @@ const dataQuery = `
         detectPoint
       }
     }
+    getServiceP99: getLinearIntValues(metric: {
+      name: "service_p99"
+      id: $serviceId
+    }, duration: $duration) {
+      values {
+        value
+      }
+    }
+    getServiceP95: getLinearIntValues(metric: {
+      name: "service_p95"
+      id: $serviceId
+    }, duration: $duration) {
+      values {
+        value
+      }
+    }
+    getServiceP90: getLinearIntValues(metric: {
+      name: "service_p90"
+      id: $serviceId
+    }, duration: $duration) {
+      values {
+        value
+      }
+    }
+    getServiceP75: getLinearIntValues(metric: {
+      name: "service_p75"
+      id: $serviceId
+    }, duration: $duration) {
+      values {
+        value
+      }
+    }
+    getServiceP50: getLinearIntValues(metric: {
+      name: "service_p50"
+      id: $serviceId
+    }, duration: $duration) {
+      values {
+        value
+      }
+    }
   }
 `;
 
@@ -181,6 +221,21 @@ export default base({
     getServiceTopology: {
       nodes: [],
       calls: [],
+    },
+    getServiceP99: {
+      values: [],
+    },
+    getServiceP95: {
+      values: [],
+    },
+    getServiceP90: {
+      values: [],
+    },
+    getServiceP75: {
+      values: [],
+    },
+    getServiceP50: {
+      values: [],
     },
     getServiceInstances: [],
     showServiceInstance: false,
