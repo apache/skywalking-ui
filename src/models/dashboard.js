@@ -35,6 +35,21 @@ export default base({
       nodes: [],
       responseTimeStep: 0,
     },
+    getP99: {
+      values: [],
+    },
+    getP95: {
+      values: [],
+    },
+    getP90: {
+      values: [],
+    },
+    getP75: {
+      values: [],
+    },
+    getP50: {
+      values: [],
+    },
     getTopNSlowEndpoint: [],
     getTopNServiceThroughput: [],
   },
@@ -75,6 +90,41 @@ export default base({
         key: id
         label: name
         value
+      }
+      getP99: getLinearIntValues(metric: {
+        name: "service_p99"
+      }, duration: $duration) {
+        values {
+          value
+        }
+      }
+      getP95: getLinearIntValues(metric: {
+        name: "service_p95"
+      }, duration: $duration) {
+        values {
+          value
+        }
+      }
+      getP90: getLinearIntValues(metric: {
+        name: "service_p90"
+      }, duration: $duration) {
+        values {
+          value
+        }
+      }
+      getP75: getLinearIntValues(metric: {
+        name: "service_p75"
+      }, duration: $duration) {
+        values {
+          value
+        }
+      }
+      getP50: getLinearIntValues(metric: {
+        name: "service_p50"
+      }, duration: $duration) {
+        values {
+          value
+        }
       }
     }
   `,

@@ -65,6 +65,46 @@ const dataQuery = `
       }
       total
     }
+    getP99: getLinearIntValues(metric: {
+      name: "endpoint_p99"
+      id: $endpointId
+    }, duration: $duration) {
+      values {
+        value
+      }
+    }
+    getP95: getLinearIntValues(metric: {
+      name: "endpoint_p95"
+      id: $endpointId
+    }, duration: $duration) {
+      values {
+        value
+      }
+    }
+    getP90: getLinearIntValues(metric: {
+      name: "endpoint_p90"
+      id: $endpointId
+    }, duration: $duration) {
+      values {
+        value
+      }
+    }
+    getP75: getLinearIntValues(metric: {
+      name: "endpoint_p75"
+      id: $endpointId
+    }, duration: $duration) {
+      values {
+        value
+      }
+    }
+    getP50: getLinearIntValues(metric: {
+      name: "endpoint_p50"
+      id: $endpointId
+    }, duration: $duration) {
+      values {
+        value
+      }
+    }
   }
 `;
 
@@ -125,6 +165,21 @@ export default base({
     queryBasicTraces: {
       traces: [],
       total: 0,
+    },
+    getP99: {
+      values: [],
+    },
+    getP95: {
+      values: [],
+    },
+    getP90: {
+      values: [],
+    },
+    getP75: {
+      values: [],
+    },
+    getP50: {
+      values: [],
     },
   },
   dataQuery,

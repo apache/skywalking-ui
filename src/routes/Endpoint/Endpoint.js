@@ -20,9 +20,9 @@ import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Row, Col, Form, Button, Icon, Select } from 'antd';
 import {
-  ChartCard, MiniArea, MiniBar, Sankey,
+  ChartCard, MiniArea, MiniBar, Sankey, Line,
 } from 'components/Charts';
-import { axisY } from '../../utils/time';
+import { axisY, axisMY } from '../../utils/time';
 import { avgTS } from '../../utils/utils';
 import { Panel, Search } from '../../components/Page';
 import TraceList from '../../components/Trace/TraceList';
@@ -113,8 +113,8 @@ export default class Endpoint extends PureComponent {
         endpointId,
         duration,
         traceCondition: {
-          endpointId: parseInt(values.endpointId, 10),
-          endpointName: endpointName,
+          endpointId: values.endpointId,
+          endpointName,
           queryDuration: duration,
           traceState: 'ALL',
           queryOrder: 'BY_DURATION',
@@ -192,6 +192,19 @@ export default class Endpoint extends PureComponent {
                 height={46}
                 data={axisY(duration, getEndpointSLATrend.values,
                   ({ x, y }) => ({ x, y: y / 100 }))}
+              />
+            </ChartCard>
+          </Col>
+        </Row>
+        <Row>
+          <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginTop: 8 }}>
+            <ChartCard
+              title="Response Time"
+            >
+              <Line
+                height={150}
+                data={axisMY(this.props.duration, [{ title: 'p99', value: data.getP99}, { title: 'p95', value: data.getP95}
+                , { title: 'p90', value: data.getP90}, { title: 'p75', value: data.getP75}, { title: 'p50', value: data.getP50}])}
               />
             </ChartCard>
           </Col>

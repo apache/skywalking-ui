@@ -20,9 +20,9 @@ import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Row, Col, Card, Tooltip, Icon } from 'antd';
 import {
-  ChartCard, MiniArea, Field, HeatMap,
+  ChartCard, MiniArea, Field, HeatMap, Line,
 } from '../../components/Charts';
-import { axis, generateDuration } from '../../utils/time';
+import { axis, generateDuration, axisMY } from '../../utils/time';
 import { avgTimeSeries, redirect } from '../../utils/utils';
 import { Panel } from '../../components/Page';
 import RankList from '../../components/RankList';
@@ -142,6 +142,20 @@ export default class Dashboard extends PureComponent {
                 }}
               />
             </ChartCard>
+          </Col>
+        </Row>
+        <Row>
+          <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginTop: 8 }}>
+            <Card
+              title="Response Time"
+              bordered={false}
+              bodyStyle={{ padding: 5, height: 150}}
+            >
+              <Line
+                data={axisMY(this.props.duration, [{ title: 'p99', value: data.getP99}, { title: 'p95', value: data.getP95}
+                , { title: 'p90', value: data.getP90}, { title: 'p75', value: data.getP75}, { title: 'p50', value: data.getP50}])}
+              />
+            </Card>
           </Col>
         </Row>
         <Row gutter={8}>

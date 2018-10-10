@@ -180,6 +180,9 @@ export default class AppTopology extends Base {
       if (!id) {
         return lLimit;
       }
+      if (range < 1) {
+        return lLimit;
+      }
       const value = values.find(_ => _.id === id);
       let v = min;
       if (value) {

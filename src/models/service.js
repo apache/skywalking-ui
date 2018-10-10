@@ -76,7 +76,7 @@ const dataQuery = `
         detectPoint
       }
     }
-    getServiceP99: getLinearIntValues(metric: {
+    getP99: getLinearIntValues(metric: {
       name: "service_p99"
       id: $serviceId
     }, duration: $duration) {
@@ -84,7 +84,7 @@ const dataQuery = `
         value
       }
     }
-    getServiceP95: getLinearIntValues(metric: {
+    getP95: getLinearIntValues(metric: {
       name: "service_p95"
       id: $serviceId
     }, duration: $duration) {
@@ -92,7 +92,7 @@ const dataQuery = `
         value
       }
     }
-    getServiceP90: getLinearIntValues(metric: {
+    getP90: getLinearIntValues(metric: {
       name: "service_p90"
       id: $serviceId
     }, duration: $duration) {
@@ -100,7 +100,7 @@ const dataQuery = `
         value
       }
     }
-    getServiceP75: getLinearIntValues(metric: {
+    getP75: getLinearIntValues(metric: {
       name: "service_p75"
       id: $serviceId
     }, duration: $duration) {
@@ -108,7 +108,7 @@ const dataQuery = `
         value
       }
     }
-    getServiceP50: getLinearIntValues(metric: {
+    getP50: getLinearIntValues(metric: {
       name: "service_p50"
       id: $serviceId
     }, duration: $duration) {
@@ -222,19 +222,19 @@ export default base({
       nodes: [],
       calls: [],
     },
-    getServiceP99: {
+    getP99: {
       values: [],
     },
-    getServiceP95: {
+    getP95: {
       values: [],
     },
-    getServiceP90: {
+    getP90: {
       values: [],
     },
-    getServiceP75: {
+    getP75: {
       values: [],
     },
-    getServiceP50: {
+    getP50: {
       values: [],
     },
     getServiceInstances: [],
