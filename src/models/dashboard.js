@@ -28,9 +28,6 @@ export default base({
       numOfCache: 0,
       numOfMQ: 0,
     },
-    getAlarmTrend: {
-      numOfAlarm: [],
-    },
     getThermodynamic: {
       nodes: [],
       responseTimeStep: 0,
@@ -61,9 +58,6 @@ export default base({
         numOfDatabase
         numOfCache
         numOfMQ
-      }
-      getAlarmTrend(duration: $duration) {
-        numOfAlarm
       }
       getThermodynamic(duration: $duration, metric: {
         name: "all_heatmap"
