@@ -20,7 +20,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Row, Col, Form, Button, Icon, Select } from 'antd';
 import {
-  ChartCard, MiniArea, MiniBar, Sankey, Line,
+  ChartCard, MiniArea, MiniBar, Sankey, Line, EndpointDeps,
 } from 'components/Charts';
 import { axisY, axisMY } from '../../utils/time';
 import { avgTS } from '../../utils/utils';
@@ -137,8 +137,21 @@ export default class Endpoint extends PureComponent {
   }
 
   handleGoBack = () => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
       type: 'endpoint/hideTimeline',
+    });
+  }
+
+  handleLoadMetrics = ({ calls }) => {
+    const { dispatch, globalVariables: { duration } } = this.props;
+    dispatch({
+      type: 'endpoint/fetchMetrics',
+      payload: { variables: {
+        idsS: calls.filter(_ => _.detectPoint === 'SERVER').map(_ => _.id),
+        idsC: calls.filter(_ => _.detectPoint === 'CLIENT').map(_ => _.id),
+        duration,
+      }},
     });
   }
 
@@ -212,6 +225,20 @@ export default class Endpoint extends PureComponent {
         <Row gutter={8}>
           <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginTop: 8 }}>
             <ChartCard
+              title="Dependency Map"
+              contentHeight={200}
+            >
+              <EndpointDeps
+                deps={data.getEndpointTopology}
+                metrics={data.metrics}
+                onLoadMetrics={this.handleLoadMetrics}
+              />
+            </ChartCard>
+          </Col>
+        </Row>
+        <Row gutter={8}>
+          <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginTop: 8 }}>
+            <ChartCard
               title="Top 20 Slow Traces"
             >
               <TraceList
@@ -222,46 +249,8 @@ export default class Endpoint extends PureComponent {
             </ChartCard>
           </Col>
         </Row>
-        {this.renderSankey(getEndpointTopology)}
       </Panel>
     );
-  }
-
-  renderSankey = (data) => {
-    if (data.nodes.length < 2) {
-      return <span style={{ display: 'none' }} />;
-    }
-    const nodesMap = new Map();
-    data.nodes.forEach((_, i) => {
-      nodesMap.set(`${_.id}`, i);
-    });
-    const nData = {
-      nodes: data.nodes,
-      edges: data.calls
-        .filter(_ => nodesMap.has(`${_.source}`) && nodesMap.has(`${_.target}`))
-        .map(_ =>
-          ({ ..._, value: (this.edgeWith(_) < 1 ? 1000 : this.edgeWith(_)), source: nodesMap.get(`${_.source}`), target: nodesMap.get(`${_.target}`) })),
-    };
-    return (
-      <Row gutter={8}>
-        <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginTop: 8 }}>
-          <ChartCard
-            title="Dependency Map"
-            contentHeight={200}
-          >
-            <Sankey
-              data={nData}
-              edgeTooltip={['target*source*cpm', (target, source, cpm) => {
-                return {
-                  name: `${source.name} to ${target.name} </span>`,
-                  value: `${cpm} cpm`,
-                };
-              }]}
-              edgeColor="#bbb"
-            />
-          </ChartCard>
-        </Col>
-      </Row>);
   }
 
   render() {

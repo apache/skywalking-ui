@@ -69,6 +69,56 @@ export default {
       calls,
     };
   },
+  getEndpointTopology: () => {
+    const upNodes = mockjs.mock({
+      'nodes|1-5': [
+        {
+          'id|+1': 100,
+          name: '@url',
+          'type|1': ['DUBBO', 'USER', 'SPRINGMVC'],
+          isReal: true,
+        },
+      ],
+    });
+    const centerNodes = mockjs.mock({
+      nodes: [
+        {
+          'id|+1': 10,
+          name: '@url',
+          'type|1': ['DUBBO', 'tomcat', 'SPRINGMVC'],
+          isReal: true,
+        },
+      ],
+    });
+    const downNodes = mockjs.mock({
+      'nodes|2-5': [
+        {
+          'id|+1': 200,
+          name: '@url',
+          'type|1': ['Oracle', 'MYSQL', 'REDIS'],
+          isReal: false,
+        },
+      ],
+    });
+    downNodes.nodes.push({ id: -111 });
+    const nodes = upNodes.nodes.concat(centerNodes.nodes, downNodes.nodes);
+    const calls = upNodes.nodes.map(node => (mockjs.mock({
+      source: node.id,
+      target: 10,
+      'callType|1': ['rpc', 'http', 'dubbo'],
+      'cpm|0-1000': 1,
+    }))).concat(downNodes.nodes.map(node => (mockjs.mock({
+      source: 10,
+      target: node.id,
+      'callType|1': ['rpc', 'http', 'dubbo'],
+      'cpm|0-2000': 1,
+    }))));
+    calls.push({ source: '-175', target: 10, callType: 'GRPC', cpm: 0 });
+    return {
+      nodes,
+      calls,
+    };
+  },
   getGlobalTopology: () => {
     const application = mockjs.mock({
       'nodes|2-3': [

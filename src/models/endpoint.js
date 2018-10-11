@@ -105,6 +105,21 @@ const dataQuery = `
         value
       }
     }
+    getEndpointTopology(endpointId: $endpointId, duration: $duration) {
+      nodes {
+        id
+        name
+        type
+        isReal
+      }
+      calls {
+        id
+        source
+        target
+        callType
+        detectPoint
+      }
+    }
   }
 `;
 
@@ -146,6 +161,29 @@ const spanQuery = `query Spans($traceId: ID!) {
   }
 }`;
 
+const metricQuery = `
+  query TopologyMetric($duration: Duration!, $idsS: [ID!]!, $idsC: [ID!]!) {
+    cpmS: getValues(metric: {
+      name: "endpoint_relation_server_cpm"
+      ids: $idsS
+    }, duration: $duration) {
+      values {
+        id
+        value
+      }
+    }
+    cpmC: getValues(metric: {
+      name: "endpoint_relation_client_cpm"
+      ids: $idsC
+    }, duration: $duration) {
+      values {
+        id
+        value
+      }
+    }
+  }
+`;
+
 export default base({
   namespace: 'endpoint',
   state: {
@@ -161,6 +199,11 @@ export default base({
     getEndpointTopology: {
       nodes: [],
       calls: [],
+    },
+    metrics: {
+      cpm: {
+        values: [],
+      },
     },
     queryBasicTraces: {
       traces: [],
@@ -191,6 +234,23 @@ export default base({
         type: 'saveSpans',
         payload: response,
         traceId: payload.variables.traceId,
+      });
+    },
+    *fetchMetrics({ payload }, { call, put }) {
+      const response = yield call(exec, { query: metricQuery, variables: payload.variables });
+      if (!response.data) {
+        return;
+      }
+      const { cpmS, cpmC } = response.data;
+      yield put({
+        type: 'saveData',
+        payload: {
+          metrics: {
+            cpm: {
+              values: cpmS.values.concat(cpmC.values),
+            },
+          },
+        },
       });
     },
   },

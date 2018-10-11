@@ -1,6 +1,6 @@
 import fs from 'fs';
 import { delay } from 'roadhog-api-doc';
-import { getGlobalTopology, getServiceTopology } from './mock/topology';
+import { getGlobalTopology, getServiceTopology, getEndpointTopology } from './mock/topology';
 import { Alarms, AlarmTrend } from './mock/alarm';
 import { TraceBrief, Trace } from './mock/trace'
 import { makeExecutableSchema, addMockFunctionsToSchema } from 'graphql-tools';
@@ -19,6 +19,7 @@ const resolvers = {
     getAllEndpointTopN,
     getGlobalTopology,
     getServiceTopology,
+    getEndpointTopology,
     searchEndpoint,
     getEndpointTopN,
     getServiceInstanceTopN,
