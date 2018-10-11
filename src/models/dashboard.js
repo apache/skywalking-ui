@@ -92,35 +92,35 @@ export default base({
         value
       }
       getP99: getLinearIntValues(metric: {
-        name: "service_p99"
+        name: "all_p99"
       }, duration: $duration) {
         values {
           value
         }
       }
       getP95: getLinearIntValues(metric: {
-        name: "service_p95"
+        name: "all_p95"
       }, duration: $duration) {
         values {
           value
         }
       }
       getP90: getLinearIntValues(metric: {
-        name: "service_p90"
+        name: "all_p90"
       }, duration: $duration) {
         values {
           value
         }
       }
       getP75: getLinearIntValues(metric: {
-        name: "service_p75"
+        name: "all_p75"
       }, duration: $duration) {
         values {
           value
         }
       }
       getP50: getLinearIntValues(metric: {
-        name: "service_p50"
+        name: "all_p50"
       }, duration: $duration) {
         values {
           value
