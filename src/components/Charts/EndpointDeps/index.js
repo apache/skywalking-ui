@@ -25,6 +25,10 @@ class EndpointDeps extends PureComponent {
     if (deps === preDeps) {
       return;
     }
+    const { calls } = deps;
+    if (calls.length < 1) {
+      return;
+    } 
     const { onLoadMetrics } = this.props;
     onLoadMetrics(deps);
   }

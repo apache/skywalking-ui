@@ -94,8 +94,8 @@ export default class Base extends Component {
     if (onLoadMetircs) {
       onLoadMetircs(
         elementes.nodes.filter(_ => _.data.id.indexOf('USER') < 0).map(_ => _.data.id),
-        elementes.edges.filter(_ => _.data.detectPoint === 'SERVER').map(_ => _.data.id),
-        elementes.edges.filter(_ => _.data.detectPoint === 'CLIENT').map(_ => _.data.id),
+        elementes.edges.filter(_ => _.data.detectPoint === 'SERVER').map(_ => _.data.dataId),
+        elementes.edges.filter(_ => _.data.detectPoint === 'CLIENT').map(_ => _.data.dataId),
       );
     }
   }

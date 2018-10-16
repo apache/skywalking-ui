@@ -22,7 +22,7 @@ import { exec } from '../services/graphql';
 const metricQuery = `
   query TopologyMetric($duration: Duration!, $ids: [ID!]!,  $idsS: [ID!]!, $idsC: [ID!]!) {
     sla: getValues(metric: {
-      name: "service_relation_server_call_sla"
+      name: "service_sla"
       ids: $ids
     }, duration: $duration) {
       values {
