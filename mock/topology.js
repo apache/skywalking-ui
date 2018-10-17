@@ -125,7 +125,7 @@ export default {
         {
           'id|+1': 2,
           name: '@name',
-          'type|1': ['DUBBO', 'tomcat', 'SPRINGMVC'],
+          'type|1': ['DUBBO', 'tomcat', 'SPRINGMVC', 'foo'],
           isReal: true,
         },
       ],

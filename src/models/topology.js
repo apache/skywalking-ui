@@ -30,6 +30,24 @@ const metricQuery = `
         value
       }
     }
+    nodeCpm: getValues(metric: {
+      name: "service_cpm"
+      ids: $ids
+    }, duration: $duration) {
+      values {
+        id
+        value
+      }
+    }
+    nodeLatency: getValues(metric: {
+      name: "service_resp_time"
+      ids: $ids
+    }, duration: $duration) {
+      values {
+        id
+        value
+      }
+    }
     cpmS: getValues(metric: {
       name: "service_relation_server_cpm"
       ids: $idsS
@@ -80,6 +98,12 @@ export default base({
       sla: {
         values: [],
       },
+      nodeCpm: {
+        values: [],
+      },
+      nodeLatency: {
+        values: [],
+      },
       cpm: {
         values: [],
       },
@@ -116,12 +140,12 @@ export default base({
       if (!response.data) {
         return;
       }
-      const { sla, cpmS, cpmC, latencyS, latencyC } = response.data;
+      const { cpmS, cpmC, latencyS, latencyC } = response.data;
       yield put({
         type: 'saveData',
         payload: {
           metrics: {
-            sla,
+            ...response.data,
             cpm: {
               values: cpmS.values.concat(cpmC.values),
             },

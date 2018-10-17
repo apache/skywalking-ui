@@ -31,7 +31,6 @@ export default class ApplicationLitePanel extends PureComponent {
           <Description term="SLA">{appInfo.sla}%</Description>
           <Description term="Calls Per Minute">{appInfo.cpm}</Description>
           <Description term="Avg Response Time">{appInfo.avgResponseTime} ms</Description>
-          <Description term="Total Server">{appInfo.numOfServer}</Description>
         </DescriptionList>
       </div>
     );

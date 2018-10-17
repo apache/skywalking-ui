@@ -73,6 +73,14 @@ export default class Topology extends PureComponent {
     graphHeight: 600,
   };
 
+  findValue = (id, values) => {
+    const v = values.find(_ => _.id === id);
+    if (v) {
+      return v.value;
+    }
+    return null;
+  }
+
   handleChange = (variables) => {
     const { dispatch } = this.props;
     dispatch({
@@ -103,11 +111,15 @@ export default class Topology extends PureComponent {
   }
 
   handleSelectedApplication = (appInfo) => {
-    const { dispatch } = this.props;
+    const { dispatch, topology: { data: { metrics: { sla, nodeCpm, nodeLatency } } } } = this.props;
     if (appInfo) {
       dispatch({
         type: 'topology/saveData',
-        payload: { appInfo },
+        payload: { appInfo: { ...appInfo,
+          sla: this.findValue(appInfo.id, sla.values),
+          cpm: this.findValue(appInfo.id, nodeCpm.values),
+          avgResponseTime: this.findValue(appInfo.id, nodeLatency.values),
+        } },
       });
     } else {
       dispatch({

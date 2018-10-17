@@ -186,7 +186,7 @@ query ServiceInstance($serviceInstanceId: ID!, $duration: Duration!) {
     }
   }
   maxHeap: getLinearIntValues(metric: {
-    name: "instance_jvm_memory_max_heap"
+    name: "instance_jvm_memory_heap_max"
     id: $serviceInstanceId
   }, duration: $duration) {
     values {
@@ -202,7 +202,7 @@ query ServiceInstance($serviceInstanceId: ID!, $duration: Duration!) {
     }
   }
   maxNoheap: getLinearIntValues(metric: {
-    name: "instance_jvm_memory_max_noheap"
+    name: "instance_jvm_memory_noheap_max"
     id: $serviceInstanceId
   }, duration: $duration) {
     values {
