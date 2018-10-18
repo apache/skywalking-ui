@@ -37,22 +37,21 @@ export default class Search extends PureComponent {
 
   componentDidMount() {
     if (this.props.variables && Object.keys(this.props.variables).length > 0) {
-      this.originFetchServer('', !this.props.value.key);
+      this.originFetchServer('', this.props.value.key);
     }
   }
 
   componentDidUpdate(prevProps) {
     if (prevProps.variables !== this.props.variables) {
-      this.originFetchServer('', true);
+      this.originFetchServer('', this.props.value.key);
     }
   }
 
-  fetchServer = (value, isSelectOne) => {
+  fetchServer = (value, key) => {
     if (value === undefined) {
       return;
     }
     const { url, query, variables = {}, transform } = this.props;
-    console.info(variables);
     this.lastFetchId += 1;
     const fetchId = this.lastFetchId;
     this.setState({ data: [], fetching: true });
@@ -72,7 +71,15 @@ export default class Search extends PureComponent {
       }
       const list = body.data[Object.keys(body.data)[0]];
       this.setState({ data: transform ? list.map(transform) : list, fetching: false });
-      if (isSelectOne && this.state.data.length > 0) {
+      if (this.state.data.length < 1) {
+        return;
+      }
+      if (!key) {
+        this.handleSelect(this.state.data[0]);
+        return;
+      }
+      const option = this.state.data.find(_ => _.key === key);
+      if (!option) {
         this.handleSelect(this.state.data[0]);
       }
     });

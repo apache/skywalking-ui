@@ -19,6 +19,7 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Card, Input, Tabs, List, Avatar } from 'antd';
+import moment from 'moment';
 import { Panel } from '../../components/Page';
 import styles from './Alarm.less';
 
@@ -121,7 +122,7 @@ export default class Alarm extends PureComponent {
                 />}
               description={msg.message}
             />
-            <div>{msg.startTime}</div>
+            <div>{moment(msg.startTime).format()}</div>
           </List.Item>
         )}
       />);

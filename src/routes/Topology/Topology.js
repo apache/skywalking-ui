@@ -150,12 +150,12 @@ export default class Topology extends PureComponent {
   renderActions = () => {
     const { data: { appInfo } } = this.props.topology;
     return [
-      <Icon type="appstore" onClick={() => redirect(this.props.history, '/monitor/application', { key: appInfo.id, label: appInfo.name })} />,
+      <Icon type="appstore" onClick={() => redirect(this.props.history, '/monitor/service', { key: appInfo.id, label: appInfo.name })} />,
       <Icon
         type="exception"
         onClick={() => redirect(this.props.history, '/trace',
         { values: {
-            applicationId: appInfo.id,
+            serviceId: appInfo.id,
             duration: { ...this.props.duration, input: this.props.globalVariables.duration },
           },
           labels: { applicationId: appInfo.name },

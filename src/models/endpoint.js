@@ -175,6 +175,16 @@ const metricQuery = `
   }
 `;
 
+const infoQuery = `
+  query Info($endpointId: ID!) {
+    endpointInfo: getEndpointInfo(endpointId: $endpointId) {
+      key: id
+      label: name
+      serviceId
+      serviceName
+    }
+  }
+`;
 export default base({
   namespace: 'endpoint',
   state: {
@@ -219,6 +229,34 @@ export default base({
   dataQuery,
   optionsQuery,
   effects: {
+    *fetchInfo({ payload }, { call, put }) {
+      const response = yield call(exec, { query: infoQuery, variables: payload.variables });
+      const { data } = response;
+      if (!data.endpointInfo) {
+        return;
+      }
+      const { endpointInfo } = data;
+      yield put({
+        type: 'saveVariables',
+        payload: {
+          values: {
+            endpointId: endpointInfo.key,
+            serviceId: endpointInfo.serviceId,
+          },
+          labels: {
+            endpointId: endpointInfo.label,
+            serviceId: endpointInfo.serviceName,
+          },
+        },
+      });
+      yield put({
+        type: 'saveData',
+        payload: {
+          serviceInfo: { serviceId: endpointInfo.serviceId },
+          endpointInfo,
+        },
+      });
+    },
     *fetchSpans({ payload }, { call, put }) {
       const response = yield call(exec, { query: spanQuery, variables: payload.variables });
       yield put({
@@ -294,19 +332,24 @@ export default base({
             payload: {
               values: {
                 endpointId: state.key,
-                serviceId: state.serviceId,
               },
               labels: {
                 endpointId: state.label,
-                serviceId: state.serviceName,
               },
             },
           });
           dispatch({
             type: 'saveData',
             payload: {
-              serviceInfo: { serviceId: state.serviceId },
               endpointInfo: { key: state.key, label: state.label },
+            },
+          });
+          dispatch({
+            type: 'fetchInfo',
+            payload: {
+              variables: {
+                endpointId: state.key,
+              },
             },
           });
         }

@@ -287,7 +287,7 @@ export default class Endpoint extends PureComponent {
                   </Select>
                 )}
               </FormItem>
-              {data.serviceInfo ? (
+              {data.serviceInfo && data.serviceInfo.serviceId  ? (
                 <FormItem>
                   {getFieldDecorator('endpointId')(
                     <Search

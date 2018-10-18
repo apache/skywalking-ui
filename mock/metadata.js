@@ -65,4 +65,5 @@ export default {
     });
     return data.endpointId;
   },
+  EndpointInfo: () => mockjs.mock({ id: 5, name: 'endpoint-5', serviceId: 7, serviceName: 'service-7' }),
 };

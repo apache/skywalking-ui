@@ -51,7 +51,7 @@ export default class Dashboard extends PureComponent {
   }
 
   render() {
-    const { dashboard: { data }, globalVariables, duration } = this.props;
+    const { dashboard: { data }, globalVariables, duration, history } = this.props;
     return (
       <Panel globalVariables={globalVariables} onChange={this.handleDurationChange}>
         <Row gutter={8}>
@@ -136,7 +136,7 @@ export default class Dashboard extends PureComponent {
               <RankList
                 data={data.getTopNSlowEndpoint}
                 renderValue={_ => `${_.value} ms`}
-                onClick={(key) => redirect(history, '/monitor/endpoint', { key })}
+                onClick={(key, { label }) => redirect(history, '/monitor/endpoint', { key, label })}
               />
             </Card>
           </Col>
@@ -150,7 +150,7 @@ export default class Dashboard extends PureComponent {
                 data={data.getTopNServiceThroughput}
                 renderValue={_ => `${_.value} cpm`}
                 color="#965fe466"
-                onClick={(key) => redirect(history, '/monitor/service', { key })}
+                onClick={(key, { label }) => redirect(history, '/monitor/service', { key, label })}
               />
             </Card>
           </Col>

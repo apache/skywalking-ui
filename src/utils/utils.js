@@ -136,7 +136,7 @@ export function getAttributes(attributes, name) {
 }
 
 export function redirect(history, pathname, param) {
-  if (history.location.pathname === pathname) {
+  if (history.location && history.location.pathname === pathname) {
     return;
   }
   history.push({ pathname, state: param });

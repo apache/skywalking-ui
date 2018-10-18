@@ -5,7 +5,7 @@ import { Alarms, AlarmTrend } from './mock/alarm';
 import { TraceBrief, Trace } from './mock/trace'
 import { makeExecutableSchema, addMockFunctionsToSchema } from 'graphql-tools';
 import { graphql } from 'graphql';
-import { ClusterBrief, getServiceInstances, getAllServices, searchEndpoint } from './mock/metadata';
+import { ClusterBrief, getServiceInstances, getAllServices, searchEndpoint, EndpointInfo } from './mock/metadata';
 import { IntValues, Thermodynamic } from './mock/metric';
 import { getServiceTopN, getAllEndpointTopN, getServiceInstanceTopN, getEndpointTopN } from './mock/aggregation';
 
@@ -48,8 +48,9 @@ addMockFunctionsToSchema({
     TraceBrief,
     Trace,
     IntValues,
+    EndpointInfo,
   },
-  preserveResolvers: true 
+  preserveResolvers: true
 });
 
 const proxy = {
