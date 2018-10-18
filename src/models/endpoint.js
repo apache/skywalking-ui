@@ -162,19 +162,10 @@ const spanQuery = `query Spans($traceId: ID!) {
 }`;
 
 const metricQuery = `
-  query TopologyMetric($duration: Duration!, $idsS: [ID!]!, $idsC: [ID!]!) {
-    cpmS: getValues(metric: {
-      name: "endpoint_relation_server_cpm"
+  query TopologyMetric($duration: Duration!, $idsS: [ID!]!) {
+    cpm: getValues(metric: {
+      name: "endpoint_relation_cpm"
       ids: $idsS
-    }, duration: $duration) {
-      values {
-        id
-        value
-      }
-    }
-    cpmC: getValues(metric: {
-      name: "endpoint_relation_client_cpm"
-      ids: $idsC
     }, duration: $duration) {
       values {
         id
@@ -241,14 +232,12 @@ export default base({
       if (!response.data) {
         return;
       }
-      const { cpmS, cpmC } = response.data;
+      const { cpm } = response.data;
       yield put({
         type: 'saveData',
         payload: {
           metrics: {
-            cpm: {
-              values: cpmS.values.concat(cpmC.values),
-            },
+            cpm,
           },
         },
       });
