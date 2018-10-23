@@ -26,6 +26,7 @@ import { axis, generateDuration } from '../../utils/time';
 import { avgTimeSeries, redirect } from '../../utils/utils';
 import { Panel } from '../../components/Page';
 import RankList from '../../components/RankList';
+import ControlPanel from '../../components/ControlPanel';
 
 @connect(state => ({
   dashboard: state.dashboard,
@@ -62,6 +63,11 @@ export default class Dashboard extends PureComponent {
     }
     return (
       <Panel globalVariables={this.props.globalVariables} onChange={this.handleDurationChange}>
+        <Row gutter={8}>
+          <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginBottom: 8 }} >
+            <ControlPanel />
+          </Col>
+        </Row>
         <Row gutter={8}>
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
             <ChartCard

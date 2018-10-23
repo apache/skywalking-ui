@@ -29,6 +29,7 @@ import 'moment/locale/zh-cn';
 import 'ant-design-pro/dist/ant-design-pro.css';
 
 import './index.less';
+import './assets/common.less';
 
 // 1. Initialize
 const app = dva({
