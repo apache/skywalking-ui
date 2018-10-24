@@ -20,7 +20,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Row, Col, Card, Tooltip, Icon } from 'antd';
 import {
-  ChartCard, MiniArea, Field, HeatMap,
+  ChartCard, MiniChartCard, MiniArea, Field, HeatMap,
 } from '../../components/Charts';
 import { axis, generateDuration } from '../../utils/time';
 import { avgTimeSeries, redirect } from '../../utils/utils';
@@ -70,41 +70,43 @@ export default class Dashboard extends PureComponent {
         </Row>
         <Row gutter={8}>
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
-            <ChartCard
-              title="App"
+            <MiniChartCard
+              runningStatus
+              title="应用程序"
               action={this.renderAction('Show application details', '/monitor/application')}
               avatar={<img style={{ width: 56, height: 56 }} src="img/icon/app.png" alt="app" />}
               total={data.getClusterBrief.numOfApplication}
             />
           </Col>
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
-            <ChartCard
-              title="Service"
+            <MiniChartCard
+              runningStatus
+              title="服务"
               action={this.renderAction('Show service details', '/monitor/service')}
               avatar={<img style={{ width: 56, height: 56 }} src="img/icon/service.png" alt="service" />}
               total={data.getClusterBrief.numOfService}
             />
           </Col>
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
-            <ChartCard
-              title="DB & Cache"
+            <MiniChartCard
+              title="数据与缓存"
               avatar={<img style={{ width: 56, height: 56 }} src="img/icon/database.png" alt="database" />}
               total={data.getClusterBrief.numOfDatabase
                 + data.getClusterBrief.numOfCache}
             />
           </Col>
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
-            <ChartCard
-              title="MQ"
+            <MiniChartCard
+              title="数据流量"
               avatar={<img style={{ width: 56, height: 56 }} src="img/icon/mq.png" alt="mq" />}
               total={data.getClusterBrief.numOfMQ}
             />
           </Col>
         </Row>
         <Row gutter={8}>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 8 }}>
+          <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginTop: 8 }}>
             <ChartCard
-              title="Calls HeatMap"
+              title="热力图（Calls HeatMap）"
               contentHeight={200}
             >
               <HeatMap
@@ -125,7 +127,7 @@ export default class Dashboard extends PureComponent {
               />
             </ChartCard>
           </Col>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 8 }}>
+          {/* <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 8 }}>
             <ChartCard
               title="Avg Application Alarm"
               avatar={<img style={{ width: 56, height: 56 }} src="img/icon/alert.png" alt="app" />}
@@ -146,16 +148,18 @@ export default class Dashboard extends PureComponent {
                 }}
               />
             </ChartCard>
-          </Col>
+          </Col> */}
         </Row>
         <Row gutter={8}>
-          <Col xs={24} sm={24} md={24} lg={16} xl={16} style={{ marginTop: 8 }}>
+          <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 8 }}>
             <Card
               title="Slow Service"
               bordered={false}
               bodyStyle={{ padding: '0px 10px' }}
             >
               <RankList
+                listTitles={['类型', '耗时']}
+                color="rgb(131, 187, 77)"
                 data={data.getTopNSlowService.map(_ => ({ ..._.service, value: _.value }))}
                 renderValue={_ => `${_.value} ms`}
                 onClick={(key, item) => redirect(this.props.history, '/monitor/service', { key,
@@ -165,16 +169,17 @@ export default class Dashboard extends PureComponent {
               />
             </Card>
           </Col>
-          <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 8 }}>
+          <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 8 }}>
             <Card
               title="Application Throughput"
               bordered={false}
               bodyStyle={{ padding: '0px 10px' }}
             >
               <RankList
+                listTitles={['类型', '流量']}
                 data={data.getTopNApplicationThroughput}
                 renderValue={_ => `${_.value} cpm`}
-                color="#965fe466"
+                color="rgb(131, 187, 77)"
                 onClick={(key, item) => redirect(this.props.history, '/monitor/application', { key, label: item.label })}
               />
             </Card>

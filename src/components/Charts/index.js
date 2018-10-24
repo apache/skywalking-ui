@@ -29,6 +29,7 @@ import Field from './Field';
 import StackBar from './StackBar';
 import Sankey from './Sankey';
 import HeatMap from './HeatMap';
+import MiniChartCard from './MiniChartCard';
 
 const yuan = val => `&yen; ${numeral(val).format('0,0')}`;
 
@@ -45,4 +46,5 @@ export {
   StackBar,
   Sankey,
   HeatMap,
+  MiniChartCard,
 };

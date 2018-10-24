@@ -18,13 +18,16 @@
 @import '~antd/lib/style/themes/default.less';
 
 .rankList {
-  padding: 5px 0;
+  padding: 5px 34px;
   position: relative;
   width: 100%;
   .progressWrap {
     background-color: @background-color-base;
     position: relative;
-    height: 25px;
+    height: 12px;
+    // add by kevin
+    width: 50%;
+    float: right;    
   }
   .progress {
     position: absolute;
@@ -39,14 +42,18 @@
     position: absolute;
     z-index: 20;
     width: 100%;
-    .value {
-      float: right;
-    }
+    // .value {
+    //   float: right;
+    // }
     a {
       color: #001529;
     }
     a:hover {
       color: #1890ff;
     }
+  }
+  .value {
+    float: right;
+    margin-left: 20px;
   }
 }
