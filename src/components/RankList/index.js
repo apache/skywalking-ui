@@ -15,11 +15,10 @@
  * limitations under the License.
  */
 
-
+import classNames from 'classnames';
 import React, { PureComponent } from 'react';
 import { List, Row, Col, Tag } from 'antd';
 import styles from './index.less';
-import classNames from 'classnames';
 
 
 class RankList extends PureComponent {

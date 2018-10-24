@@ -19,11 +19,16 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Row, Col, Card, Tooltip, Icon } from 'antd';
+// import {
+//   ChartCard, MiniChartCard, MiniArea, Field, HeatMap,
+// } from '../../components/Charts';
 import {
-  ChartCard, MiniChartCard, MiniArea, Field, HeatMap,
+  ChartCard, MiniChartCard, HeatMap,
 } from '../../components/Charts';
-import { axis, generateDuration } from '../../utils/time';
-import { avgTimeSeries, redirect } from '../../utils/utils';
+// import { axis, generateDuration } from '../../utils/time';
+// import { avgTimeSeries, redirect } from '../../utils/utils';
+import { generateDuration } from '../../utils/time';
+import { redirect } from '../../utils/utils';
 import { Panel } from '../../components/Page';
 import RankList from '../../components/RankList';
 import ControlPanel from '../../components/ControlPanel';
@@ -49,18 +54,19 @@ export default class Dashboard extends PureComponent {
   }
   render() {
     const { data } = this.props.dashboard;
-    const { numOfAlarmRate } = data.getAlarmTrend;
-    const accuracy = 100;
-    let visitData = [];
-    let avg = 0;
-    let max = 0;
-    let min = 0;
-    if (numOfAlarmRate && numOfAlarmRate.length > 0) {
-      visitData = axis(this.props.duration, numOfAlarmRate, ({ x, y }) => ({ x, y: y / accuracy }));
-      avg = avgTimeSeries(numOfAlarmRate) / accuracy;
-      max = numOfAlarmRate.reduce((acc, curr) => { return acc < curr ? curr : acc; }) / accuracy;
-      min = numOfAlarmRate.reduce((acc, curr) => { return acc > curr ? curr : acc; }) / accuracy;
-    }
+    // const { numOfAlarmRate } = data.getAlarmTrend;
+    // const accuracy = 100;
+    // let visitData = [];
+    // let avg = 0;
+    // let max = 0;
+    // let min = 0;
+    // if (numOfAlarmRate && numOfAlarmRate.length > 0) {
+    //   visitData = axis(this.props.duration,
+    //   numOfAlarmRate, ({ x, y }) => ({ x, y: y / accuracy }));
+    //   avg = avgTimeSeries(numOfAlarmRate) / accuracy;
+    //   max = numOfAlarmRate.reduce((acc, curr) => { return acc < curr ? curr : acc; }) / accuracy;
+    //   min = numOfAlarmRate.reduce((acc, curr) => { return acc > curr ? curr : acc; }) / accuracy;
+    // }
     return (
       <Panel globalVariables={this.props.globalVariables} onChange={this.handleDurationChange}>
         <Row gutter={8}>
@@ -132,7 +138,8 @@ export default class Dashboard extends PureComponent {
               title="Avg Application Alarm"
               avatar={<img style={{ width: 56, height: 56 }} src="img/icon/alert.png" alt="app" />}
               total={`${avg.toFixed(2)}%`}
-              footer={<div><Field label="Max" value={`${max}%`} /> <Field label="Min" value={`${min}%`} /></div>}
+              footer={<div><Field label="Max" value={`${max}%`} />
+              <Field label="Min" value={`${min}%`} /></div>}
               contentHeight={100}
             >
               <MiniArea

@@ -23,7 +23,8 @@ import classNames from 'classnames';
 import styles from './index.less';
 
 const MiniChartCard = ({
-  loading = false, contentHeight, title, avatar, action, total, footer, children, runningStatus = false, ...rest
+  loading = false, contentHeight, title, avatar, action, total, footer, children,
+  runningStatus = false, ...rest
 }) => {
   const content = (
     <div className={styles.chartCard}>
