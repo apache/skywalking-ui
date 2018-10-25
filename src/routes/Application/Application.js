@@ -18,12 +18,13 @@
 
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Row, Col, Select, Card, Form, Breadcrumb } from 'antd';
+import { Row, Col, Select, Card, Form, Breadcrumb, Table } from 'antd';
 import Server from './Server';
 import { AppTopology } from '../../components/Topology';
 import { Panel } from '../../components/Page';
 import RankList from '../../components/RankList';
-import ServerLitePanel from '../../components/ServerLitePanel';
+import ControlPanel from '../../components/ControlPanel';
+// import ServerLitePanel from '../../components/ServerLitePanel';
 import { getServerId, redirect } from '../../utils/utils';
 
 const { Option } = Select;
@@ -107,6 +108,28 @@ export default class Application extends PureComponent {
     });
   }
   renderApp = () => {
+    const columns = [{
+      title: '类型',
+      dataIndex: 'ipv4',
+
+      render: (text, record) => <a href="void">{`${record.pid}@${text[0]}`}</a>,
+    }, {
+      title: 'host',
+      dataIndex: 'host',
+    },
+    {
+      title: 'Pid',
+      dataIndex: 'pid',
+    },
+    {
+      title: 'OS',
+      dataIndex: 'osName',
+    }, {
+      title: '流量',
+      dataIndex: 'value',
+      render: value => `${value}cpm`,
+    },
+    ];
     const { getFieldDecorator } = this.props.form;
     const { variables: { values, options }, data } = this.props.application;
     return (
@@ -133,8 +156,9 @@ export default class Application extends PureComponent {
           globalVariables={this.props.globalVariables}
           onChange={this.handleChange}
         >
+          <ControlPanel style={{ marginTop: 15 }} />
           <Row gutter={0}>
-            <Col {...{ ...middleColResponsiveProps, xl: 16, lg: 12, md: 24 }}>
+            <Col {...{ ...middleColResponsiveProps, xl: 24, lg: 24, md: 24 }}>
               <Card
                 title="Application Map"
                 bordered={false}
@@ -151,7 +175,7 @@ export default class Application extends PureComponent {
                 />
               </Card>
             </Col>
-            <Col {...{ ...middleColResponsiveProps, xl: 8, lg: 12, md: 24 }}>
+            {/* <Col {...{ ...middleColResponsiveProps, xl: 8, lg: 12, md: 24 }}>
               <Card
                 bordered={false}
                 bodyStyle={{ padding: '10px 10px', height: 391 }}
@@ -164,16 +188,34 @@ export default class Application extends PureComponent {
                   onMoreServer={this.handleGoServer}
                 />
               </Card>
-            </Col>
+            </Col> */}
           </Row>
           <Row gutter={8}>
-            <Col {...{ ...middleColResponsiveProps, xl: 12, lg: 12, md: 24 }}>
+            <Col {...{ ...middleColResponsiveProps, xl: 24, lg: 24, md: 24 }}>
+              <Card
+                title="Slow Service"
+                bordered={false}
+                bodyStyle={{ padding: '0px 10px' }}
+              >
+                <RankList
+                  listTitles={['类型', '耗时']}
+                  data={data.getSlowService.map(_ => ({ ..._.service, value: _.value }))}
+                  renderValue={_ => `${_.value} ms`}
+                  onClick={(key, item) => redirect(this.props.history, '/monitor/service', { key,
+                    label: item.label,
+                    applicationId: item.applicationId,
+                    applicationName: item.applicationName })}
+                />
+              </Card>
+            </Col>
+            <Col {...{ ...middleColResponsiveProps, xl: 24, lg: 24, md: 24 }}>
               <Card
                 title="Running Server"
                 bordered={false}
                 bodyStyle={{ padding: 5 }}
               >
-                <RankList
+                <Table className="mt-md" style={{ paddingLeft: 24, paddingRight: 24 }} columns={columns} dataSource={data.getServerThroughput} />
+                {/* <RankList
                   data={data.getServerThroughput}
                   renderLabel={getServerId}
                   renderValue={_ => `${_.value} cpm`}
@@ -190,23 +232,7 @@ export default class Application extends PureComponent {
                     },
                   ])}
                   color="#965fe466"
-                />
-              </Card>
-            </Col>
-            <Col {...{ ...middleColResponsiveProps, xl: 12, lg: 12, md: 24 }}>
-              <Card
-                title="Slow Service"
-                bordered={false}
-                bodyStyle={{ padding: '0px 10px' }}
-              >
-                <RankList
-                  data={data.getSlowService.map(_ => ({ ..._.service, value: _.value }))}
-                  renderValue={_ => `${_.value} ms`}
-                  onClick={(key, item) => redirect(this.props.history, '/monitor/service', { key,
-                    label: item.label,
-                    applicationId: item.applicationId,
-                    applicationName: item.applicationName })}
-                />
+                /> */}
               </Card>
             </Col>
           </Row>
