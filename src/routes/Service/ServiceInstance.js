@@ -42,10 +42,10 @@ export default class ServiceInstance extends PureComponent {
           <Col xs={24} sm={24} md={24} lg={6} xl={6} style={{ marginTop: 8 }}>
             <Card style={{ marginTop: 8 }} bordered={false}>
               <DescriptionList col={1} layout="vertical">
-                <Description term="Host">{getAttributes(attributes, 'host')}</Description>
-                <Description term="IPv4">{getAttributes(attributes, 'ipv4')}</Description>
-                <Description term="Pid">{getAttributes(attributes, 'pid')}</Description>
-                <Description term="OS">{getAttributes(attributes, 'os')}</Description>
+                <Description term="Host">{getAttributes(attributes, 'host_name')}</Description>
+                <Description term="IPv4">{getAttributes(attributes, 'ipv4s')}</Description>
+                <Description term="Pid">{getAttributes(attributes, 'process_no')}</Description>
+                <Description term="OS">{getAttributes(attributes, 'os_name')}</Description>
               </DescriptionList>
             </Card>
           </Col>

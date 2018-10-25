@@ -57,8 +57,8 @@ export default class ServiceInstanceLitePanel extends PureComponent {
           <Col span={24}>
             <Card bordered={false} bodyStyle={{ padding: 5 }}>
               <DescriptionList col={1} gutter={0} size="small">
-                <Description term="Host">{getAttributes(attributes, 'host')}</Description>
-                <Description term="OS">{getAttributes(attributes, 'os')}</Description>
+                <Description term="Host">{getAttributes(attributes, 'host_name')}</Description>
+                <Description term="OS">{getAttributes(attributes, 'os_name')}</Description>
               </DescriptionList>
             </Card>
           </Col>

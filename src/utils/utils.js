@@ -119,20 +119,23 @@ export function getServiceInstanceId(serviceInstanceInfo) {
   if (!attributes || attributes.length < 1) {
     return '';
   }
-  let host = getAttributes(attributes, 'host');
-  const ipv4 = getAttributes(attributes, 'ipv4');
+  let host = getAttributes(attributes, 'host_name');
+  const ipv4 = getAttributes(attributes, 'ipv4s');
   if (ipv4 && ipv4.length > 0) {
-    [host] = ipv4;
+    host = ipv4;
   }
-  return `${getAttributes(attributes, 'pid')}@${host}`;
+  return `${getAttributes(attributes, 'process_no')}@${host}`;
 }
 
 export function getAttributes(attributes, name) {
   if (!attributes || attributes.length < 1) {
     return '';
   }
-  const a = attributes.find(_ => _.name === name);
-  return a ? a.value : '';
+  const a = attributes.filter(_ => _.name === name).map(_ => _.value);
+  if (a && a.length > 0) {
+    return a.join(',');
+  }
+  return '';
 }
 
 export function redirect(history, pathname, param) {
