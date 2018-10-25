@@ -24,6 +24,8 @@ import {
 import DescriptionList from '../../components/DescriptionList';
 import { axis } from '../../utils/time';
 import { avgTimeSeries } from '../../utils/utils';
+import ControlPanel from '../../components/ControlPanel';
+
 
 const { Description } = DescriptionList;
 
@@ -36,22 +38,35 @@ export default class Server extends PureComponent {
       getCPUTrend, getMemoryTrend, getGCTrend } = data;
     return (
       <div>
+        <ControlPanel className="mt-sm" style={{ marginTop: 15 }} />
         <Row gutter={8}>
-          <Col xs={24} sm={24} md={24} lg={6} xl={6} style={{ marginTop: 8 }}>
+          {/* <Col xs={24} sm={24} md={24} lg={6} xl={6} style={{ marginTop: 8 }}>
             <Card style={{ marginTop: 8 }} bordered={false}>
-              <DescriptionList col={1} layout="vertical" >
+              <DescriptionList col={1} layout="horizontal" >
                 <Description term="Host">{serverInfo.host}</Description>
-                <Description term="IPv4">{serverInfo.ipv4 ? serverInfo.ipv4.join() : ''}</Description>
+                <Description term="IPv4">{serverInfo.ipv4 ? serverInfo.ipv4.join() : ''}
+                </Description>
                 <Description term="Pid">{serverInfo.pid}</Description>
                 <Description term="OS">{serverInfo.osName}</Description>
               </DescriptionList>
             </Card>
-          </Col>
-          <Col xs={24} sm={24} md={24} lg={18} xl={18} style={{ marginTop: 8 }}>
+          </Col> */}
+          <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginTop: 8 }}>
             <Row gutter={8}>
-              <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 8 }}>
+              <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 8 }}>
+                <Card>
+                  <DescriptionList col={1} layout="horizontal" >
+                    <Description term="Host">{serverInfo.host}</Description>
+                    <Description term="IPv4">{serverInfo.ipv4 ? serverInfo.ipv4.join() : ''}</Description>
+                    <Description term="Pid">{serverInfo.pid}</Description>
+                    <Description term="OS">{serverInfo.osName}</Description>
+                  </DescriptionList>
+                </Card>
+              </Col>
+              <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 8 }}>
                 <ChartCard
-                  title="Avg Throughput"
+                  style={{ height: 186 }}
+                  title="平均流量(Avg Throughput)"
                   total={`${avgTimeSeries(getServerThroughputTrend.trendList)} cpm`}
                   contentHeight={46}
                 >
@@ -61,9 +76,10 @@ export default class Server extends PureComponent {
                   />
                 </ChartCard>
               </Col>
-              <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 8 }}>
+              <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 8 }}>
                 <ChartCard
-                  title="Avg Response Time"
+                  style={{ height: 186 }}
+                  title="平均耗时(Avg Response Time)"
                   total={`${avgTimeSeries(getServerResponseTimeTrend.trendList)} ms`}
                   contentHeight={46}
                 >
@@ -117,15 +133,15 @@ export default class Server extends PureComponent {
                   title="GC ms"
                   contentHeight={150}
                   footer={
-                    <div>
-                      <div style={{ marginBottom: 10 }}>
+                    <div style={{ display: 'flex', justifyContent: 'center' }} className="mt-sm">
+                      <div style={{ marginBottom: 10, display: 'inline-block' }}>
                         <span style={{ marginRight: 10 }}>Young GC</span>
                         <Tag color="#66b5ff" >
                           {getGCTrend.youngGCCount.reduce((sum, v) => sum + v)}
                         </Tag>
                         <span>collections</span>
                       </div>
-                      <div>
+                      <div style={{ display: 'inline-block' }}>
                         <span style={{ marginRight: 10 }}>Old GC</span>
                         <Tag color="#ffb566" >
                           {getGCTrend.oldGCount.reduce((sum, v) => sum + v)}

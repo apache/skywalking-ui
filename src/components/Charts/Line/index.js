@@ -121,11 +121,13 @@ class Line extends Component {
               title={false}
               label={autoHideXLabels ? false : {}}
               tickLine={autoHideXLabels ? false : {}}
+              line={{ lineJoin: 'bevel' }}
               grid={false}
             />
             <Axis name="y" min={0} grid={false} />
             <Tooltip showTitle={false} crosshairs={false} />
-            <Geom type="line" position="x*y" color={color} tooltip={tooltip} shape="smooth" />
+            <Geom type="line" position="x*y" size={2} />
+            <Geom type="point" position="x*y" color={color} tooltip={tooltip} shape="smooth" />
           </Chart>
         </div>
       </div>

@@ -17,7 +17,7 @@ function handleChange() {
 }
 
 
-const ControlPanel = () => {
+const ControlPanel = ({ className }) => {
   const firstLineTimeZones = [];
   const secondLineTimeZones = [];
   const temp = ['15分钟内', '30分钟内', '1小时内', '6小时内', '12小时内', '1天内',
@@ -34,7 +34,7 @@ const ControlPanel = () => {
   }
 
   return (
-    <div className={classNames('clearfix', styles.controlPanel)}>
+    <div className={classNames('clearfix', styles.controlPanel, className)}>
       <div className={styles.timeZoneContainer}>
         <table className={styles.timeTable}>
           <tbody>
@@ -75,6 +75,7 @@ ControlPanel.defaultProps = {
   ],
   timeZoneEvents: defaultEventArr,
   activeIndex: 0,
+  className: '',
 };
 
 ControlPanel.getInitialState = () => {

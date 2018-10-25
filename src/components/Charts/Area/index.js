@@ -127,7 +127,7 @@ class Area extends Component {
             <Tooltip
               crosshairs={{ type: 'line' }}
             />
-            <Geom type="areaStack" position="x*y" color={['type', [color, limitColor]]} />
+            <Geom type="lineStack" position="x*y" color={['type', [color, limitColor]]} />
             <Geom type="lineStack" position="x*y" size={2} color={['type', [color, limitColor]]} />
           </Chart>
         </div>
