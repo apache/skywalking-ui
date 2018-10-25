@@ -100,6 +100,7 @@ export default class Application extends PureComponent {
       type: 'application/showServer',
     });
   }
+  // get select Server Data
   handleSelectServer = (serverId, serverInfo) => {
     const { globalVariables: { duration } } = this.props;
     this.props.dispatch({
@@ -111,8 +112,7 @@ export default class Application extends PureComponent {
     const columns = [{
       title: '类型',
       dataIndex: 'ipv4',
-
-      render: (text, record) => <a href="void">{`${record.pid}@${text[0]}`}</a>,
+      render: (text, record) => <a href="#">{`${record.pid}@${text[0]}`}</a>,
     }, {
       title: 'host',
       dataIndex: 'host',
@@ -132,6 +132,34 @@ export default class Application extends PureComponent {
     ];
     const { getFieldDecorator } = this.props.form;
     const { variables: { values, options }, data } = this.props.application;
+
+    const { serverInfo } = data;
+    const serverList = data.getServerThroughput;
+    if (!serverInfo.key && serverList.length >= 1) {
+      this.handleSelectServer(serverList[0].key, serverList[0]);
+    }
+
+    const getGoToServerListNode = () => {
+      if (serverList.length < 1 || !serverInfo.key) {
+        return null;
+      }
+      return (
+        <div className="pull-right flex-vertical">
+          <Select
+            value={serverInfo.key}
+            onChange={value =>
+              this.handleSelectServer(value, data.getServerThroughput.find(_ => _.key === value))}
+            style={{ width: 400 }}
+          >
+            {data.getServerThroughput.map(_ =>
+              <Option key={_.key} value={_.key}>{getServerId(_)}</Option>)}
+          </Select>
+          {serverInfo.key ? <a className="pull-right ml-md" onClick={this.handleGoServer}>  Server Detail </a> : null}
+        </div>
+      );
+    };
+
+
     return (
       <div>
         <Form layout="inline">
@@ -160,7 +188,7 @@ export default class Application extends PureComponent {
           <Row gutter={0}>
             <Col {...{ ...middleColResponsiveProps, xl: 24, lg: 24, md: 24 }}>
               <Card
-                title="Application Map"
+                title={<div> Application Map {getGoToServerListNode()} </div>}
                 bordered={false}
                 bodyStyle={{ padding: 0 }}
               >

@@ -28,14 +28,18 @@
       tbody > tr td {
         border-right: 1px solid #ddd;
       }
-
       tbody tr td {
         text-align: center;
         padding: 6px 7px;
         width: 16.66%;
         cursor: pointer;
+
         &:hover {
-          background-color: skyblue;
+          background-color: rgb(34, 122, 203);
+          color: white;
+        }
+        &.active {
+          background-color: rgb(34, 122, 203);
           color: white;
         }
       }

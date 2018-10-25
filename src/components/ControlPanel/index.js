@@ -7,9 +7,9 @@ import styles from './index.less';
 
 const { Option } = Select;
 const { RangePicker } = DatePicker;
-function onChange(dates, dateStrings) {
-  console.warn('From: ', dates[0], ', to: ', dates[1]);
-  console.warn('From: ', dateStrings[0], ', to: ', dateStrings[1]);
+function onChange() {
+  // console.warn('From: ', dates[0], ', to: ', dates[1]);
+  // console.warn('From: ', dateStrings[0], ', to: ', dateStrings[1]);
 }
 
 function handleChange() {
@@ -22,11 +22,14 @@ const ControlPanel = () => {
   const secondLineTimeZones = [];
   const temp = ['15分钟内', '30分钟内', '1小时内', '6小时内', '12小时内', '1天内',
     '2天内', '1周内', '2周内', '1月内', '半年内', '1年内'];
+  // const activeIndex = 0;
+
+  this.state = { activeIndex: 0 };
   for (let i = 0; i < temp.length; i += 1) {
     if (i <= 5) {
-      firstLineTimeZones.push((<td key={`${i}first_line`}><Cell key={`${i}first_line`} timeZone={temp[i]} /></td>));
+      firstLineTimeZones.push((<td className={this.state.activeIndex === i ? styles.active : ''} key={`${i}first_line`}><Cell key={`${i}first_line`} timeZone={temp[i]} /></td>));
     } else {
-      secondLineTimeZones.push((<td key={`${i}first_line`}><Cell key={`${i}second_line`} timeZone={temp[i]} /></td>));
+      secondLineTimeZones.push((<td className={this.state.activeIndex === i ? styles.active : ''} key={`${i}first_line`}><Cell key={`${i}second_line`} timeZone={temp[i]} /></td>));
     }
   }
 
@@ -71,6 +74,13 @@ ControlPanel.defaultProps = {
       '2天内', '1周内', '2周内', '1月内', '半年内', '1年内'],
   ],
   timeZoneEvents: defaultEventArr,
+  activeIndex: 0,
+};
+
+ControlPanel.getInitialState = () => {
+  return {
+    activeIndex: 1,
+  };
 };
 
 export default ControlPanel;
