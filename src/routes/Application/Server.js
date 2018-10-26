@@ -18,13 +18,15 @@
 
 import React, { PureComponent } from 'react';
 import { Row, Col, Card, Tag } from 'antd';
+import classNames from 'classnames';
 import {
-  ChartCard, MiniArea, MiniBar, Line, Area, StackBar,
+  ChartCard, MiniBar, Line, Area, StackBar,
 } from '../../components/Charts';
 import DescriptionList from '../../components/DescriptionList';
 import { axis } from '../../utils/time';
 import { avgTimeSeries } from '../../utils/utils';
 import ControlPanel from '../../components/ControlPanel';
+import styles from './Server.less';
 
 
 const { Description } = DescriptionList;
@@ -65,28 +67,44 @@ export default class Server extends PureComponent {
               </Col>
               <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 8 }}>
                 <ChartCard
+                  isSetContentFixedHeight
                   style={{ height: 186 }}
-                  title="平均流量(Avg Throughput)"
-                  total={`${avgTimeSeries(getServerThroughputTrend.trendList)} cpm`}
-                  contentHeight={46}
+                  title={<span style={{ color: 'rgba(0, 0, 0, 0.85)' }}>平均流量(Avg Throughput)</span>}
+                  // total={`${avgTimeSeries(getServerThroughputTrend.trendList)} cpm`}
+                  contentHeight={126}
                 >
-                  <MiniBar
-                    color="#975FE4"
-                    data={axis(duration, getServerThroughputTrend.trendList)}
-                  />
+                  <div className={styles.leftTextContainer} >
+                    <span className={classNames('db', styles.data)}>{`${avgTimeSeries(getServerThroughputTrend.trendList)}`} </span>
+                    <span className={classNames('db', styles.unit)}> cpm</span>
+                  </div>
+                  <div className="pull-right" style={{ width: '80%' }}>
+                    <MiniBar
+                      // color="#975FE4"
+                      data={axis(duration, getServerThroughputTrend.trendList)}
+                    />
+                  </div>
                 </ChartCard>
               </Col>
               <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 8 }}>
                 <ChartCard
                   style={{ height: 186 }}
-                  title="平均耗时(Avg Response Time)"
-                  total={`${avgTimeSeries(getServerResponseTimeTrend.trendList)} ms`}
-                  contentHeight={46}
+                  title={<span style={{ color: 'rgba(0, 0, 0, 0.85)' }}>平均耗时(Avg Response Time)</span>}
+                  // total={`${avgTimeSeries(getServerResponseTimeTrend.trendList)} ms`}
+                  contentHeight={126}
                 >
                   {getServerResponseTimeTrend.trendList.length > 0 ? (
-                    <MiniArea
-                      data={axis(duration, getServerResponseTimeTrend.trendList)}
-                    />
+
+                    <div>
+                      <div className={styles.leftTextContainer} >
+                        <span className={classNames('db', styles.data)}>{`${avgTimeSeries(getServerResponseTimeTrend.trendList)}`} </span>
+                        <span className={classNames('db', styles.unit)}> ms</span>
+                      </div>
+                      <div className="pull-right" style={{ width: '80%' }}>
+                        <MiniBar
+                          data={axis(duration, getServerResponseTimeTrend.trendList)}
+                        />
+                      </div>
+                    </div>
                   ) : (<span style={{ display: 'none' }} />)}
                 </ChartCard>
               </Col>

@@ -23,7 +23,8 @@ import classNames from 'classnames';
 import styles from './index.less';
 
 const ChartCard = ({
-  loading = false, contentHeight, title, avatar, action, total, footer, children, ...rest
+  loading = false, contentHeight, title, avatar, action, total, footer, children,
+  isSetContentFixedHeight = false, ...rest
 }) => {
   const content = (
     <div className={styles.chartCard}>
@@ -49,7 +50,8 @@ const ChartCard = ({
       {
         children && (
           <div className={styles.content} style={{ height: contentHeight || 'auto' }}>
-            <div className={contentHeight && styles.contentFixed}>
+            {/* <div className={contentHeight && styles.contentFixed}> */}
+            <div className={classNames((contentHeight && styles.contentFixed), 'clearfix')} style={isSetContentFixedHeight ? { height: contentHeight || 'auto' } : null}>
               {children}
             </div>
           </div>
