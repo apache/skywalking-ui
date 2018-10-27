@@ -313,7 +313,13 @@ class TraceStack extends PureComponent {
   render() {
     const { colorMap, span = {}, position = { width: 100, top: 0 } } = this.state;
     const legendButtons = Object.keys(colorMap).map(key =>
-      (<Tag color={colorMap[key]} key={key}>{key}</Tag>));
+      (
+        <div className={styles.tag}>
+          <Tag className={styles.colorBlock} color={colorMap[key]} key={key} />
+          <span className={styles.value}>{key}</span>
+        </div>
+      )
+    );
     const tabList = [];
     const contentList = {};
     if (span.content) {
