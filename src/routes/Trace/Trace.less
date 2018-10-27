@@ -34,15 +34,18 @@
       margin-right: 0;
       display: flex;
       > .ant-form-item-label {
-        width: auto;
         line-height: 32px;
         padding-right: 8px;
+        min-width: 115px;
+        width: 12%;
+        text-align: left;
       }
       .ant-form-item-control {
         line-height: 32px;
       }
     }
     .ant-form-item-control-wrapper {
+      padding-left: 30px;
       flex: 1;
     }
   }
@@ -62,4 +65,32 @@
   .tableListForm :global(.ant-form-item) {
     margin-right: 8px;
   }
+}
+
+.toggleButtonGroup {
+  :global {
+    .ant-btn {
+      &:hover {
+        background-color: rgb(34, 122, 203);
+        color: white;
+      }
+      &.active {
+        background-color: rgb(34, 122, 203);
+        color: white;
+      }
+    }
+  }
+}
+
+.triangleContainer::before {
+  content: '';
+  border: inherit;
+  padding: 0.5em;
+  position: absolute;
+  background: inherit;/**不加这个的话你会发现 这个伪元素不会将div的border－top给覆盖掉,bg-image默认是none,bg-color默认是transparent*/
+  left: 76px;
+  top: -9px;
+  transform: rotate(45deg);
+  border-right: 0;
+  border-bottom: 0;
 }
