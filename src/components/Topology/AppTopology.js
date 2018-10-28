@@ -223,7 +223,7 @@ export default class AppTopology extends Base {
         'background-height': '60%',
         'background-color': '#e6f7ff',
       })
-      .selector(':selected')
+      .selector('node:selected')
       .css({
         width: 67,
         height: 67,

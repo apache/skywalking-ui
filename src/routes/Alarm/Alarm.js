@@ -122,7 +122,7 @@ export default class Alarm extends PureComponent {
                 />}
               description={msg.message}
             />
-            <div>{moment(msg.startTime).format()}</div>
+            <div>{moment(msg.startTime).format('YYYY-MM-DD HH:mm:ss')}</div>
           </List.Item>
         )}
       />);

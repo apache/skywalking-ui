@@ -18,7 +18,7 @@
 
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Row, Col, Card, Icon, Radio, Avatar, Select, Input } from 'antd';
+import { Row, Col, Card, Icon, Radio, Avatar, Select, Input, Popover, Tag } from 'antd';
 import { ChartCard } from '../../components/Charts';
 import { AppTopology } from '../../components/Topology';
 import { Panel } from '../../components/Page';
@@ -131,7 +131,14 @@ export default class Topology extends PureComponent {
 
   handleChangeLatencyStyle = (e) => {
     const { value } = e.target;
-    const latencyRange = value.split(',').map(_ => parseInt(_.trim(), 10));
+    const vArray = value.split(',');
+    if (vArray.length !== 2) {
+      return;
+    }
+    const latencyRange = vArray.map(_ => parseInt(_.trim(), 10)).filter(_ => !isNaN(_));
+    if (latencyRange.length !== 2) {
+      return;
+    }
     const { dispatch } = this.props;
     dispatch({
       type: 'topology/setLatencyStyleRange',
@@ -183,6 +190,13 @@ export default class Topology extends PureComponent {
     const { data, variables: { appRegExps, appFilters = [], latencyRange } } = this.props.topology;
     const { metrics, layout = 0 } = data;
     const { getGlobalTopology: topologData } = data;
+    const content = (
+      <div>
+        <p><Tag color="#40a9ff">Less than {latencyRange[0]} ms </Tag></p>
+        <p><Tag color="#d4b106">Between {latencyRange[0]} ms and {latencyRange[1]} ms</Tag></p>
+        <p><Tag color="#cf1322">More than {latencyRange[1]} ms</Tag></p>
+      </div>
+    );
     return (
       <Panel globalVariables={this.props.globalVariables} onChange={this.handleChange}>
         <Row gutter={8}>
@@ -236,7 +250,9 @@ export default class Topology extends PureComponent {
                   {data.getGlobalTopology.nodes.filter(_ => _.sla)
                     .map(_ => <Option key={_.name}>{_.name}</Option>)}
                 </Select>
-                <h4>Latency coloring thresholds</h4>
+                <Popover content={content} title="Info">
+                  <h4>Latency coloring thresholds  <Icon type="info-circle-o" /></h4>
+                </Popover>
                 <Input style={{ width: '100%', marginBottom: 20 }} onChange={this.handleChangeLatencyStyle} value={latencyRange.join(',')} />
                 <h4>Overview</h4>
                 <DescriptionList layout="vertical">
