@@ -35,7 +35,7 @@ npm install
 
 #### Mock mode
 
-This mode is suitable for developing locally.
+This mode is suitable for developing locally. Use `username:admin, password:888888` to login system.
 
 ```
 npm start
@@ -43,20 +43,25 @@ npm start
 
 #### No-Mock mode 
 
-This mode is suitable for e2e test with backend collector.
+This mode is suitable for e2e test with backend collector. No webapp proxy required.
 
 ```
-npm run start:no-mock
+npm run start:no-proxy
 ```
 
-The default collector query address is `http://localhost:12800`. You can change this address by editing `.webpack.js` file.
+The default collector query address is `http://localhost:12800`. You can change this address by editing `.webpack.js` file. From 5.0.0-beta2, login auth is supported, but without webapp proxy, there is no one to take charge of authentication, so we need specific processes to login in this mode.
+
+1. Start up in `Mock mode`.
+1. Do login by `username:admin, password:888888`. (Now, browser saved authentication in local storage)
+1. Stop and restart in `No-Mock mode`.
+1. You could access without username/password and webapp proxy.
 
 #### Commands
 
 | Command                 | Description                                                 |
 | ----------------------- | ----------------------------------------------------------- |
 | `npm start`             | Starts development server with hot reloading and mock.      |
-| `npm run start:no-mock` | Starts development server to access collector               |
+| `npm run start:no-proxy`| Starts development server to access collector               |
 | `npm test`              | Runs all the tests                                          |
 | `npm run lint`          | Lint the project (eslint, stylelint)                        |
 | `npm run build`         | Runs production build. Outputs files to `/dist`.            |
