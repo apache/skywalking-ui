@@ -49,4 +49,36 @@
   .content {
     width: 30%;
   }
+  .traceListItem {
+    display: flex;
+    margin-bottom: 15px;
+    padding-top: 5px;
+    align-items: center;
+    justify-content: space-between;
+    .name {
+      width: 30%;
+    }
+    .status {
+      width: 5%;
+    }
+    .progressBar {
+      width: 40%;
+      height: 15;
+    }
+    .averageTime {
+      min-width: 70px;
+    }
+    .timeStamp {
+      width: 163px;
+    }
+  }
+}
+
+.traceListHead {
+  p {
+    font-size: 16px;
+  }
+  div {
+    color: rgba(0, 0, 0, .4);
+  }
 }
