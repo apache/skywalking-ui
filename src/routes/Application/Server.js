@@ -26,7 +26,6 @@ import DescriptionList from '../../components/DescriptionList';
 import { axis } from '../../utils/time';
 import { avgTimeSeries } from '../../utils/utils';
 import ControlPanel from '../../components/ControlPanel';
-import styles from './Server.less';
 
 
 const { Description } = DescriptionList;
@@ -73,11 +72,11 @@ export default class Server extends PureComponent {
                   // total={`${avgTimeSeries(getServerThroughputTrend.trendList)} cpm`}
                   contentHeight={126}
                 >
-                  <div className={styles.leftTextContainer} >
-                    <span className={classNames('db', styles.data)}>{`${avgTimeSeries(getServerThroughputTrend.trendList)}`} </span>
-                    <span className={classNames('db', styles.unit)}> cpm</span>
+                  <div className="leftTextContainer" >
+                    <span className={classNames('db', 'data')}>{`${avgTimeSeries(getServerThroughputTrend.trendList)}`} </span>
+                    <span className={classNames('db', 'unit')}> cpm</span>
                   </div>
-                  <div className="pull-right" style={{ width: '80%' }}>
+                  <div className="pull-right" style={{ width: 'calc(100% - 107px)' }}>
                     <MiniBar
                       // color="#975FE4"
                       data={axis(duration, getServerThroughputTrend.trendList)}
@@ -87,6 +86,7 @@ export default class Server extends PureComponent {
               </Col>
               <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 8 }}>
                 <ChartCard
+                  isSetContentFixedHeight
                   style={{ height: 186 }}
                   title={<span style={{ color: 'rgba(0, 0, 0, 0.85)' }}>平均耗时(Avg Response Time)</span>}
                   // total={`${avgTimeSeries(getServerResponseTimeTrend.trendList)} ms`}
@@ -94,12 +94,12 @@ export default class Server extends PureComponent {
                 >
                   {getServerResponseTimeTrend.trendList.length > 0 ? (
 
-                    <div>
-                      <div className={styles.leftTextContainer} >
-                        <span className={classNames('db', styles.data)}>{`${avgTimeSeries(getServerResponseTimeTrend.trendList)}`} </span>
-                        <span className={classNames('db', styles.unit)}> ms</span>
+                    <div style={{ width: '100%', height: '100%' }} className="clearfix">
+                      <div className="leftTextContainer" >
+                        <span className={classNames('db', 'data')}>{`${avgTimeSeries(getServerResponseTimeTrend.trendList)}`} </span>
+                        <span className={classNames('db', 'unit')}> ms</span>
                       </div>
-                      <div className="pull-right" style={{ width: '80%' }}>
+                      <div className="pull-right" style={{ width: 'calc(100% - 107px)' }}>
                         <MiniBar
                           data={axis(duration, getServerResponseTimeTrend.trendList)}
                         />

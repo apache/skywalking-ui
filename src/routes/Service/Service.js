@@ -17,6 +17,7 @@
 
 
 import React, { PureComponent } from 'react';
+import classNames from 'classnames';
 import { connect } from 'dva';
 import { Row, Col, Form, Button, Icon, Select } from 'antd';
 import {
@@ -153,46 +154,69 @@ export default class Service extends PureComponent {
         <Row gutter={8}>
           <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 8 }}>
             <ChartCard
-              title="Avg Throughput"
-              total={`${avgTimeSeries(getServiceThroughputTrend.trendList)} cpm`}
-              contentHeight={46}
+              title={<span style={{ color: 'rgba(0, 0, 0, 0.85)' }}>平均流量（Avg Throughput）</span>}
+              style={{ height: 152 }}
+              contentHeight={88}
             >
-              <MiniArea
-                color="#975FE4"
-                data={axis(duration, getServiceThroughputTrend.trendList)}
-              />
+
+              <div className="leftTextContainer" >
+                <span className={classNames('db', 'data')}>{`${avgTimeSeries(getServiceThroughputTrend.trendList)}`} </span>
+                <span className={classNames('db', 'unit')}> cpm</span>
+              </div>
+              <div className="pull-right" style={{ width: 'calc(100% - 107px)' }}>
+                <MiniArea
+                  color="rgb(82, 156, 253)"
+                  data={axis(duration, getServiceThroughputTrend.trendList)}
+                />
+              </div>
             </ChartCard>
           </Col>
           <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 8 }}>
             <ChartCard
-              title="Avg Response Time"
-              total={`${avgTimeSeries(getServiceResponseTimeTrend.trendList)} ms`}
-              contentHeight={46}
+              title={<span style={{ color: 'rgba(0, 0, 0, 0.85)' }}>平均耗时（Avg Response Time）</span>}
+              // total={`${avgTimeSeries(getServiceResponseTimeTrend.trendList)} ms`}
+              style={{ height: 152 }}
+              contentHeight={88}
             >
-              <MiniArea
-                data={axis(duration, getServiceResponseTimeTrend.trendList)}
-              />
+
+              <div className="leftTextContainer" >
+                <span className={classNames('db', 'data')}>{`${avgTimeSeries(getServiceResponseTimeTrend.trendList)}`} </span>
+                <span className={classNames('db', 'unit')}> ms</span>
+              </div>
+              <div className="pull-right" style={{ width: 'calc(100% - 107px)' }}>
+                <MiniArea
+                  color="rgb(137, 193, 79)"
+                  data={axis(duration, getServiceResponseTimeTrend.trendList)}
+                />
+              </div>
             </ChartCard>
           </Col>
           <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 8 }}>
             <ChartCard
-              title="Avg SLA"
-              total={`${(avgTimeSeries(getServiceSLATrend.trendList) / 100).toFixed(2)} %`}
+              // title="平均运行率（Avg SLA）"
+              title={<span style={{ color: 'rgba(0, 0, 0, 0.85)' }}>平均运行率（Avg SLA）</span>}
+              style={{ height: 152 }}
+              contentHeight={88}
+              // total={`${(avgTimeSeries(getServiceSLATrend.trendList) / 100).toFixed(2)} %`}
             >
-              <MiniBar
-                animate={false}
-                height={46}
-                data={axis(duration, getServiceSLATrend.trendList,
-                  ({ x, y }) => ({ x, y: y / 100 }))}
-              />
+              <div className="leftTextContainer" >
+                <span className={classNames('db', 'data')}>{`${(avgTimeSeries(getServiceSLATrend.trendList) / 100).toFixed(2)}`} </span>
+                <span className={classNames('db', 'unit')}> %</span>
+              </div>
+              <div className="pull-right" style={{ width: 'calc(100% - 107px)' }}>
+                <MiniBar
+                  animate={false}
+                  height={86}
+                  data={axis(duration, getServiceSLATrend.trendList,
+                    ({ x, y }) => ({ x, y: y / 100 }))}
+                />
+              </div>
             </ChartCard>
           </Col>
         </Row>
         <Row gutter={8}>
           <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginTop: 8 }}>
-            <ChartCard
-              title="Top 20 Slow Traces"
-            >
+            <ChartCard>
               <TraceList
                 data={queryBasicTraces.traces}
                 onClickTraceTag={this.handleShowTrace}
