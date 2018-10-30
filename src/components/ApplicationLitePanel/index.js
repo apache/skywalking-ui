@@ -28,7 +28,7 @@ export default class ApplicationLitePanel extends PureComponent {
       <div>
         {appInfo.isAlarm ? <Avatar style={{ backgroundColor: '#F04864', marginBottom: 10 }} icon="bell" /> : null}
         <DescriptionList col={1} layout="vertical">
-          <Description term="SLA">{appInfo.sla}%</Description>
+          <Description term="SLA">{appInfo.sla / 100}%</Description>
           <Description term="Calls Per Minute">{appInfo.cpm}</Description>
           <Description term="Avg Response Time">{appInfo.avgResponseTime} ms</Description>
         </DescriptionList>
