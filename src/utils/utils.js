@@ -115,16 +115,7 @@ export function isUrl(path) {
 }
 
 export function getServiceInstanceId(serviceInstanceInfo) {
-  const { attributes } = serviceInstanceInfo;
-  if (!attributes || attributes.length < 1) {
-    return '';
-  }
-  let host = getAttributes(attributes, 'host_name');
-  const ipv4 = getAttributes(attributes, 'ipv4s');
-  if (ipv4 && ipv4.length > 0) {
-    host = ipv4;
-  }
-  return `${getAttributes(attributes, 'process_no')}@${host}`;
+  return serviceInstanceInfo.name;
 }
 
 export function getAttributes(attributes, name) {

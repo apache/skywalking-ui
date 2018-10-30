@@ -32,19 +32,23 @@ export default {
         name: '@natural(4, 20)',
         attributes: [
           {
-            name: 'os',
+            name: 'os_name',
             value: 'LINUX',
           },
           {
-            name: 'host',
+            name: 'host_name',
             value: 'WORKSAPCE-@name',
           },
           {
-            name: 'pid',
+            name: 'process_no',
             value: '@natural(4, 20)',
           },
           {
-            name: 'ipv4',
+            name: 'ipv4s',
+            value: '@ip',
+          },
+          {
+            name: 'ipv4s',
             value: '@ip',
           },
         ],
