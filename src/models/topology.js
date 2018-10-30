@@ -20,7 +20,7 @@ import { base } from '../utils/models';
 import { exec } from '../services/graphql';
 
 const metricQuery = `
-  query TopologyMetric($duration: Duration!, $ids: [ID!]!,  $idsS: [ID!]!, $idsC: [ID!]!) {
+  query TopologyMetric($duration: Duration!, $ids: [ID!]!) {
     sla: getValues(metric: {
       name: "service_sla"
       ids: $ids
@@ -48,44 +48,54 @@ const metricQuery = `
         value
       }
     }
-    cpmS: getValues(metric: {
-      name: "service_relation_server_cpm"
-      ids: $idsS
-    }, duration: $duration) {
-      values {
-        id
-        value
-      }
-    }
-    latencyS: getValues(metric: {
-      name: "service_relation_client_resp_time"
-      ids: $idsS
-    }, duration: $duration) {
-      values {
-        id
-        value
-      }
-    }
-    cpmC: getValues(metric: {
-      name: "service_relation_client_cpm"
-      ids: $idsC
-    }, duration: $duration) {
-      values {
-        id
-        value
-      }
-    }
-    latencyC: getValues(metric: {
-      name: "service_relation_client_resp_time"
-      ids: $idsC
-    }, duration: $duration) {
-      values {
-        id
-        value
-      }
-    }
   }
 `;
+
+const serverMetricQuery = `
+query TopologyServerMetric($duration: Duration!, $idsS: [ID!]!) {
+  cpmS: getValues(metric: {
+    name: "service_relation_server_cpm"
+    ids: $idsS
+  }, duration: $duration) {
+    values {
+      id
+      value
+    }
+  }
+  latencyS: getValues(metric: {
+    name: "service_relation_client_resp_time"
+    ids: $idsS
+  }, duration: $duration) {
+    values {
+      id
+      value
+    }
+  }
+}
+`
+
+const clientMetricQuery = `
+query TopologyClientMetric($duration: Duration!, $idsC: [ID!]!) {
+  cpmC: getValues(metric: {
+    name: "service_relation_client_cpm"
+    ids: $idsC
+  }, duration: $duration) {
+    values {
+      id
+      value
+    }
+  }
+  latencyC: getValues(metric: {
+    name: "service_relation_client_resp_time"
+    ids: $idsC
+  }, duration: $duration) {
+    values {
+      id
+      value
+    }
+  }
+}
+`
 
 export default base({
   namespace: 'topology',
@@ -136,23 +146,31 @@ export default base({
   `,
   effects: {
     *fetchMetrics({ payload }, { call, put }) {
-      const response = yield call(exec, { query: metricQuery, variables: payload.variables });
-      if (!response.data) {
-        return;
+      const { ids, idsS, idsC, duration } = payload.variables;
+      const { data = {} } = yield call(exec, { query: metricQuery, variables: { ids, duration } });
+      let metrics = { ...data };
+      if (idsS && idsS.length > 0) {
+        const { data: sData = {}  } = yield call(exec, { query: serverMetricQuery, variables: { idsS, duration } });
+        metrics = { ...metrics, ...sData };
       }
-      const { cpmS, cpmC, latencyS, latencyC } = response.data;
+      if (idsC && idsC.length > 0) {
+        const { data: cData = {}  } = yield call(exec, { query: clientMetricQuery, variables: { idsC, duration } });
+        metrics = { ...metrics, ...cData };
+      }
+      const { cpmS = { values:[] }, cpmC = { values:[] }, latencyS = { values:[] }, latencyC = { values:[] } } = metrics;
+      metrics = {
+        ...metrics,
+        cpm: {
+          values: cpmS.values.concat(cpmC.values),
+        },
+        latency: {
+          values: latencyS.values.concat(latencyC.values),
+        },
+      }
       yield put({
         type: 'saveData',
         payload: {
-          metrics: {
-            ...response.data,
-            cpm: {
-              values: cpmS.values.concat(cpmC.values),
-            },
-            latency: {
-              values: latencyS.values.concat(latencyC.values),
-            },
-          },
+          metrics,
         },
       });
     },
