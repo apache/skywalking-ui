@@ -159,7 +159,6 @@ export default class Topology extends PureComponent {
       }
     });
     const result = [];
-    console.log(typeMap, 'resultttt------>>>>>>>>>');
     typeMap.forEach((v, k) => result.push(<Description term={k}>{v}</Description>));
     // typeMap.forEach((v, k) => result.push(<div> <span> {k} </span> <span> {v} </span> </div>));
     return result;
@@ -175,12 +174,16 @@ export default class Topology extends PureComponent {
     });
     const result = [];
     // typeMap.forEach((v, k) => result.push(<Description term={k}>{v}</Description>));
-    typeMap.forEach((v, k) =>
+    let i = 0;
+    typeMap.forEach((v, k) => {
+      i += 1;
       result.push(
-        <div className={styles.nodeItem}>
+        <div key={`${i}node`} className={styles.nodeItem}>
           <span className={styles.text}> {k} </span>
-          <span className={styles.value} span> {v} </span>
-        </div>));
+          <span className={styles.value}> {v} </span>
+        </div>);
+    });
+
     return result;
   }
   render() {
@@ -275,9 +278,11 @@ export default class Topology extends PureComponent {
                 <span onClick={this.closeModal.bind(this, false)} className={styles.closeIcon}> <Icon type="close" theme="outlined" /> </span>
                 <DescriptionList layout="vertical" >
                   {/* <Description term="Total">{topologData.nodes.length}</Description> */}
-                  <div className={styles.nodeItem}>
-                    <span className={styles.text}> Total </span>
-                    <span className={styles.value}> {topologData.nodes.length} </span>
+                  <div key="total" className={styles.nodeItem}>
+                    <span key="Total" className={styles.text}> Total </span>
+                    <span key={topologData.nodes.length} className={styles.value}>
+                      {topologData.nodes.length}
+                    </span>
                   </div>
                   {this.renderNodeTypePanel(topologData)}
                 </DescriptionList>

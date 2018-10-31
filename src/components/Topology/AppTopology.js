@@ -79,13 +79,21 @@ export default class AppTopology extends Base {
   bindEvent = (cy) => {
     const { onSelectedApplication } = this.props;
     if (onSelectedApplication) {
+      cy.on('tap', (event) => {
+        // target holds a reference to the originator
+        // of the event (core or element)
+        const evtTarget = event.target;
+        if (!evtTarget.data) {
+          onSelectedApplication();
+        }
+      });
       cy.on('select', 'node[sla]', (evt) => {
         const node = evt.target;
         onSelectedApplication(node.data());
       });
-      cy.on('unselect', 'node[sla]', () => {
-        onSelectedApplication();
-      });
+      // cy.on('unselect', 'node[sla]', () => {
+      //   onSelectedApplication();
+      // });
     }
   }
   getStyle = () => {
