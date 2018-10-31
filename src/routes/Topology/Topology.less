@@ -1,0 +1,83 @@
+.topoWrapper {
+  :global(.ant-radio-group.ant-radio-group-normal) {
+    font-size: 18px;
+    float: right;
+    position: relative;
+    z-index: 100;
+    :global(.ant-radio-button-wrapper.ant-radio-button-wrapper-checked) {
+      background-color: #227acb;
+    }
+  }
+}
+.applicationModal {
+  position: fixed;
+  z-index: 999;
+  height: 100%;
+  width: 25%;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  margin-top: 0 !important;
+  padding-right: 0 !important;
+  :global(.ant-card) {
+    height: 100% !important;
+  }
+  :global(.ant-row) {
+    margin-right: 0 !important;
+    margin-left: 0 !important;
+  }
+  .closeIcon {
+    position: fixed;
+    top: 17px;
+    right: 27px;
+    cursor: pointer;
+  }
+  .nodeItem {
+    width: 100%;
+    height: 40px;
+    border: 1px solid #ddd;
+    border-bottom: 0;
+    // margin-bottom: 3px;
+    padding-right: 0 !important;
+    padding-left: 0 !important;
+    .text {
+      width: 49%;
+      display: block;
+      float: left;
+      border-right: 1px solid #ddd;
+      height: 100%;
+      line-height: 40px;
+      background-color: rgb(251, 251, 251);
+      color: rgb(195, 195, 195);
+      padding-left: 10px;
+    }
+    .value {
+      width: 49%;
+      display: block;
+      float: left;
+      padding-left: 15px;
+      height: 100%;
+      line-height: 40px;
+    }
+    &:last-of-type {
+      border-bottom: 1px solid #ddd;
+    }
+  }
+  .hLine {
+    width: calc(100% + 48px);
+    position: relative;
+    left: -24px;
+    margin-top: 40px;
+    border: .5px solid #ddd;
+  }
+}
+.modalShadow {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 900;
+  background-color: rgba(0, 0, 0, .2);
+}
+

@@ -18,13 +18,16 @@
 
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Row, Col, Card, Icon, Radio, Avatar, Select } from 'antd';
+import { Row, Col, Card, Icon, Radio, Select, Button } from 'antd';
 import { ChartCard } from '../../components/Charts';
 import { AppTopology } from '../../components/Topology';
 import { Panel } from '../../components/Page';
-import ApplicationLitePanel from '../../components/ApplicationLitePanel';
+// import ApplicationLitePanel from '../../components/ApplicationLitePanel';
 import DescriptionList from '../../components/DescriptionList';
 import { redirect } from '../../utils/utils';
+import styles from './Topology.less';
+import ControlPanel from '../../components/ControlPanel';
+
 
 const { Description } = DescriptionList;
 const { Option } = Select;
@@ -72,6 +75,10 @@ export default class Topology extends PureComponent {
   static defaultProps = {
     graphHeight: 600,
   };
+  constructor(props) {
+    super(props);
+    this.state = { displayModal: false };
+  }
   handleChange = (variables) => {
     this.props.dispatch({
       type: 'topology/fetchData',
@@ -85,6 +92,7 @@ export default class Topology extends PureComponent {
     });
   }
   handleSelectedApplication = (appInfo) => {
+    this.handleDisplayWayChange(true);
     if (appInfo) {
       this.props.dispatch({
         type: 'topology/saveData',
@@ -118,6 +126,12 @@ export default class Topology extends PureComponent {
       calls: cc,
     };
   }
+  handleDisplayWayChange(flag) {
+    this.setState({ displayModal: flag });
+  }
+  closeModal() {
+    this.handleDisplayWayChange(false);
+  }
   renderActions = () => {
     const { data: { appInfo } } = this.props.topology;
     return [
@@ -145,7 +159,28 @@ export default class Topology extends PureComponent {
       }
     });
     const result = [];
+    console.log(typeMap, 'resultttt------>>>>>>>>>');
     typeMap.forEach((v, k) => result.push(<Description term={k}>{v}</Description>));
+    // typeMap.forEach((v, k) => result.push(<div> <span> {k} </span> <span> {v} </span> </div>));
+    return result;
+  }
+  renderNodeTypePanel = (topologData) => {
+    const typeMap = new Map();
+    topologData.nodes.forEach((_) => {
+      if (typeMap.has(_.type)) {
+        typeMap.set(_.type, typeMap.get(_.type) + 1);
+      } else {
+        typeMap.set(_.type, 1);
+      }
+    });
+    const result = [];
+    // typeMap.forEach((v, k) => result.push(<Description term={k}>{v}</Description>));
+    typeMap.forEach((v, k) =>
+      result.push(
+        <div className={styles.nodeItem}>
+          <span className={styles.text}> {k} </span>
+          <span className={styles.value} span> {v} </span>
+        </div>));
     return result;
   }
   render() {
@@ -154,20 +189,34 @@ export default class Topology extends PureComponent {
     const topologData = this.filter();
     return (
       <Panel globalVariables={this.props.globalVariables} onChange={this.handleChange}>
+        <ControlPanel />
         <Row gutter={8}>
-          <Col {...{ ...colResponsiveProps, xl: 18, lg: 16 }}>
+          <Col {...{ ...colResponsiveProps, xl: 24, lg: 24 }}>
             <ChartCard
-              title="Topology Map"
-              avatar={<Avatar icon="fork" style={{ color: '#1890ff', backgroundColor: '#ffffff' }} />}
-              action={(
-                <Radio.Group value={layout} onChange={this.handleLayoutChange} size="normal">
-                  {layouts.map((_, i) => (
-                    <Radio.Button value={i} key={_.name}>
-                      <img src={_.icon} alt={_.name} style={layoutButtonStyle} />
-                    </Radio.Button>))}
-                </Radio.Group>
-              )}
+              className={styles.topoWrapper}
             >
+              <Select
+                mode="tags"
+                style={{ width: '100%', marginBottom: 20 }}
+                placeholder="Filter application"
+                onChange={this.handleFilterApplication}
+                tokenSeparators={[',']}
+                value={appFilters}
+              >
+                {data.getClusterTopology.nodes.filter(_ => _.sla)
+                  .map(_ => <Option key={_.name}>{_.name}</Option>)}
+              </Select>
+              <Radio.Group
+                value={layout}
+                onChange={this.handleLayoutChange}
+                size="normal"
+                className="clearfix"
+              >
+                {layouts.map((_, i) => (
+                  <Radio.Button value={i} key={_.name}>
+                    <img src={_.icon} alt={_.name} style={layoutButtonStyle} />
+                  </Radio.Button>))}
+              </Radio.Group>
               {topologData.nodes.length > 0 ? (
                 <AppTopology
                   height={this.props.graphHeight}
@@ -178,19 +227,40 @@ export default class Topology extends PureComponent {
               ) : null}
             </ChartCard>
           </Col>
-          <Col {...{ ...colResponsiveProps, xl: 6, lg: 8 }}>
-            {data.appInfo ? (
-              <Card
-                title={data.appInfo.name}
-                bodyStyle={{ height: 568 }}
-                actions={this.renderActions()}
-              >
-                <ApplicationLitePanel appInfo={data.appInfo} />
-              </Card>
+          {this.state.displayModal ? <div className={styles.modalShadow} /> : null}
+          {this.state.displayModal ? (
+            <Col {...{ ...colResponsiveProps, xl: 6, lg: 8 }} className={styles.applicationModal}>
+              {data.appInfo ? (
+                <Card
+                  title={data.appInfo.name}
+                  bodyStyle={{ height: 568 }}
+                  // actions={this.renderActions()}
+                >
+                  <span onClick={this.closeModal.bind(this, false)} className={styles.closeIcon}> <Icon type="close" theme="outlined" /> </span>
+                  {/* <ApplicationLitePanel appInfo={data.appInfo} /> */}
+                  <div className={styles.nodeItem}>
+                    <span className={styles.text}> SLA </span>
+                    <span className={styles.value}> {data.appInfo.sla} </span>
+                  </div>
+                  <div className={styles.nodeItem}>
+                    <span className={styles.text}> Calls Per Minute </span>
+                    <span className={styles.value}> {data.appInfo.cpm} </span>
+                  </div>
+                  <div className={styles.nodeItem}>
+                    <span className={styles.text}> Avg Response Time </span>
+                    <span className={styles.value}> {data.appInfo.avgResponseTime} </span>
+                  </div>
+                  <div className={styles.nodeItem}>
+                    <span className={styles.text}> Total Server </span>
+                    <span className={styles.value}> {data.appInfo.numOfServer} </span>
+                  </div>
+                  <hr className={styles.hLine} />
+                  <Button onClick={() => redirect(this.props.history, '/monitor/application', { key: data.appInfo.id, label: data.appInfo.name })} style={{ marginTop: 15, width: '100%', backgroundColor: 'rgb(35, 121, 201)', color: 'white' }}>查看更多</Button>
+                </Card>
             )
             : (
               <Card title="Overview" style={{ height: 672 }}>
-                <Select
+                {/* <Select
                   mode="tags"
                   style={{ width: '100%', marginBottom: 20 }}
                   placeholder="Filter application"
@@ -200,14 +270,22 @@ export default class Topology extends PureComponent {
                 >
                   {data.getClusterTopology.nodes.filter(_ => _.sla)
                     .map(_ => <Option key={_.name}>{_.name}</Option>)}
-                </Select>
+                </Select> */}
+                {/* <div className={styles.modalShadow} /> */}
+                <span onClick={this.closeModal.bind(this, false)} className={styles.closeIcon}> <Icon type="close" theme="outlined" /> </span>
                 <DescriptionList layout="vertical" >
-                  <Description term="Total">{topologData.nodes.length}</Description>
-                  {this.renderNodeType(topologData)}
+                  {/* <Description term="Total">{topologData.nodes.length}</Description> */}
+                  <div className={styles.nodeItem}>
+                    <span className={styles.text}> Total </span>
+                    <span className={styles.value}> {topologData.nodes.length} </span>
+                  </div>
+                  {this.renderNodeTypePanel(topologData)}
                 </DescriptionList>
               </Card>
             )}
-          </Col>
+            </Col>
+          ) : null
+          }
         </Row>
       </Panel>
     );

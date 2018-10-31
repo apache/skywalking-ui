@@ -62,7 +62,7 @@ export default class ControlPanel extends Component {
           <Select defaultValue="5s" onChange={handleChange} style={{ width: '70%' }}>
             <Option value="5s">5s</Option>
             <Option value="30s">30s</Option>
-            <Option value="60s" disabled>60s</Option>
+            <Option value="60s">60s</Option>
             <Option value="120s">120s</Option>
           </Select>
         </div>
