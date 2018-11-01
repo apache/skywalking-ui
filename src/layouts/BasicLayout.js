@@ -197,7 +197,7 @@ class BasicLayout extends React.PureComponent {
 
   render() {
     const {
-      isMonitor, collapsed, fetching, notices, routerData, match, location,
+      isMonitor, collapsed, fetching, notices, routerData, match, location, zone,
       duration: { selected: dSelected, collapsed: dCollapsed },
     } = this.props;
     const bashRedirect = this.getBashRedirect();
@@ -234,6 +234,8 @@ class BasicLayout extends React.PureComponent {
               selected={dSelected}
               onSelected={this.handleDurationSelected}
               collapsed={dCollapsed}
+              zone={zone}
+              dispatch={this.props.dispatch}
             />
           ) : null}
           <Content style={{ margin: '24px 24px 0', height: '100%' }}>
@@ -300,4 +302,5 @@ export default connect(({ global, loading }) => ({
   notices: global.notices,
   duration: global.duration,
   globalVariables: global.globalVariables,
+  zone: global.zone,
 }))(BasicLayout);

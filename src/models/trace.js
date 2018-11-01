@@ -148,6 +148,27 @@ export default base({
         },
       };
     },
+    changeTimezone(state) {
+      const { variables } = state;
+      const { values } = variables;
+      return {
+        ...state,
+        variables: {
+          ...variables,
+          values: {
+            ...values,
+            duration: generateDuration({
+              from() {
+                return moment().subtract(15, 'minutes');
+              },
+              to() {
+                return moment();
+              },
+            }),
+          },
+        },
+      };
+    },
   },
   subscriptions: {
     setup({ history, dispatch }) {

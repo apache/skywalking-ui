@@ -213,10 +213,10 @@ export default class Trace extends PureComponent {
 
   renderForm() {
     const { getFieldDecorator } = this.props.form;
-    const { trace: { variables: { options } } } = this.props;
+    const { trace: { variables: { options } }, zone } = this.props;
     return (
       <Form onSubmit={this.handleSearch} layout="vertical">
-        <FormItem label="Time Range">
+        <FormItem label={`Time Range(${zone})`}>
           {getFieldDecorator('range-time-picker', {
             rules: [{
               required: true,

@@ -16,6 +16,7 @@
  */
 
 
+import moment from 'moment-timezone';
 import { exec } from '../services/graphql';
 import { generateDuration } from '../utils/time';
 
@@ -63,6 +64,7 @@ export default {
       },
     },
     globalVariables: {},
+    zone: moment.tz.guess(),
   },
 
   effects: {
@@ -138,8 +140,14 @@ export default {
         isMonitor: payload,
       };
     },
+    changeTimezone(state, { payload }) {
+      moment.tz.setDefault(payload);
+      return {
+        ...state,
+        zone: payload,
+      };
+    },
   },
-
   subscriptions: {
     setup({ history, dispatch }) {
       // Subscribe history(url) change, trigger `load` action if pathname is `/`
