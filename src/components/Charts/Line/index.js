@@ -15,8 +15,8 @@
  * limitations under the License.
  */
 
-
 import React, { Component } from 'react';
+import { DataSet } from '@antv/data-set';
 import { Chart, Axis, Tooltip, Geom } from 'bizcharts';
 import Debounce from 'lodash-decorators/debounce';
 import Bind from 'lodash-decorators/bind';
@@ -64,25 +64,19 @@ class Line extends Component {
     }
   }
 
-  handleRoot = (n) => {
+  handleRoot = n => {
     this.root = n;
   };
 
-  handleRef = (n) => {
+  handleRef = n => {
     this.node = n;
   };
 
   render() {
-    const {
-      height,
-      title,
-      forceFit = true,
-      data,
-      color = 'rgba(24, 144, 255, 0.85)',
-    } = this.props;
+    const { height, title, forceFit = true, data } = this.props;
 
     if (!data || data.length < 1) {
-      return (<span style={{ display: 'none' }} />);
+      return <span style={{ display: 'none' }} />;
     }
 
     const { autoHideXLabels } = this.state;
@@ -91,19 +85,21 @@ class Line extends Component {
       x: {
         type: 'cat',
         tickCount: 5,
+        range: [0, 1],
       },
       y: {
         min: 0,
       },
     };
 
-    const tooltip = [
-      'x*y',
-      (x, y) => ({
-        name: x,
-        value: y,
-      }),
-    ];
+    const ds = new DataSet();
+    const dv = ds.createView().source(data);
+    dv.transform({
+      type: 'map',
+      callback(row) {
+        return row.d ? row : { ...row, d: 'default'};
+      },
+    });
 
     return (
       <div className={styles.chart} style={{ height }} ref={this.handleRoot}>
@@ -113,7 +109,7 @@ class Line extends Component {
             scale={scale}
             height={title ? height - 41 : height}
             forceFit={forceFit}
-            data={data}
+            data={dv}
             padding="auto"
           >
             <Axis
@@ -121,13 +117,11 @@ class Line extends Component {
               title={false}
               label={autoHideXLabels ? false : {}}
               tickLine={autoHideXLabels ? false : {}}
-              line={{ lineJoin: 'bevel' }}
-              grid={false}
             />
-            <Axis name="y" min={0} grid={false} />
-            <Tooltip showTitle={false} crosshairs={false} />
-            <Geom type="line" position="x*y" size={2} />
-            <Geom type="point" position="x*y" color={color} tooltip={tooltip} shape="smooth" />
+            <Axis name="y" />
+            <Tooltip crosshairs={{type : "y"}} />
+            <Geom type="line" position="x*y" color="d" size={2} />
+            <Geom type="area" position="x*y" color="d" />
           </Chart>
         </div>
       </div>

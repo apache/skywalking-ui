@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 import React from 'react';
 import { Chart, Axis, Tooltip, Geom } from 'bizcharts';
 import autoHeight from '../autoHeight';

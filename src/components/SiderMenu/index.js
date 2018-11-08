@@ -15,21 +15,27 @@
  * limitations under the License.
  */
 
-
-import 'rc-drawer-menu/assets/index.css';
+import 'rc-drawer/assets/index.css';
 import React from 'react';
-import DrawerMenu from 'rc-drawer-menu';
+import DrawerMenu from 'rc-drawer';
 import SiderMenu from './SiderMenu';
 
-export default props => (
-  <DrawerMenu
-    parent={null}
-    level={null}
-    iconChild={null}
-    open={!props.collapsed}
-    onMaskClick={() => { props.onCollapse(true); }}
-    width="256px"
-  >
-    <SiderMenu {...props} collapsed={false} />
-  </DrawerMenu>
-);
+export default props => {
+  const { collapsed } = props;
+  return (
+    <DrawerMenu
+      getContainer={null}
+      level={null}
+      handleChild={<i className="drawer-handle-icon" />}
+      onHandleClick={() => {
+        props.onCollapse(!collapsed);
+      }}
+      open={!collapsed}
+      onMaskClick={() => {
+        props.onCollapse(true);
+      }}
+    >
+      <SiderMenu {...props} collapsed={false} />
+    </DrawerMenu>
+  );
+};

@@ -17,34 +17,38 @@
 
 
 import React, { PureComponent } from 'react';
-import classNames from 'classnames';
 import { connect } from 'dva';
-import { Row, Col, Form, Button, Icon, Select } from 'antd';
-import {
-  ChartCard, MiniArea, MiniBar, Sankey,
-} from '../../components/Charts';
-import { axis } from '../../utils/time';
-import { avgTimeSeries } from '../../utils/utils';
-import { Panel, Search } from '../../components/Page';
-import TraceList from '../../components/Trace/TraceList';
-import TraceTimeline from '../Trace/TraceTimeline';
+import { Row, Col, Select, Card, Form, Breadcrumb } from 'antd';
+import { AppTopology } from 'components/Topology';
+import { Line } from 'components/Charts';
+import { Panel } from 'components/Page';
+import RankList from 'components/RankList';
+import ServiceInstanceLitePanel from 'components/ServiceInstanceLitePanel';
+import ServiceInstance from './ServiceInstance';
+import { getServiceInstanceId, redirect } from '../../utils/utils';
+import { axisMY } from '../../utils/time';
 
-const { Item: FormItem } = Form;
 const { Option } = Select;
+const { Item: FormItem } = Form;
+
+const middleColResponsiveProps = {
+  xs: 24,
+  sm: 24,
+  md: 12,
+  lg: 12,
+  xl: 12,
+  style: { marginTop: 8 },
+};
 
 @connect(state => ({
   service: state.service,
   duration: state.global.duration,
   globalVariables: state.global.globalVariables,
-  loading: state.loading.models.service,
 }))
 @Form.create({
   mapPropsToFields(props) {
     const { variables: { values, labels } } = props.service;
     return {
-      applicationId: Form.createFormField({
-        value: { key: values.applicationId ? values.applicationId : '', label: labels.applicationId ? labels.applicationId : '' },
-      }),
       serviceId: Form.createFormField({
         value: { key: values.serviceId ? values.serviceId : '', label: labels.serviceId ? labels.serviceId : '' },
       }),
@@ -55,282 +59,202 @@ export default class Service extends PureComponent {
   componentDidMount() {
     this.props.dispatch({
       type: 'service/initOptions',
-      payload: { variables: this.props.globalVariables, reducer: 'saveAppInfo' },
+      payload: { variables: this.props.globalVariables },
     });
   }
+
   componentWillUpdate(nextProps) {
     if (nextProps.globalVariables.duration === this.props.globalVariables.duration) {
       return;
     }
     this.props.dispatch({
       type: 'service/initOptions',
-      payload: { variables: nextProps.globalVariables, reducer: 'saveAppInfo' },
+      payload: { variables: nextProps.globalVariables },
     });
   }
-  handleAppSelect = (selected) => {
-    this.props.dispatch({
-      type: 'service/save',
-      payload: {
-        variables: {
-          values: { applicationId: selected.key, serviceId: null },
-          labels: { applicationId: selected.label, serviceId: null },
-        },
-        data: {
-          appInfo: { applicationId: selected.key },
-        },
-      },
-    });
-  }
+
   handleSelect = (selected) => {
     this.props.dispatch({
-      type: 'service/save',
+      type: 'service/saveVariables',
       payload: {
-        variables: {
-          values: { serviceId: selected.key },
-          labels: { serviceId: selected.label },
-        },
-        data: {
-          serviceInfo: selected,
-        },
+        values: { serviceId: selected.key },
+        labels: { serviceId: selected.label },
       },
     });
   }
+
   handleChange = (variables) => {
-    const { variables: { values } } = this.props.service;
-    if (!values.applicationId) {
-      return;
+    const { data: { serviceInstanceInfo, showServiceInstance } } = this.props.service;
+    if (showServiceInstance) {
+      this.handleSelectServiceInstance(serviceInstanceInfo.key, serviceInstanceInfo);
+    } else {
+      this.props.dispatch({
+        type: 'service/fetchData',
+        payload: { variables, reducer: 'saveService' },
+      });
     }
-    const { key: serviceId, label: serviceName, duration } = variables;
-    if (!serviceId) {
-      return;
-    }
-    this.props.dispatch({
-      type: 'service/fetchData',
-      payload: { variables: {
-        serviceId,
-        duration,
-        traceCondition: {
-          applicationId: values.applicationId,
-          operationName: serviceName,
-          queryDuration: duration,
-          traceState: 'ALL',
-          queryOrder: 'BY_DURATION',
-          paging: {
-            pageNum: 1,
-            pageSize: 20,
-            needTotal: false,
-          },
-        },
-      } },
-    });
   }
-  handleShowTrace = (traceId) => {
-    const { dispatch } = this.props;
-    dispatch({
-      type: 'service/fetchSpans',
-      payload: { variables: { traceId } },
-    });
-  }
-  handleGoBack = () => {
-    this.props.dispatch({
-      type: 'service/hideTimeline',
-    });
-  }
-  edgeWith = edge => edge.cpm * edge.avgResponseTime;
-  renderPanel = () => {
-    const { service, duration } = this.props;
-    const { variables: { values }, data } = service;
-    const { getServiceResponseTimeTrend, getServiceThroughputTrend,
-      getServiceSLATrend, getServiceTopology, queryBasicTraces } = data;
-    if (!values.serviceId) {
-      return null;
-    }
-    return (
-      <Panel
-        variables={data.serviceInfo}
-        globalVariables={this.props.globalVariables}
-        onChange={this.handleChange}
-      >
-        <Row gutter={8}>
-          <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 8 }}>
-            <ChartCard
-              title={<span style={{ color: 'rgba(0, 0, 0, 0.85)' }}>平均流量（Avg Throughput）</span>}
-              style={{ height: 152 }}
-              contentHeight={88}
-            >
 
-              <div className="leftTextContainer" >
-                <span className={classNames('db', 'data')}>{`${avgTimeSeries(getServiceThroughputTrend.trendList)}`} </span>
-                <span className={classNames('db', 'unit')}> cpm</span>
-              </div>
-              <div className="pull-right" style={{ width: 'calc(100% - 107px)' }}>
-                <MiniArea
-                  color="rgb(82, 156, 253)"
-                  data={axis(duration, getServiceThroughputTrend.trendList)}
-                />
-              </div>
-            </ChartCard>
-          </Col>
-          <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 8 }}>
-            <ChartCard
-              title={<span style={{ color: 'rgba(0, 0, 0, 0.85)' }}>平均耗时（Avg Response Time）</span>}
-              // total={`${avgTimeSeries(getServiceResponseTimeTrend.trendList)} ms`}
-              style={{ height: 152 }}
-              contentHeight={88}
-            >
-
-              <div className="leftTextContainer" >
-                <span className={classNames('db', 'data')}>{`${avgTimeSeries(getServiceResponseTimeTrend.trendList)}`} </span>
-                <span className={classNames('db', 'unit')}> ms</span>
-              </div>
-              <div className="pull-right" style={{ width: 'calc(100% - 107px)' }}>
-                <MiniArea
-                  color="rgb(137, 193, 79)"
-                  data={axis(duration, getServiceResponseTimeTrend.trendList)}
-                />
-              </div>
-            </ChartCard>
-          </Col>
-          <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 8 }}>
-            <ChartCard
-              // title="平均运行率（Avg SLA）"
-              title={<span style={{ color: 'rgba(0, 0, 0, 0.85)' }}>平均运行率（Avg SLA）</span>}
-              style={{ height: 152 }}
-              contentHeight={88}
-              // total={`${(avgTimeSeries(getServiceSLATrend.trendList) / 100).toFixed(2)} %`}
-            >
-              <div className="leftTextContainer" >
-                <span className={classNames('db', 'data')}>{`${(avgTimeSeries(getServiceSLATrend.trendList) / 100).toFixed(2)}`} </span>
-                <span className={classNames('db', 'unit')}> %</span>
-              </div>
-              <div className="pull-right" style={{ width: 'calc(100% - 107px)' }}>
-                <MiniBar
-                  animate={false}
-                  height={86}
-                  data={axis(duration, getServiceSLATrend.trendList,
-                    ({ x, y }) => ({ x, y: y / 100 }))}
-                />
-              </div>
-            </ChartCard>
-          </Col>
-        </Row>
-        <Row gutter={8}>
-          <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginTop: 8 }}>
-            <ChartCard>
-              <TraceList
-                data={queryBasicTraces.traces}
-                onClickTraceTag={this.handleShowTrace}
-                loading={this.props.loading}
-              />
-            </ChartCard>
-          </Col>
-        </Row>
-        {this.renderSankey(getServiceTopology)}
-      </Panel>
-    );
-  }
-  renderSankey = (data) => {
-    if (data.nodes.length < 2) {
-      return <span style={{ display: 'none' }} />;
-    }
-    const nodesMap = new Map();
-    data.nodes.forEach((_, i) => {
-      nodesMap.set(`${_.id}`, i);
+  handleGoService = () => {
+    this.props.dispatch({
+      type: 'service/hideServiceInstance',
     });
-    const nData = {
-      nodes: data.nodes,
-      edges: data.calls
-        .filter(_ => nodesMap.has(`${_.source}`) && nodesMap.has(`${_.target}`))
-        .map(_ =>
-          ({ ..._, value: (this.edgeWith(_) < 1 ? 1000 : this.edgeWith(_)), source: nodesMap.get(`${_.source}`), target: nodesMap.get(`${_.target}`) })),
-    };
-    return (
-      <Row gutter={8}>
-        <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginTop: 8 }}>
-          <ChartCard
-            title="Dependency Map"
-            contentHeight={200}
-          >
-            <Sankey
-              data={nData}
-              edgeTooltip={['target*source*cpm*avgResponseTime*isAlert', (target, source, cpm, avgResponseTime) => {
-                return {
-                  name: `${source.name} to ${target.name} </span>`,
-                  value: `${cpm < 1 ? '<1' : cpm} cpm ${avgResponseTime}ms`,
-                };
-              }]}
-              edgeColor={['isAlert', isAlert => (isAlert ? '#DC143C' : '#bbb')]}
-            />
-          </ChartCard>
-        </Col>
-      </Row>);
   }
-  render() {
-    const { form, service } = this.props;
-    const { getFieldDecorator } = form;
-    const { variables: { options }, data } = service;
-    const { showTimeline, queryTrace, currentTraceId } = data;
+
+  handleGoServiceInstance = () => {
+    this.props.dispatch({
+      type: 'service/showServiceInstance',
+    });
+  }
+
+  handleSelectServiceInstance = (serviceInstanceId, serviceInstanceInfo) => {
+    const { globalVariables: { duration } } = this.props;
+    this.props.dispatch({
+      type: 'service/fetchServiceInstance',
+      payload: { variables: { duration, serviceInstanceId }, serviceInstanceInfo },
+    });
+  }
+
+  renderApp = () => {
+    const { getFieldDecorator } = this.props.form;
+    const { variables: { values, options, labels }, data } = this.props.service;
     return (
       <div>
-        {showTimeline ? (
-          <Row type="flex" justify="start">
-            <Col style={{ marginBottom: 24 }}>
-              <Button ghost type="primary" size="small" onClick={() => { this.handleGoBack(); }}>
-                <Icon type="left" />Go back
-              </Button>
+        <Form layout="inline">
+          <FormItem>
+            {getFieldDecorator('serviceId')(
+              <Select
+                showSearch
+                optionFilterProp="children"
+                style={{ width: 200 }}
+                placeholder="Select a service"
+                labelInValue
+                onSelect={this.handleSelect.bind(this)}
+              >
+                {options.serviceId && options.serviceId.map(service =>
+                  <Option key={service.key} value={service.key}>{service.label}</Option>)}
+              </Select>
+            )}
+          </FormItem>
+        </Form>
+        <Panel
+          variables={values}
+          globalVariables={this.props.globalVariables}
+          onChange={this.handleChange}
+        >
+          <Row gutter={0}>
+            <Col {...{ ...middleColResponsiveProps, xl: 16, lg: 12, md: 24 }}>
+              <Card
+                title="Service Map"
+                bordered={false}
+                bodyStyle={{ padding: 0 }}
+              >
+                <AppTopology
+                  elements={data.getServiceTopology}
+                  height={335}
+                  layout={{
+                    name: 'dagre',
+                    rankDir: 'LR',
+                    minLen: 4,
+                  }}
+                />
+              </Card>
+            </Col>
+            <Col {...{ ...middleColResponsiveProps, xl: 8, lg: 12, md: 24 }}>
+              <Card
+                bordered={false}
+                bodyStyle={{ padding: '10px 10px', height: 391 }}
+              >
+                <ServiceInstanceLitePanel
+                  data={data}
+                  serviceInstanceList={data.getServiceInstances}
+                  duration={this.props.duration}
+                  onSelectServiceInstance={this.handleSelectServiceInstance}
+                  onMoreServiceInstance={this.handleGoServiceInstance}
+                />
+              </Card>
             </Col>
           </Row>
-      ) : null}
-        <Row type="flex" justify="start">
-          <Col span={showTimeline ? 0 : 24}>
-            <Form layout="inline">
-              <FormItem>
-                {getFieldDecorator('applicationId')(
-                  <Select
-                    showSearch
-                    optionFilterProp="children"
-                    style={{ width: 200 }}
-                    placeholder="Select a application"
-                    labelInValue
-                    onSelect={this.handleAppSelect.bind(this)}
-                  >
-                    {options.applicationId && options.applicationId.map(app =>
-                      <Option key={app.key} value={app.key}>{app.label}</Option>)}
-                  </Select>
-                )}
-              </FormItem>
-              {data.appInfo ? (
-                <FormItem>
-                  {getFieldDecorator('serviceId')(
-                    <Search
-                      placeholder="Search a service"
-                      onSelect={this.handleSelect.bind(this)}
-                      url="/service/search"
-                      variables={data.appInfo}
-                      query={`
-                        query SearchService($applicationId: ID!, $keyword: String!) {
-                          searchService(applicationId: $applicationId, keyword: $keyword, topN: 10) {
-                            key: id
-                            label: name
-                          }
-                        }
-                      `}
-                    />
-                  )}
-                </FormItem>
-              ) : null}
-            </Form>
-            {this.renderPanel()}
-          </Col>
-          <Col span={showTimeline ? 24 : 0}>
-            {showTimeline ? (
-              <TraceTimeline
-                trace={{ data: { queryTrace, currentTraceId } }}
-              />
-            ) : null}
-          </Col>
-        </Row>
+          <Row>
+            <Col {...{ ...middleColResponsiveProps, xl: 24, lg: 24, md: 24 }}>
+              <Card
+                title="Response Time"
+                bordered={false}
+                bodyStyle={{ padding: 5, height: 150}}
+              >
+                <Line
+                  data={axisMY(this.props.duration, [{ title: 'p99', value: data.getP99}, { title: 'p95', value: data.getP95}
+                    , { title: 'p90', value: data.getP90}, { title: 'p75', value: data.getP75}, { title: 'p50', value: data.getP50}])}
+                />
+              </Card>
+            </Col>
+          </Row>
+          <Row gutter={8}>
+            <Col {...{ ...middleColResponsiveProps, xl: 12, lg: 12, md: 24 }}>
+              <Card
+                title="Running ServiceInstance"
+                bordered={false}
+                bodyStyle={{ padding: 5 }}
+              >
+                <RankList
+                  data={data.getServiceInstanceThroughput}
+                  renderValue={_ => `${_.value} cpm`}
+                  color="#965fe466"
+                />
+              </Card>
+            </Col>
+            <Col {...{ ...middleColResponsiveProps, xl: 12, lg: 12, md: 24 }}>
+              <Card
+                title="Slow Endpoint"
+                bordered={false}
+                bodyStyle={{ padding: '0px 10px' }}
+              >
+                <RankList
+                  data={data.getSlowEndpoint}
+                  renderValue={_ => `${_.value} ms`}
+                  onClick={(key, item) => redirect(this.props.history, '/monitor/endpoint', { key,
+                    label: item.label,
+                    serviceId: values.serviceId,
+                    serviceName: labels.serviceId })}
+                />
+              </Card>
+            </Col>
+          </Row>
+        </Panel>
       </div>
+    );
+  }
+
+  render() {
+    const { service, duration } = this.props;
+    const { variables, data } = service;
+    const { showServiceInstance, serviceInstanceInfo } = data;
+    return (
+      <Row type="flex" justify="start">
+        {showServiceInstance ? (
+          <Col span={showServiceInstance ? 24 : 0}>
+            <Breadcrumb>
+              <Breadcrumb.Item>
+                Service
+              </Breadcrumb.Item>
+              <Breadcrumb.Item>
+                <a onClick={this.handleGoService}>{variables.labels.serviceId}</a>
+              </Breadcrumb.Item>
+              <Breadcrumb.Item>{getServiceInstanceId(serviceInstanceInfo)}</Breadcrumb.Item>
+            </Breadcrumb>
+            <Panel
+              variables={variables.values}
+              globalVariables={this.props.globalVariables}
+              onChange={this.handleChange}
+            >
+              <ServiceInstance data={data} duration={duration} />
+            </Panel>
+          </Col>
+        ) : null}
+        <Col span={showServiceInstance ? 0 : 24}>
+          {this.renderApp()}
+        </Col>
+      </Row>
     );
   }
 }

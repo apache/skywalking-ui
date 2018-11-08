@@ -24,8 +24,6 @@ import TraceList from '../../components/Trace/TraceList';
 import { generateDuration } from '../../utils/time';
 import styles from './Trace.less';
 
-const InputGroup = Input.Group;
-const ButtonGroup = Button.Group;
 const { Option } = Select;
 const { RangePicker } = DatePicker;
 const FormItem = Form.Item;
@@ -54,10 +52,6 @@ const initPaging = {
   },
 })
 export default class Trace extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = { displayType: 'list' };
-  }
   componentDidMount() {
     const { trace: { variables: { values } } } = this.props;
     const { duration } = values;
@@ -70,6 +64,7 @@ export default class Trace extends PureComponent {
     delete condition.duration;
     this.fetchData(condition, initPaging);
   }
+
   getDefaultDuration = () => {
     return generateDuration({
       from() {
@@ -80,9 +75,7 @@ export default class Trace extends PureComponent {
       },
     });
   }
-  handleDisplayWayChange(type) {
-    this.setState({ displayType: type });
-  }
+
   handleSearch = (e) => {
     if (e) {
       e.preventDefault();
@@ -108,6 +101,7 @@ export default class Trace extends PureComponent {
       this.fetchData({ ...condition, queryDuration: duration.input });
     });
   }
+
   fetchData = (queryCondition, paging = initPaging) => {
     this.props.dispatch({
       type: 'trace/fetchData',
@@ -121,6 +115,7 @@ export default class Trace extends PureComponent {
       },
     });
   }
+
   handleTableChange = (pagination) => {
     const { dispatch, trace: { variables: { values } } } = this.props;
     const condition = {
@@ -142,6 +137,7 @@ export default class Trace extends PureComponent {
     delete condition.duration;
     this.fetchData({ ...condition, queryDuration: values.duration.input }, condition.paging);
   }
+
   handleShowTrace = (traceId) => {
     const { dispatch } = this.props;
     dispatch({
@@ -149,6 +145,7 @@ export default class Trace extends PureComponent {
       payload: { variables: { traceId } },
     });
   }
+
   renderPointChart = (traces) => {
     if (!traces) {
       return null;
@@ -201,9 +198,9 @@ export default class Trace extends PureComponent {
           opacity={0.65}
           shape="circle"
           size={4}
-          tooltip={['operationName*startTime*duration', (operationName, startTime, duration) => {
+          tooltip={['endpointName*startTime*duration', (endpointName, startTime, duration) => {
             return {
-              name: operationName,
+              name: endpointName,
               value: `
                 ${startTime}
                 ${duration}ms
@@ -213,12 +210,13 @@ export default class Trace extends PureComponent {
         />
       </Chart>);
   }
+
   renderForm() {
     const { getFieldDecorator } = this.props.form;
-    const { trace: { variables: { options } } } = this.props;
+    const { trace: { variables: { options } }, zone } = this.props;
     return (
-      <Form onSubmit={this.handleSearch} layout="horizontal">
-        <FormItem label="时间段">
+      <Form onSubmit={this.handleSearch} layout="vertical">
+        <FormItem label={`Time Range(${zone})`}>
           {getFieldDecorator('range-time-picker', {
             rules: [{
               required: true,
@@ -233,19 +231,19 @@ export default class Trace extends PureComponent {
             />
           )}
         </FormItem>
-        <FormItem label="应用">
-          {getFieldDecorator('applicationId')(
-            <Select placeholder="All application" style={{ width: '100%' }}>
-              {options.applicationId && options.applicationId.map((app) => {
-                  return (
-                    <Option key={app.key ? app.key : -1} value={app.key}>
-                      {app.label}
-                    </Option>);
-                })}
+        <FormItem label="Service">
+          {getFieldDecorator('serviceId')(
+            <Select placeholder="All service" style={{ width: '100%' }}>
+              {options.serviceId && options.serviceId.map((service) => {
+                return (
+                  <Option key={service.key ? service.key : -1} value={service.key}>
+                    {service.label}
+                  </Option>);
+              })}
             </Select>
           )}
         </FormItem>
-        <FormItem label="状态">
+        <FormItem label="Trace State">
           {getFieldDecorator('traceState')(
             <Select placeholder="All" style={{ width: '100%' }}>
               <Option key="success" value="SUCCESS">Success</Option>
@@ -254,7 +252,7 @@ export default class Trace extends PureComponent {
             </Select>
           )}
         </FormItem>
-        <FormItem label="排列方式">
+        <FormItem label="Order By">
           {getFieldDecorator('queryOrder')(
             <Select placeholder="Start Time" style={{ width: '100%' }}>
               <Option key="BY_START_TIME" value="BY_START_TIME">Start Time</Option>
@@ -262,8 +260,8 @@ export default class Trace extends PureComponent {
             </Select>
           )}
         </FormItem>
-        <FormItem label="OperationName">
-          {getFieldDecorator('operationName')(
+        <FormItem label="EndpointName">
+          {getFieldDecorator('endpointName')(
             <Input placeholder="eg Kafka/Trace-topic-1/Consumer" />
           )}
         </FormItem>
@@ -273,25 +271,28 @@ export default class Trace extends PureComponent {
           )}
         </FormItem>
         <Row>
-          <Col xs={24} sm={24} md={24} lg={24} xl={24}>
-            <FormItem label="阀值">
-              <InputGroup compact>
-                {getFieldDecorator('minTraceDuration')(
-                  <InputNumber style={{ width: '40%' }} placeholder="eg 100" />
-                )}
-                <Input style={{ width: '8%', textAlign: 'center' }} defaultValue="-" disabled />
-                {getFieldDecorator('maxTraceDuration')(
-                  <InputNumber style={{ width: '40%' }} placeholder="eg 5000" />
-                )}
-              </InputGroup>
-              <Button style={{ marginTop: 24, width: '88%', backgroundColor: 'rgb(34, 122, 203)', color: 'white' }} type="primary" htmlType="submit">搜索</Button>
+          <Col xs={24} sm={24} md={24} lg={12} xl={12}>
+            <FormItem label="Min Duration">
+              {getFieldDecorator('minTraceDuration')(
+                <InputNumber placeholder="eg 100" />
+              )}
+            </FormItem>
+          </Col>
+          <Col xs={24} sm={24} md={24} lg={12} xl={12}>
+            <FormItem label="Max Duration">
+              {getFieldDecorator('maxTraceDuration')(
+                <InputNumber placeholder="eg 5000" />
+              )}
             </FormItem>
           </Col>
         </Row>
-
+        <FormItem>
+          <Button type="primary" htmlType="submit">Search</Button>
+        </FormItem>
       </Form>
     );
   }
+
   renderPage = (values, total) => {
     if (total < 1) {
       return null;
@@ -304,7 +305,7 @@ export default class Trace extends PureComponent {
       currentPageSize = pageSize;
     }
     return (
-      <Row type="flex" justify="end" style={{ width: '100%' }}>
+      <Row type="flex" justify="end">
         <Col>
           <Pagination
             size="small"
@@ -324,63 +325,27 @@ export default class Trace extends PureComponent {
         </Col>
       </Row>);
   }
+
   render() {
     const { trace: { variables: { values }, data: { queryBasicTraces } }, loading } = this.props;
     return (
-      <Card bordered={false} bodyStyle={{ padding: 0 }}>
-        <div className={styles.tableListForm}>
-          <Row style={{ border: '1px solid #ddd', borderBottom: 'none' }}>
-            <Col style={{ padding: 24 }} xs={24} sm={24} md={12} lg={12} xl={12}>
+      <Card bordered={false}>
+        <div className={styles.tableList}>
+          <Row>
+            <Col xs={24} sm={24} md={24} lg={8} xl={8}>
               {this.renderForm()}
             </Col>
-
-          </Row>
-          <Row className={styles.triangleContainer} style={{ border: '1px solid #ddd', padding: 25, backgroundColor: 'rgb(251, 251, 251)' }}>
-            <Col xs={24} sm={24} md={24} lg={24} xl={24}>
-              <div>
-                <ButtonGroup className={styles.toggleButtonGroup}>
-                  <Button className={this.state.displayType === 'list' ? 'active' : null} onClick={this.handleDisplayWayChange.bind(this, 'list')}>列表</Button>
-                  <Button className={this.state.displayType === 'point' ? 'active' : null} onClick={this.handleDisplayWayChange.bind(this, 'point')}>点阵图</Button>
-                </ButtonGroup>
-              </div>
-            </Col>
-          </Row>
-
-          <Row style={{ border: '1px solid #ddd', borderTop: 'none', padding: 25, backgroundColor: 'rgb(251, 251, 251)' }}>
-            <Col xs={24} sm={24} md={24} lg={24} xl={24} >
-              <div style={{ backgroundColor: 'white', padding: 15, border: '1px solid #ddd' }}>
-                { this.state.displayType === 'list' ?
-                  (
-                    <TraceList
-                      loading={loading}
-                      data={queryBasicTraces.traces}
-                      onClickTraceTag={this.handleShowTrace}
-                    />
-                  )
-                  : this.renderPointChart(queryBasicTraces.traces)
-                }
-                {this.renderPage(values, queryBasicTraces.total)}
-              </div>
-
-            </Col>
-          </Row>
-
-          {/* <Row style={{ marginBottom: 30 }}>
-            <Col xs={24} sm={24} md={24} lg={24} xl={24}>
+            <Col xs={24} sm={24} md={24} lg={16} xl={16}>
               {this.renderPointChart(queryBasicTraces.traces)}
             </Col>
-            {this.renderPage(values, queryBasicTraces.total)}
           </Row>
-
-          <Row>
-            <TraceList
-              loading={loading}
-              data={queryBasicTraces.traces}
-              onClickTraceTag={this.handleShowTrace}
-            />
-            {this.renderPage(values, queryBasicTraces.total)}
-          </Row> */}
-
+          {this.renderPage(values, queryBasicTraces.total)}
+          <TraceList
+            loading={loading}
+            data={queryBasicTraces.traces}
+            onClickTraceTag={this.handleShowTrace}
+          />
+          {this.renderPage(values, queryBasicTraces.total)}
         </div>
       </Card>
     );

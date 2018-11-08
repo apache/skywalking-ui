@@ -20,56 +20,58 @@ import React, { PureComponent } from 'react';
 import { Row, Col, Card, Select, Icon } from 'antd';
 import {
   ChartCard, MiniArea, MiniBar,
-} from '../../components/Charts';
-import DescriptionList from '../../components/DescriptionList';
-import { axis } from '../../utils/time';
-import { avgTimeSeries, getServerId } from '../../utils/utils';
+} from "../Charts";
+import DescriptionList from "../DescriptionList";
+import { axisY } from '../../utils/time';
+import { avgTS, getAttributes, getServiceInstanceId } from '../../utils/utils';
 
 const { Option } = Select;
 const { Description } = DescriptionList;
 
-export default class ServerLitePanel extends PureComponent {
+export default class ServiceInstanceLitePanel extends PureComponent {
   bytesToMB = list => list.map(_ => parseFloat((_ / (1024 ** 2)).toFixed(2)))
+
   render() {
-    const { serverList, duration, data, onSelectServer, onMoreServer } = this.props;
-    if (serverList.length < 1) {
+    const { serviceInstanceList, duration, data, onSelectServiceInstance, onMoreServiceInstance } = this.props;
+    if (serviceInstanceList.length < 1) {
       return null;
     }
-    const { serverInfo, getServerResponseTimeTrend, getServerThroughputTrend } = data;
-    if (!serverInfo.key) {
-      onSelectServer(serverList[0].key, serverList[0]);
+    const { serviceInstanceInfo, getServiceInstanceResponseTimeTrend, getServiceInstanceThroughputTrend } = data;
+    if (!serviceInstanceInfo.key) {
+      onSelectServiceInstance(serviceInstanceList[0].key, serviceInstanceList[0]);
     }
+    const { attributes } = serviceInstanceInfo;
     return (
       <div>
         <Row gutter={0}>
           <Col span={24}>
             <Select
               size="small"
-              value={serverInfo.key}
-              onChange={value => onSelectServer(value, serverList.find(_ => _.key === value))}
+              value={serviceInstanceInfo.key}
+              onChange={value => onSelectServiceInstance(value, serviceInstanceList.find(_ => _.key === value))}
               style={{ width: '100%' }}
             >
-              {serverList.map(_ => <Option key={_.key} value={_.key}>{getServerId(_)}</Option>)}
+              {serviceInstanceList.map(_ => <Option key={_.key} value={_.key}>{getServiceInstanceId(_)}</Option>)}
             </Select>
           </Col>
           <Col span={24}>
             <Card bordered={false} bodyStyle={{ padding: 5 }}>
               <DescriptionList col={1} gutter={0} size="small">
-                <Description term="Host">{serverInfo.host}</Description>
-                <Description term="OS">{serverInfo.osName}</Description>
+                <Description term="Host">{getAttributes(attributes, 'host_name')}</Description>
+                <Description term="OS">{getAttributes(attributes, 'os_name')}</Description>
               </DescriptionList>
             </Card>
           </Col>
           <Col span={24}>
             <ChartCard
               title="Avg Throughput"
-              total={`${avgTimeSeries(getServerThroughputTrend.trendList)} cpm`}
+              total={`${avgTS(getServiceInstanceThroughputTrend.values)} cpm`}
               contentHeight={46}
               bordered={false}
               bodyStyle={{ padding: 5 }}
             >
               <MiniBar
-                data={axis(duration, getServerThroughputTrend.trendList)}
+                data={axisY(duration, getServiceInstanceThroughputTrend.values)}
                 color="#975FE4"
               />
             </ChartCard>
@@ -77,22 +79,22 @@ export default class ServerLitePanel extends PureComponent {
           <Col span={24}>
             <ChartCard
               title="Avg Response Time"
-              total={`${avgTimeSeries(getServerResponseTimeTrend.trendList)} ms`}
+              total={`${avgTS(getServiceInstanceResponseTimeTrend.values)} ms`}
               contentHeight={46}
               bordered={false}
               bodyStyle={{ padding: 5 }}
             >
-              {getServerResponseTimeTrend.trendList.length > 0 ? (
+              {getServiceInstanceResponseTimeTrend.values.length > 0 ? (
                 <MiniArea
                   animate={false}
                   color="#87cefa"
-                  data={axis(duration, getServerResponseTimeTrend.trendList)}
+                  data={axisY(duration, getServiceInstanceResponseTimeTrend.values)}
                 />
               ) : (<span style={{ display: 'none' }} />)}
             </ChartCard>
           </Col>
         </Row>
-        {serverInfo.key ? <a style={{ float: 'right' }} onClick={onMoreServer}> More Server Details<Icon type="ellipsis" /> </a> : null}
+        {serviceInstanceInfo.key ? <a style={{ float: 'right' }} onClick={onMoreServiceInstance}> More Server Details<Icon type="ellipsis" /> </a> : null}
       </div>
     );
   }

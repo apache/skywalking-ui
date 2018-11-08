@@ -16,13 +16,13 @@
  */
 
 import moment from 'moment';
-import { query } from '../services/graphql';
-import { generateModal } from '../utils/models';
+import { exec } from '../services/graphql';
+import { base } from '../utils/models';
 import { generateDuration } from '../utils/time';
 
 const optionsQuery = `
-  query ApplicationOption($duration: Duration!) {
-    applicationId: getAllApplication(duration: $duration) {
+  query ServiceOption($duration: Duration!) {
+    serviceId: getAllServices(duration: $duration) {
       key: id
       label: name
     }
@@ -34,7 +34,7 @@ const dataQuery = `
     queryBasicTraces(condition: $condition) {
       traces {
         key: segmentId
-        operationNames
+        endpointNames
         duration
         start
         isError
@@ -58,10 +58,10 @@ const spanQuery = `query Spans($traceId: ID!) {
         parentSpanId
         type
       }
-      applicationCode
+      serviceCode
       startTime
       endTime
-      operationName
+      endpointName
       type
       peer
       component
@@ -82,7 +82,7 @@ const spanQuery = `query Spans($traceId: ID!) {
   }
 }`;
 
-export default generateModal({
+export default base({
   namespace: 'trace',
   state: {
     queryBasicTraces: {
@@ -110,14 +110,14 @@ export default generateModal({
   },
   optionsQuery,
   defaultOption: {
-    applicationId: {
-      label: 'All Application',
+    serviceId: {
+      label: 'All Service',
     },
   },
   dataQuery,
   effects: {
     *fetchSpans({ payload }, { call, put }) {
-      const response = yield call(query, 'spans', { query: spanQuery, variables: payload.variables });
+      const response = yield call(exec, { query: spanQuery, variables: payload.variables });
       yield put({
         type: 'saveSpans',
         payload: response,
@@ -145,6 +145,27 @@ export default generateModal({
         data: {
           ...data,
           showTimeline: false,
+        },
+      };
+    },
+    changeTimezone(state) {
+      const { variables } = state;
+      const { values } = variables;
+      return {
+        ...state,
+        variables: {
+          ...variables,
+          values: {
+            ...values,
+            duration: generateDuration({
+              from() {
+                return moment().subtract(15, 'minutes');
+              },
+              to() {
+                return moment();
+              },
+            }),
+          },
         },
       };
     },

@@ -93,5 +93,5 @@ export async function fakeRegister(params) {
 }
 
 export async function queryNotices() {
-  return request('/api/notices');
+  return request('/api/graphql');
 }

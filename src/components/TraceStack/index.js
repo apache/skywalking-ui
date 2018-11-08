@@ -21,7 +21,7 @@ import { Tag, List, Card, Row, Col, Badge, Button } from 'antd';
 import * as d3 from 'd3';
 import moment from 'moment';
 import { formatDuration } from '../../utils/time';
-import DescriptionList from '../../components/DescriptionList';
+import DescriptionList from "../DescriptionList";
 import styles from './index.less';
 
 const { Description } = DescriptionList;
@@ -48,13 +48,14 @@ class TraceStack extends PureComponent {
     span: {},
     key: 'tags',
   }
+
   componentWillMount() {
     const { spans } = this.props;
     let colorIndex = 0;
     spans.forEach((span) => {
       const { colorMap } = this.state;
-      if (!colorMap[span.applicationCode]) {
-        colorMap[span.applicationCode] = colors[colorIndex];
+      if (!colorMap[span.serviceCode]) {
+        colorMap[span.serviceCode] = colors[colorIndex];
         colorIndex = (colorIndex < colors.length - 1) ? (colorIndex + 1) : 0;
       }
       this.buildNode(span);
@@ -64,23 +65,26 @@ class TraceStack extends PureComponent {
     this.state.nodes = nodes.map(n =>
       ({ ...n, startOffset: n.startTime - minStartTimeNode.startTime }));
   }
+
   componentDidMount() {
     this.state.width = this.axis.parentNode.clientWidth - 50;
     this.drawAxis();
     this.displayData();
     window.addEventListener('resize', this.resize);
   }
+
   onTabChange = (key, type) => {
     this.setState({ [type]: key });
   }
+
   buildNode = (span) => {
     const { nodes, idMap } = this.state;
     const node = {};
-    node.applicationCode = span.applicationCode;
+    node.serviceCode = span.serviceCode;
     node.startTime = span.startTime;
     node.endTime = span.endTime;
     node.duration = span.endTime - span.startTime;
-    node.content = span.operationName;
+    node.content = span.endpointName;
     node.spanSegId = this.id(span.segmentId, span.spanId);
     node.parentSpanSegId = this.findParent(span);
     node.refs = span.refs;
@@ -94,7 +98,9 @@ class TraceStack extends PureComponent {
     nodes.push(node);
     idMap[node.spanSegId] = nodes.length - 1;
   }
+
   id = (...seg) => seg.join();
+
   findParent = (span) => {
     const { spans } = this.props;
     if (span.refs) {
@@ -110,6 +116,7 @@ class TraceStack extends PureComponent {
     }
     return null;
   }
+
   drawAxis = () => {
     const { width } = this.state;
     const { nodes, bap } = this.state;
@@ -139,13 +146,14 @@ class TraceStack extends PureComponent {
     bap.push(percentScale);
     return bap;
   }
+
   displayData = () => {
     const { nodes, bap, width, colorMap } = this.state;
     const svgContainer = d3.select(this.duration).append('svg').attr('height', height * nodes.length).attr('style', 'overflow: visible');
     const positionMap = {};
     nodes.forEach((node, index) => {
       const { startOffset: startTime, duration, content,
-        applicationCode, spanSegId, parentSpanSegId } = node;
+        serviceCode, spanSegId, parentSpanSegId } = node;
 
       const rectWith = ((duration * width) / (bap[1] * (10 ** (bap[0] - 4)))) / 100;
       const beginX = ((startTime * width) / (bap[1] * (10 ** (bap[0] - 4)))) / 100;
@@ -168,7 +176,7 @@ class TraceStack extends PureComponent {
         .on('mouseover', () => { this.selectTimeline(container, true); })
         .on('mouseout', () => { this.selectTimeline(container, false); })
         .on('click', () => { this.showSpanModal(node, position, container); })
-        .style('fill', colorMap[applicationCode]);
+        .style('fill', colorMap[serviceCode]);
 
       bar.append('text')
         .attr('x', beginX + 5)
@@ -249,12 +257,14 @@ class TraceStack extends PureComponent {
       }
     });
   }
+
   selectTimeline = (container, isOver) => {
     if (this.state.container === container) {
       return;
     }
     container.attr('class', isOver ? styles.backgroud : styles.backgroudHide);
   }
+
   showSpanModal = (span, position, container) => {
     const { container: old } = this.state;
     if (old) {
@@ -269,6 +279,7 @@ class TraceStack extends PureComponent {
       container,
     });
   }
+
   hideSpanModal = () => {
     const { container: old } = this.state;
     if (old) {
@@ -280,6 +291,7 @@ class TraceStack extends PureComponent {
       container: undefined,
     });
   }
+
   resize = () => {
     if (!this.axis) {
       return;
@@ -294,6 +306,7 @@ class TraceStack extends PureComponent {
     this.displayData();
     this.setState({ ...this.state, span: {} });
   }
+
   renderTitle = (items) => {
     return (
       <Row type="flex" justify="start" gutter={15}>
@@ -310,6 +323,7 @@ class TraceStack extends PureComponent {
       </Row>
     );
   }
+
   render() {
     const { colorMap, span = {}, position = { width: 100, top: 0 } } = this.state;
     const legendButtons = Object.keys(colorMap).map(key =>

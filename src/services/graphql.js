@@ -24,3 +24,10 @@ export async function query(namespace, playload) {
     body: playload,
   });
 }
+
+export async function exec(playload) {
+  return request(`/api/graphql`, {
+    method: 'POST',
+    body: playload,
+  });
+}

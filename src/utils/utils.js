@@ -27,6 +27,13 @@ export function avgTimeSeries(list) {
       (acc, curr) => acc + curr) / filteredList.length).toFixed(2)) : 0;
 }
 
+export function avgTS(list) {
+  const filteredList = list.map(_ => _.value).filter(_ => _ > 0);
+  return filteredList.length > 0 ?
+    parseFloat((filteredList.reduce(
+      (acc, curr) => acc + curr) / filteredList.length).toFixed(2)) : 0;
+}
+
 export function getPlainNode(nodeList, parentPath = '') {
   const arr = [];
   nodeList.forEach((node) => {
@@ -107,16 +114,23 @@ export function isUrl(path) {
   return reg.test(path);
 }
 
-export function getServerId(serverInfo) {
-  let { host } = serverInfo;
-  if (serverInfo.ipv4 && serverInfo.ipv4.length > 0) {
-    [host] = serverInfo.ipv4;
+export function getServiceInstanceId(serviceInstanceInfo) {
+  return serviceInstanceInfo.name;
+}
+
+export function getAttributes(attributes, name) {
+  if (!attributes || attributes.length < 1) {
+    return '';
   }
-  return `${serverInfo.pid}@${host}`;
+  const a = attributes.filter(_ => _.name === name).map(_ => _.value);
+  if (a && a.length > 0) {
+    return a.join(',');
+  }
+  return '';
 }
 
 export function redirect(history, pathname, param) {
-  if (history.location.pathname === pathname) {
+  if (history.location && history.location.pathname === pathname) {
     return;
   }
   history.push({ pathname, state: param });

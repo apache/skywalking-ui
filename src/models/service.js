@@ -16,12 +16,12 @@
  */
 
 
-import { generateModal, saveOptionsInState } from '../utils/models';
-import { query } from '../services/graphql';
+import { base } from '../utils/models';
+import { exec } from '../services/graphql';
 
 const optionsQuery = `
-  query ApplicationOption($duration: Duration!) {
-    applicationId: getAllApplication(duration: $duration) {
+  query ServiceOption($duration: Duration!) {
+    serviceId: getAllServices(duration: $duration) {
       key: id
       label: name
     }
@@ -29,159 +29,340 @@ const optionsQuery = `
 `;
 
 const dataQuery = `
-  query Service($serviceId: ID!, $duration: Duration!, $traceCondition: TraceQueryCondition!) {
-    getServiceResponseTimeTrend(serviceId: $serviceId, duration: $duration) {
-      trendList
+  query Service($serviceId: ID!, $duration: Duration!) {
+    getSlowEndpoint: getEndpointTopN(
+      serviceId: $serviceId
+      duration: $duration
+      name: "endpoint_avg",
+      topN: 10,
+      order: DES
+    ) {
+      key: id
+      label: name
+      value
     }
-    getServiceThroughputTrend(serviceId: $serviceId, duration: $duration) {
-      trendList
+    getServiceInstanceThroughput: getServiceInstanceTopN(
+      serviceId: $serviceId
+      duration: $duration
+      name: "service_instance_cpm",
+      topN: 10,
+      order: DES
+    ) {
+      key: id
+      label: name
+      value
     }
-    getServiceSLATrend(serviceId: $serviceId, duration: $duration) {
-      trendList
-    }
-    queryBasicTraces(condition: $traceCondition) {
-      traces {
-        key: segmentId
-        operationNames
-        duration
-        start
-        isError
-        traceIds
+    getServiceInstances(duration: $duration, serviceId: $serviceId) {
+      key: id
+      name
+      attributes {
+        name
+        value
       }
-      total
+      language
     }
     getServiceTopology(serviceId: $serviceId, duration: $duration) {
       nodes {
         id
         name
         type
-        ... on ServiceNode {
-          sla
-          calls
-          numOfServiceAlarm
-        }
+        isReal
       }
       calls {
+        id
         source
         target
-        isAlert
         callType
-        cpm
-        avgResponseTime
+        detectPoint
+      }
+    }
+    getP99: getLinearIntValues(metric: {
+      name: "service_p99"
+      id: $serviceId
+    }, duration: $duration) {
+      values {
+        value
+      }
+    }
+    getP95: getLinearIntValues(metric: {
+      name: "service_p95"
+      id: $serviceId
+    }, duration: $duration) {
+      values {
+        value
+      }
+    }
+    getP90: getLinearIntValues(metric: {
+      name: "service_p90"
+      id: $serviceId
+    }, duration: $duration) {
+      values {
+        value
+      }
+    }
+    getP75: getLinearIntValues(metric: {
+      name: "service_p75"
+      id: $serviceId
+    }, duration: $duration) {
+      values {
+        value
+      }
+    }
+    getP50: getLinearIntValues(metric: {
+      name: "service_p50"
+      id: $serviceId
+    }, duration: $duration) {
+      values {
+        value
       }
     }
   }
 `;
 
-
-const spanQuery = `query Spans($traceId: ID!) {
-  queryTrace(traceId: $traceId) {
-    spans {
-      traceId
-      segmentId
-      spanId
-      parentSpanId
-      refs {
-        traceId
-        parentSegmentId
-        parentSpanId
-        type
-      }
-      applicationCode
-      startTime
-      endTime
-      operationName
-      type
-      peer
-      component
-      isError
-      layer
-      tags {
-        key
-        value
-      }
-      logs {
-        time
-        data {
-          key
-          value
-        }
-      }
+const serviceInstanceQuery = `
+query ServiceInstance($serviceInstanceId: ID!, $duration: Duration!) {
+  getServiceInstanceResponseTimeTrend: getLinearIntValues(metric: {
+    name: "service_instance_resp_time"
+    id: $serviceInstanceId
+  }, duration: $duration) {
+    values {
+      value
     }
   }
-}`;
+  getServiceInstanceThroughputTrend: getLinearIntValues(metric: {
+    name: "service_instance_cpm"
+    id: $serviceInstanceId
+  }, duration: $duration) {
+    values {
+      value
+    }
+  }
+  getCPUTrend: getLinearIntValues(metric: {
+    name: "instance_jvm_cpu"
+    id: $serviceInstanceId
+  }, duration: $duration) {
+    values {
+      value
+    }
+  }
+  youngGCCount: getLinearIntValues(metric: {
+    name: "instance_jvm_young_gc_count"
+    id: $serviceInstanceId
+  }, duration: $duration) {
+    values {
+      value
+    }
+  }
+  oldGCCount: getLinearIntValues(metric: {
+    name: "instance_jvm_old_gc_count"
+    id: $serviceInstanceId
+  }, duration: $duration) {
+    values {
+      value
+    }
+  }
+  youngGCTime: getLinearIntValues(metric: {
+    name: "instance_jvm_young_gc_time"
+    id: $serviceInstanceId
+  }, duration: $duration) {
+    values {
+      value
+    }
+  }
+  oldGCTime: getLinearIntValues(metric: {
+    name: "instance_jvm_old_gc_time"
+    id: $serviceInstanceId
+  }, duration: $duration) {
+    values {
+      value
+    }
+  }
+  heap: getLinearIntValues(metric: {
+    name: "instance_jvm_memory_heap"
+    id: $serviceInstanceId
+  }, duration: $duration) {
+    values {
+      value
+    }
+  }
+  maxHeap: getLinearIntValues(metric: {
+    name: "instance_jvm_memory_heap_max"
+    id: $serviceInstanceId
+  }, duration: $duration) {
+    values {
+      value
+    }
+  }
+  noheap: getLinearIntValues(metric: {
+    name: "instance_jvm_memory_noheap"
+    id: $serviceInstanceId
+  }, duration: $duration) {
+    values {
+      value
+    }
+  }
+  maxNoheap: getLinearIntValues(metric: {
+    name: "instance_jvm_memory_noheap_max"
+    id: $serviceInstanceId
+  }, duration: $duration) {
+    values {
+      value
+    }
+  }
+}
+`;
 
-export default generateModal({
+export default base({
   namespace: 'service',
   state: {
-    getServiceResponseTimeTrend: {
-      trendList: [],
-    },
-    getServiceThroughputTrend: {
-      trendList: [],
-    },
-    getServiceSLATrend: {
-      trendList: [],
-    },
+    allService: [],
+    getSlowEndpoint: [],
+    getServiceInstanceThroughput: [],
     getServiceTopology: {
       nodes: [],
       calls: [],
     },
-    queryBasicTraces: {
-      traces: [],
-      total: 0,
+    getP99: {
+      values: [],
+    },
+    getP95: {
+      values: [],
+    },
+    getP90: {
+      values: [],
+    },
+    getP75: {
+      values: [],
+    },
+    getP50: {
+      values: [],
+    },
+    getServiceInstances: [],
+    showServiceInstance: false,
+    serviceInstanceInfo: {},
+    getServiceInstanceResponseTimeTrend: {
+      values: [],
+    },
+    getServiceInstanceThroughputTrend: {
+      values: [],
+    },
+    getCPUTrend: {
+      values: [],
+    },
+    heap: {
+      values: [],
+    },
+    maxHeap: {
+      values: [],
+    },
+    noheap: {
+      values: [],
+    },
+    maxNoheap: {
+      values: [],
+    },
+    youngGCCount: {
+      values: [],
+    },
+    oldGCCount: {
+      values: [],
+    },
+    youngGCTime: {
+      values: [],
+    },
+    oldGCTime: {
+      values: [],
     },
   },
-  dataQuery,
   optionsQuery,
+  dataQuery,
   effects: {
-    *fetchSpans({ payload }, { call, put }) {
-      const response = yield call(query, 'spans', { query: spanQuery, variables: payload.variables });
+    *fetchServiceInstance({ payload }, { call, put }) {
+      const { variables, serviceInstanceInfo } = payload;
+      const response = yield call(exec, { variables, query: serviceInstanceQuery });
+      if (!response.data) {
+        return;
+      }
       yield put({
-        type: 'saveSpans',
-        payload: response,
-        traceId: payload.variables.traceId,
+        type: 'saveServiceInstance',
+        payload: response.data,
+        serviceInstanceInfo,
       });
     },
   },
   reducers: {
-    saveSpans(state, { payload, traceId }) {
-      const { data } = state;
+    saveService(preState, { payload }) {
+      const { data } = preState;
       return {
-        ...state,
+        ...preState,
         data: {
           ...data,
-          queryTrace: payload.data.queryTrace,
-          currentTraceId: traceId,
-          showTimeline: true,
+          ...payload,
+          serviceInstanceInfo: {},
+          getServiceInstanceResponseTimeTrend: {
+            values: [],
+          },
+          getServiceInstanceThroughputTrend: {
+            values: [],
+          },
+          getCPUTrend: {
+            values: [],
+          },
+          heap: {
+            values: [],
+          },
+          maxHeap: {
+            values: [],
+          },
+          noheap: {
+            values: [],
+          },
+          maxNoheap: {
+            values: [],
+          },
+          youngGCCount: {
+            values: [],
+          },
+          oldGCCount: {
+            values: [],
+          },
+          youngGCTime: {
+            values: [],
+          },
+          oldGCTime: {
+            values: [],
+          },
         },
       };
     },
-    saveAppInfo(preState, { payload: allOptions }) {
-      const rawState = saveOptionsInState(null, preState, { payload: allOptions });
-      const { data } = rawState;
-      if (data.appInfo) {
-        return rawState;
-      }
-      const { variables: { values } } = rawState;
-      if (!values.applicationId) {
-        return rawState;
-      }
+    saveServiceInstance(preState, { payload, serviceInstanceInfo }) {
+      const { data } = preState;
       return {
-        ...rawState,
+        ...preState,
         data: {
           ...data,
-          appInfo: { applicationId: values.applicationId },
+          serviceInstanceInfo,
+          ...payload,
         },
       };
     },
-    hideTimeline(state) {
-      const { data } = state;
+    showServiceInstance(preState) {
+      const { data } = preState;
       return {
-        ...state,
+        ...preState,
         data: {
           ...data,
-          showTimeline: false,
+          showServiceInstance: true,
+        },
+      };
+    },
+    hideServiceInstance(preState) {
+      const { data } = preState;
+      return {
+        ...preState,
+        data: {
+          ...data,
+          showServiceInstance: false,
         },
       };
     },
@@ -190,25 +371,15 @@ export default generateModal({
     setup({ history, dispatch }) {
       return history.listen(({ pathname, state }) => {
         if (pathname === '/monitor/service' && state) {
-          console.info(state);
           dispatch({
             type: 'saveVariables',
             payload: {
               values: {
-                serviceId: state.key,
-                applicationId: state.applicationId,
+                serviceId: `${state.key}`,
               },
               labels: {
                 serviceId: state.label,
-                applicationId: state.applicationName,
               },
-            },
-          });
-          dispatch({
-            type: 'saveData',
-            payload: {
-              appInfo: { applicationId: state.applicationId },
-              serviceInfo: { key: state.key, label: state.label },
             },
           });
         }

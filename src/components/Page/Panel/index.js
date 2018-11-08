@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 import React, { Component } from 'react';
 
 export default class Panel extends Component {
@@ -26,6 +25,7 @@ export default class Panel extends Component {
     }
     onChange({ ...globalVariables, ...variables });
   }
+
   shouldComponentUpdate(nextProps) {
     const { globalVariables, variables, onChange } = nextProps;
     if (!this.isRender(nextProps)) {
@@ -37,12 +37,16 @@ export default class Panel extends Component {
     }
     return true;
   }
-  isRender = props => [props.variables, props.globalVariables]
-    .reduce((acc, curr) =>
-      (acc && (curr === undefined
-        || (curr !== undefined && Object.keys(curr).length > 0))), true);
+
+  isRender = props =>
+    [props.variables, props.globalVariables].reduce(
+      (acc, curr) =>
+        acc && (curr === undefined || (curr !== undefined && Object.keys(curr).length > 0)),
+      true
+    );
+
   render() {
     const { children } = this.props;
-    return children && (<div> {children} </div>);
+    return children && <div> {children} </div>;
   }
 }

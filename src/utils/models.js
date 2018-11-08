@@ -16,7 +16,7 @@
  */
 
 
-import { query as queryService } from '../services/graphql';
+import { query as queryService, exec } from '../services/graphql';
 
 export function saveOptionsInState(defaultOption, preState, { payload: allOptions }) {
   if (!allOptions) {
@@ -105,6 +105,136 @@ export function generateModal({ namespace, dataQuery, optionsQuery, defaultOptio
       *fetchData({ payload }, { call, put }) {
         const { variables, reducer = undefined } = payload;
         const response = yield call(queryService, namespace, { variables, query: dataQuery });
+        if (!response.data) {
+          return;
+        }
+        if (reducer) {
+          yield put({
+            type: reducer,
+            payload: response.data,
+          });
+        } else {
+          yield put({
+            type: 'saveData',
+            payload: response.data,
+          });
+        }
+      },
+      ...effects,
+    },
+    reducers: {
+      saveOptions(preState, action) {
+        const raw = saveOptionsInState(defaultOption, preState, action);
+        return raw;
+      },
+      save(preState, { payload: { variables: { values = {}, options = {}, labels = {} },
+        data = {} } }) {
+        const { variables: { values: preValues, options: preOptions, labels: preLabels },
+          data: preData } = preState;
+        return {
+          variables: {
+            values: {
+              ...preValues,
+              ...values,
+            },
+            options: {
+              ...preOptions,
+              ...options,
+            },
+            labels: {
+              ...preLabels,
+              ...labels,
+            },
+          },
+          data: {
+            ...preData,
+            ...data,
+          },
+        };
+      },
+      saveData(preState, { payload }) {
+        const { data } = preState;
+        return {
+          ...preState,
+          data: {
+            ...data,
+            ...payload,
+          },
+        };
+      },
+      saveVariables(preState, { payload: { values: variableValues, labels = {} } }) {
+        const { variables: preVariables } = preState;
+        const { values: preValues, lables: preLabels } = preVariables;
+        return {
+          ...preState,
+          variables: {
+            ...preVariables,
+            values: {
+              ...preValues,
+              ...variableValues,
+            },
+            labels: {
+              ...preLabels,
+              ...labels,
+            },
+          },
+        };
+      },
+      initVariables(preState, { payload: { values: variableValues, labels = {} } }) {
+        const { variables: preVariables } = preState;
+        return {
+          ...preState,
+          variables: {
+            ...preVariables,
+            values: {
+              ...variableValues,
+            },
+            labels: {
+              ...labels,
+            },
+          },
+        };
+      },
+      ...reducers,
+    },
+    subscriptions: {
+      ...subscriptions,
+    },
+  };
+}
+
+export function base({ namespace, dataQuery, optionsQuery, defaultOption, state = {},
+  varState = {}, effects = {}, reducers = {}, subscriptions = {} }) {
+  return {
+    namespace,
+    state: {
+      variables: {
+        values: {},
+        labels: {},
+        options: {},
+        ...varState,
+      },
+      data: state,
+    },
+    effects: {
+      *initOptions({ payload }, { call, put }) {
+        const { variables, reducer = undefined } = payload;
+        const response = yield call(exec, { variables, query: optionsQuery });
+        if (reducer) {
+          yield put({
+            type: reducer,
+            payload: response.data,
+          });
+        } else {
+          yield put({
+            type: 'saveOptions',
+            payload: response.data,
+          });
+        }
+      },
+      *fetchData({ payload }, { call, put }) {
+        const { variables, reducer = undefined } = payload;
+        const response = yield call(exec, { variables, query: dataQuery });
         if (!response.data) {
           return;
         }

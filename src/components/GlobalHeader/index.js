@@ -32,6 +32,7 @@ export default class GlobalHeader extends PureComponent {
   componentWillUnmount() {
     this.triggerResizeEvent.cancel();
   }
+
   getNoticeData() {
     const { notices = [] } = this.props;
     if (notices.length === 0) {
@@ -59,17 +60,20 @@ export default class GlobalHeader extends PureComponent {
     });
     return groupBy(newNotices, 'type');
   }
+
   toggle = () => {
     const { collapsed, onCollapse } = this.props;
     onCollapse(!collapsed);
     this.triggerResizeEvent();
   }
+
   @Debounce(600)
   triggerResizeEvent() { // eslint-disable-line
     const event = document.createEvent('HTMLEvents');
     event.initEvent('resize', true, false);
     window.dispatchEvent(event);
   }
+
   render() {
     const {
       collapsed, notices: { applicationAlarmList, serverAlarmList },
@@ -77,8 +81,8 @@ export default class GlobalHeader extends PureComponent {
       onDurationToggle, onDurationReload, onRedirect: redirect,
       onMenuClick,
     } = this.props;
-    const applications = applicationAlarmList.items.map(_ => ({ ..._, datetime: _.startTime }));
-    const servers = serverAlarmList.items.map(_ => ({ ..._, datetime: _.startTime }));
+    const applications = applicationAlarmList.msgs.map(_ => ({ ..._, title: _.message, datetime: moment(_.startTime).format('YYYY-MM-DD HH:mm:ss') }));
+    const servers = serverAlarmList.msgs.map(_ => ({ ..._, title: _.message, datetime: moment(_.startTime).format('YYYY-MM-DD HH:mm:ss') }));
     const menu = (
       <Menu className={styles.menu} selectedKeys={[]} onClick={onMenuClick}>
         <Menu.Item key="logout">
@@ -124,15 +128,15 @@ export default class GlobalHeader extends PureComponent {
             >
               <NoticeIcon.Tab
                 list={applications}
-                title="Application"
+                title="Service"
                 emptyText="No alarm"
-                emptyImage="alarm-backgroud.png"
+                emptyImage="img/icon/alarm-backgroud.png"
               />
               <NoticeIcon.Tab
                 list={servers}
-                title="Server"
+                title="ServiceInstance"
                 emptyText="No alarm"
-                emptyImage="alarm-backgroud.png"
+                emptyImage="img/icon/alarm-backgroud.png"
               />
             </NoticeIcon>
             <Dropdown overlay={menu}>

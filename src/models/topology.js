@@ -16,45 +16,165 @@
  */
 
 
-import { generateModal } from '../utils/models';
+import { base } from '../utils/models';
+import { exec } from '../services/graphql';
 
-export default generateModal({
+const metricQuery = `
+  query TopologyMetric($duration: Duration!, $ids: [ID!]!) {
+    sla: getValues(metric: {
+      name: "service_sla"
+      ids: $ids
+    }, duration: $duration) {
+      values {
+        id
+        value
+      }
+    }
+    nodeCpm: getValues(metric: {
+      name: "service_cpm"
+      ids: $ids
+    }, duration: $duration) {
+      values {
+        id
+        value
+      }
+    }
+    nodeLatency: getValues(metric: {
+      name: "service_resp_time"
+      ids: $ids
+    }, duration: $duration) {
+      values {
+        id
+        value
+      }
+    }
+  }
+`;
+
+const serverMetricQuery = `
+query TopologyServerMetric($duration: Duration!, $idsS: [ID!]!) {
+  cpmS: getValues(metric: {
+    name: "service_relation_server_cpm"
+    ids: $idsS
+  }, duration: $duration) {
+    values {
+      id
+      value
+    }
+  }
+  latencyS: getValues(metric: {
+    name: "service_relation_client_resp_time"
+    ids: $idsS
+  }, duration: $duration) {
+    values {
+      id
+      value
+    }
+  }
+}
+`
+
+const clientMetricQuery = `
+query TopologyClientMetric($duration: Duration!, $idsC: [ID!]!) {
+  cpmC: getValues(metric: {
+    name: "service_relation_client_cpm"
+    ids: $idsC
+  }, duration: $duration) {
+    values {
+      id
+      value
+    }
+  }
+  latencyC: getValues(metric: {
+    name: "service_relation_client_resp_time"
+    ids: $idsC
+  }, duration: $duration) {
+    values {
+      id
+      value
+    }
+  }
+}
+`
+
+export default base({
   namespace: 'topology',
   state: {
-    getClusterTopology: {
+    getGlobalTopology: {
       nodes: [],
       calls: [],
     },
+    metrics: {
+      sla: {
+        values: [],
+      },
+      nodeCpm: {
+        values: [],
+      },
+      nodeLatency: {
+        values: [],
+      },
+      cpm: {
+        values: [],
+      },
+      latency: {
+        values: [],
+      },
+    },
+  },
+  varState: {
+    latencyRange: [100, 500],
   },
   dataQuery: `
     query Topology($duration: Duration!) {
-      getClusterTopology(duration: $duration) {
+      getGlobalTopology(duration: $duration) {
         nodes {
           id
           name
           type
-          ... on ApplicationNode {
-            sla
-            cpm
-            avgResponseTime
-            apdex
-            isAlarm
-            numOfServer
-            numOfServerAlarm
-            numOfServiceAlarm
-          }
+          isReal
         }
         calls {
+          id
           source
           target
-          isAlert
           callType
-          cpm
-          avgResponseTime
+          detectPoint
         }
       }
     }
   `,
+  effects: {
+    *fetchMetrics({ payload }, { call, put }) {
+      const { ids, idsS, idsC, duration } = payload.variables;
+      const { data = {} } = yield call(exec, { query: metricQuery, variables: { ids, duration } });
+      let metrics = { ...data };
+      if (idsS && idsS.length > 0) {
+        const { data: sData = {}  } = yield call(exec, { query: serverMetricQuery, variables: { idsS, duration } });
+        metrics = { ...metrics, ...sData };
+      }
+      if (idsC && idsC.length > 0) {
+        const { data: cData = {}  } = yield call(exec, { query: clientMetricQuery, variables: { idsC, duration } });
+        metrics = { ...metrics, ...cData };
+      }
+      const { cpmS = { values:[] }, cpmC = { values:[] }, latencyS = { values:[] }, latencyC = { values:[] } } = metrics;
+      metrics = {
+        ...metrics,
+        cpm: {
+          values: cpmS.values.concat(cpmC.values),
+        },
+        latency: {
+          values: latencyS.values.concat(latencyC.values),
+        },
+      }
+      yield put({
+        type: 'saveData',
+        payload: {
+          metrics,
+        },
+      });
+    },
+  },
   reducers: {
     filterApplication(preState, { payload: { aa } }) {
       const { variables } = preState;
@@ -79,6 +199,16 @@ export default generateModal({
               return null;
             }
           }),
+        },
+      };
+    },
+    setLatencyStyleRange(preState, { payload: { latencyRange } }) {
+      const { variables } = preState;
+      return {
+        ...preState,
+        variables: {
+          ...variables,
+          latencyRange,
         },
       };
     },

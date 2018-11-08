@@ -16,57 +16,109 @@
  */
 
 
-import { generateModal } from '../utils/models';
+import { base } from '../utils/models';
 
-export default generateModal({
+export default base({
   namespace: 'dashboard',
   state: {
-    getClusterBrief: {
-      numOfApplication: 0,
+    getGlobalBrief: {
       numOfService: 0,
+      numOfEndpoint: 0,
       numOfDatabase: 0,
       numOfCache: 0,
       numOfMQ: 0,
-    },
-    getAlarmTrend: {
-      numOfAlarmRate: [],
     },
     getThermodynamic: {
       nodes: [],
       responseTimeStep: 0,
     },
-    getTopNSlowService: [],
-    getTopNApplicationThroughput: [],
+    getP99: {
+      values: [],
+    },
+    getP95: {
+      values: [],
+    },
+    getP90: {
+      values: [],
+    },
+    getP75: {
+      values: [],
+    },
+    getP50: {
+      values: [],
+    },
+    getTopNSlowEndpoint: [],
+    getTopNServiceThroughput: [],
   },
   dataQuery: `
     query Dashboard($duration: Duration!) {
-      getClusterBrief(duration: $duration) {
-        numOfApplication
+      getGlobalBrief(duration: $duration) {
         numOfService
+        numOfEndpoint
         numOfDatabase
         numOfCache
         numOfMQ
       }
-      getAlarmTrend(duration: $duration) {
-        numOfAlarmRate
-      }
-      getThermodynamic(duration: $duration, type: ALL) {
+      getThermodynamic(duration: $duration, metric: {
+        name: "all_heatmap"
+      }) {
         nodes
-        responseTimeStep
+        responseTimeStep: axisYStep
       }
-      getTopNSlowService(duration: $duration, topN: 10) {
-        service {
-          key: id
-          label: name
-          applicationId
-          applicationName
+      getTopNSlowEndpoint: getAllEndpointTopN(
+        duration: $duration,
+        name: "endpoint_avg",
+        topN: 10,
+        order: DES
+      ) {
+        key: id
+        label: name
+        value
+      }
+      getTopNServiceThroughput: getServiceTopN(
+        duration: $duration,
+        name: "service_cpm",
+        topN: 10,
+        order: DES
+      ) {
+        key: id
+        label: name
+        value
+      }
+      getP99: getLinearIntValues(metric: {
+        name: "all_p99"
+      }, duration: $duration) {
+        values {
+          value
         }
-        value: avgResponseTime
       }
-      getTopNApplicationThroughput(duration: $duration, topN: 10) {
-        key: applicationId
-        label: applicationCode
-        value: cpm
+      getP95: getLinearIntValues(metric: {
+        name: "all_p95"
+      }, duration: $duration) {
+        values {
+          value
+        }
+      }
+      getP90: getLinearIntValues(metric: {
+        name: "all_p90"
+      }, duration: $duration) {
+        values {
+          value
+        }
+      }
+      getP75: getLinearIntValues(metric: {
+        name: "all_p75"
+      }, duration: $duration) {
+        values {
+          value
+        }
+      }
+      getP50: getLinearIntValues(metric: {
+        name: "all_p50"
+      }, duration: $duration) {
+        values {
+          value
+        }
       }
     }
   `,

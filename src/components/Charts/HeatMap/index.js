@@ -15,7 +15,6 @@
  * limitations under the License.
  */
 
-
 import React, { Component } from 'react';
 import { Chart, Axis, Tooltip, Geom } from 'bizcharts';
 import autoHeight from '../autoHeight';
@@ -25,7 +24,7 @@ const yTickOffset = 20;
 
 @autoHeight()
 class HeatMap extends Component {
-  getScaleMap = (maxResponseTimeOffset) => {
+  getScaleMap = maxResponseTimeOffset => {
     const scaleMap = [];
     const remainder = (maxResponseTimeOffset + 1) % (yTickOffset + 1);
     const times = ~~((maxResponseTimeOffset + 1) / (yTickOffset + 1));
@@ -36,7 +35,8 @@ class HeatMap extends Component {
       scaleMap.push([0, yTickOffset, times]);
     }
     return scaleMap;
-  }
+  };
+
   reduceData = (scaleMap, reducer, init = 0) => {
     const result = [];
     for (let i = 0; i < scaleMap.length; i += 1) {
@@ -50,9 +50,11 @@ class HeatMap extends Component {
       }
     }
     return result;
-  }
+  };
+
   mapXAxisData = (reducedData, datetime) =>
-    reducedData.map((count, i) => ({ datetime, responseTime: i, count }))
+    reducedData.map((count, i) => ({ datetime, responseTime: i, count }));
+
   handlePlotClick = (dtStart, dtEnd, responseTime) => {
     const removedUnit = responseTime.slice(0, responseTime.indexOf('ms'));
     let min;
@@ -65,7 +67,8 @@ class HeatMap extends Component {
       max = value;
     }
     this.props.onClick({ start: dtStart, end: dtEnd }, { min, max });
-  }
+  };
+
   render() {
     const {
       height,
@@ -74,9 +77,12 @@ class HeatMap extends Component {
     } = this.props;
 
     if (!nodes || nodes.length < 1) {
-      return (<span style={{ display: 'none' }} />);
+      return <span style={{ display: 'none' }} />;
     }
-    const { display: { range }, raw: { range: rawRange } } = duration;
+    const {
+      display: { range },
+      raw: { range: rawRange },
+    } = duration;
 
     const source = [];
     let maxResponseTimeOffset = 0;
@@ -100,11 +106,13 @@ class HeatMap extends Component {
       const xAxisStepArray = this.reduceData(scaleMap, time => time + responseTimeStep);
       responseTimeAxis = xAxisStepArray.map((_, i) => {
         data += _;
-        return `${i === xAxisStepArray.length - 1 ? '>' : ''}${i === xAxisStepArray.length - 1 ? data - _ : data}ms`;
+        return `${i === xAxisStepArray.length - 1 ? '>' : ''}${
+          i === xAxisStepArray.length - 1 ? data - _ : data
+        }ms`;
       });
       let datetime = 0;
       while (source.length > 0) {
-        const reducedData = this.reduceData(scaleMap, (count) => {
+        const reducedData = this.reduceData(scaleMap, count => {
           const item = source.shift();
           return item ? item.count + count : count;
         });
@@ -113,8 +121,13 @@ class HeatMap extends Component {
       }
     } else {
       for (let i = 0; i < maxResponseTimeOffset + 1; i += 1) {
-        responseTimeAxis.push(`${(i === maxResponseTimeOffset) ? `>${i * responseTimeStep}` : (i + 1) * responseTimeStep}ms`);
+        responseTimeAxis.push(
+          `${
+            i === maxResponseTimeOffset ? `>${i * responseTimeStep}` : (i + 1) * responseTimeStep
+          }ms`
+        );
       }
+      mergeSource.push(...source);
     }
     const cols = {
       datetime: {
@@ -136,9 +149,17 @@ class HeatMap extends Component {
             scale={cols}
             forceFit
             height={height * 1.4}
-            onPlotClick={({ data: { _origin: { datetime, responseTime } } }) =>
-              this.handlePlotClick(rawRange[datetime], rawRange[datetime + 1]
-                , responseTimeAxis[responseTime])}
+            onPlotClick={({
+              data: {
+                _origin: { datetime, responseTime },
+              },
+            }) =>
+              this.handlePlotClick(
+                rawRange[datetime],
+                rawRange[datetime + 1],
+                responseTimeAxis[responseTime]
+              )
+            }
           >
             <Axis
               name="datetime"
@@ -169,13 +190,18 @@ class HeatMap extends Component {
               position="datetime*responseTime"
               color={['count', '#EBEDF0-#BAE7FF-#1890FF-#0050B3']}
               style={{ stroke: '#fff', lineWidth: 1 }}
-              tooltip={['datetime*responseTime*count', (datetime, responseTime, count) => {
-                return {
-                name: range[datetime],
-                title: `${responseTime > 0 ? responseTimeAxis[responseTime - 1] : 0}~${responseTimeAxis[responseTime]}`,
-                value: count,
-                };
-              }]}
+              tooltip={[
+                'datetime*responseTime*count',
+                (datetime, responseTime, count) => {
+                  return {
+                    name: range[datetime],
+                    title: `${responseTime > 0 ? responseTimeAxis[responseTime - 1] : 0}~${
+                      responseTimeAxis[responseTime]
+                    }`,
+                    value: count,
+                  };
+                },
+              ]}
             />
           </Chart>
         </div>

@@ -97,11 +97,11 @@ export const getRouterData = (app) => {
     '/monitor/topology': {
       component: dynamicWrapper(app, ['topology'], () => import('../routes/Topology/Topology')),
     },
-    '/monitor/application': {
-      component: dynamicWrapper(app, ['application'], () => import('../routes/Application/Application')),
-    },
     '/monitor/service': {
       component: dynamicWrapper(app, ['service'], () => import('../routes/Service/Service')),
+    },
+    '/monitor/endpoint': {
+      component: dynamicWrapper(app, ['endpoint'], () => import('../routes/Endpoint/Endpoint')),
     },
     '/trace': {
       component: dynamicWrapper(app, ['trace'], () => import('../routes/Trace/Trace')),

@@ -20,9 +20,11 @@ import React, { Component } from 'react';
 import cytoscape from 'cytoscape';
 import coseBilkent from 'cytoscape-cose-bilkent';
 import dagre from 'cytoscape-dagre';
+import cyCanvas from 'cytoscape-canvas';
 
 cytoscape.use(coseBilkent);
 cytoscape.use(dagre);
+cytoscape.use(cyCanvas);
 
 const config = {
   layout: {
@@ -37,9 +39,12 @@ export default class Base extends Component {
     height: '600px',
     display: 'block',
   }
+
   componentDidMount() {
-    const { elements, layout = config.layout } = this.props;
+    const { elements, layout = config.layout, metrics } = this.props;
     this.layout = layout;
+    this.metrics = metrics;
+    this.elements = elements;
     let nextElements = this.transform(elements);
     if (this.setUp) {
       nextElements = this.setUp(nextElements);
@@ -58,17 +63,81 @@ export default class Base extends Component {
       this.bindEvent(this.cy);
     }
   }
+
   componentWillReceiveProps(nextProps) {
-    if (nextProps.elements === this.elements && nextProps.layout === this.layout) {
+    this.updateTopology(nextProps);
+    this.updateMetric(nextProps);
+  }
+
+  shouldComponentUpdate() {
+    return false;
+  }
+
+  componentWillUnmount() {
+    this.cy.destroy();
+  }
+
+  getCy() {
+    return this.cy;
+  }
+
+  isSame = (nodes, nextNodes) => {
+    if (nodes.length !== nextNodes.length) {
+      return false;
+    }
+    const diff = nextNodes.diff(nodes);
+    return diff.left.length < 1 && diff.right.length < 1;
+  }
+
+  loadMetrics = (elementes) => {
+    const { onLoadMetircs } = this.props;
+    if (onLoadMetircs) {
+      onLoadMetircs(
+        elementes.nodes.filter(_ => _.data.id.indexOf('USER') < 0).map(_ => _.data.id),
+        elementes.edges.filter(_ => _.data.detectPoint === 'SERVER').map(_ => _.data.dataId),
+        elementes.edges.filter(_ => _.data.detectPoint === 'CLIENT').map(_ => _.data.dataId),
+      );
+    }
+  }
+
+  transform = (elements) => {
+    if (!elements) {
+      return [];
+    }
+    const { nodes, calls } = elements;
+    return {
+      nodes: nodes.map(node => ({ data: node })),
+      edges: calls.filter(call => (nodes.findIndex(node => node.id === call.source) > -1
+        && nodes.findIndex(node => node.id === call.target) > -1))
+        .map(call => ({ data: { ...call } })),
+    };
+  }
+
+  updateTopology(nextProps) {
+    const { elements, layout: nextLayout, appRegExps } = nextProps;
+    let thisElements = this.elements;
+    let nextElements = elements;
+    const filteredElements = this.filter(elements, appRegExps);
+    if (filteredElements) {
+      thisElements = this.filteredElements;
+      nextElements = filteredElements;
+      this.filteredElements = filteredElements;
+    }
+    if (thisElements === nextElements && nextLayout === this.layout) {
       return;
     }
-    const { elements, layout: nextLayout } = nextProps;
-    const nodes = this.cy.nodes();
-    let nextElements = this.transform(elements);
+    this.elements = elements;
+    nextElements = this.transform(nextElements);
     if (this.setUp) {
       nextElements = this.setUp(nextElements);
     }
-    this.cy.json({ elements: nextElements, style: this.getStyle() });
+    const nodes = this.cy.nodes();
+    this.cy.json({ elements: nextElements });
+    
+    if (this.bindEvent) {
+      this.bindEvent(this.cy);
+    }
+    this.loadMetrics(nextElements);
     if (nextLayout === this.layout && this.isSame(nodes, this.cy.nodes())) {
       return;
     }
@@ -79,35 +148,38 @@ export default class Base extends Component {
     });
     layout.run();
   }
-  shouldComponentUpdate() {
-    return false;
-  }
-  componentWillUnmount() {
-    this.cy.destroy();
-  }
-  getCy() {
-    return this.cy;
-  }
-  isSame = (nodes, nextNodes) => {
-    if (nodes.length !== nextNodes.length) {
-      return false;
+
+  updateMetric(nextProps) {
+    if (nextProps.metrics === this.metrics && nextProps.latencyRange === this.latencyRange) {
+      return;
     }
-    const diff = nextNodes.diff(nodes);
-    return diff.left.length < 1 && diff.right.length < 1;
-  }
-  transform(elements) {
-    if (!elements) {
-      return [];
+    this.metrics = nextProps.metrics;
+    this.latencyRange = nextProps.latencyRange;
+    if (this.updateMetrics) {
+      this.updateMetrics(this.cy, this.metrics);
     }
-    this.elements = elements;
-    const { nodes, calls } = elements;
+  }
+
+  filter(elements, appRegExps) {
+    if (!appRegExps) {
+      this.appRegExps = appRegExps;
+      return elements;
+    }
+    if (this.elements === elements && this.appRegExps === appRegExps) {
+      return this.filteredElements;
+    }
+    this.appRegExps = appRegExps;
+    const nn = elements.nodes.filter(_ => appRegExps
+      .findIndex(r => _.name.match(r)) > -1);
+    const cc = elements.calls.filter(_ => nn
+      .findIndex(n => n.id === _.source || n.id === _.target) > -1);
     return {
-      nodes: nodes.map(node => ({ data: node })),
-      edges: calls.filter(call => (nodes.findIndex(node => node.id === call.source) > -1
-        && nodes.findIndex(node => node.id === call.target) > -1))
-        .map(call => ({ data: { ...call, id: `${call.source}-${call.target}` } })),
+      nodes: elements.nodes.filter(_ => cc
+        .findIndex(c => c.source === _.id || c.target === _.id) > -1),
+      calls: cc,
     };
   }
+
   render() {
     return (<div style={{ ...this.props }} ref={(el) => { this.container = el; }} />);
   }

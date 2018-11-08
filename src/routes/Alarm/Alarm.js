@@ -19,6 +19,7 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Card, Input, Tabs, List, Avatar } from 'antd';
+import moment from 'moment';
 import { Panel } from '../../components/Page';
 import styles from './Alarm.less';
 
@@ -30,6 +31,12 @@ const defaultPaging = {
   needTotal: true,
 };
 
+const funcMap = {
+  "Service": "saveServiceAlarmList",
+  "ServiceInstance": "saveServiceInstanceAlarmList",
+  "Endpoint": "saveEndpointAlarmList",
+}
+
 @connect(state => ({
   alarm: state.alarm,
   globalVariables: state.global.globalVariables,
@@ -38,16 +45,17 @@ const defaultPaging = {
 export default class Alarm extends PureComponent {
   componentDidMount() {
     const { alarm: { variables: { values } } } = this.props;
-    if (!values.alarmType) {
+    if (!values.scope) {
       this.props.dispatch({
         type: 'alarm/saveVariables',
         payload: { values: {
-          alarmType: 'APPLICATION',
+          scope: 'Service',
           paging: defaultPaging,
         } },
       });
     }
   }
+
   handleSearch = (keyword) => {
     this.props.dispatch({
       type: 'alarm/saveVariables',
@@ -57,6 +65,7 @@ export default class Alarm extends PureComponent {
       } },
     });
   }
+
   handlePageChange = (pag) => {
     this.props.dispatch({
       type: 'alarm/saveVariables',
@@ -69,24 +78,26 @@ export default class Alarm extends PureComponent {
       } },
     });
   }
-  changeAlarmType = (alarmType) => {
+
+  changeScope = (scope) => {
     this.props.dispatch({
       type: 'alarm/saveVariables',
       payload: { values: {
-        alarmType,
+        scope,
         paging: defaultPaging,
       } },
     });
   }
+
   handleChange = (variables) => {
-    const type = variables.alarmType.charAt(0) + variables.alarmType.slice(1).toLowerCase();
     const { paging = defaultPaging } = variables;
     this.props.dispatch({
       type: 'alarm/fetchData',
-      payload: { variables: { ...variables, paging }, reducer: `save${type}AlarmList` },
+      payload: { variables: { ...variables, paging }, reducer: funcMap[variables.scope] },
     });
   }
-  renderList = ({ items, total }) => {
+
+  renderList = ({ msgs, total }) => {
     const { alarm: { variables: { values: { paging = defaultPaging } } }, loading } = this.props;
     const pagination = {
       pageSize: paging.pageSize,
@@ -99,24 +110,24 @@ export default class Alarm extends PureComponent {
         className="demo-loadmore-list"
         loading={loading}
         itemLayout="horizontal"
-        dataSource={items}
+        dataSource={msgs}
         pagination={pagination}
-        renderItem={item => (
+        renderItem={msg => (
           <List.Item>
             <List.Item.Meta
               avatar={
                 <Avatar
-                  style={item.causeType === 'LOW_SUCCESS_RATE' ? { backgroundColor: '#e68a00' } : { backgroundColor: '#b32400' }}
-                  icon={item.causeType === 'LOW_SUCCESS_RATE' ? 'clock-circle-o' : 'close'}
+                  style={{ backgroundColor: '#b32400' }}
+                  icon='close'
                 />}
-              title={item.title}
-              description={item.content}
+              description={msg.message}
             />
-            <div>{item.startTime}</div>
+            <div>{moment(msg.startTime).format('YYYY-MM-DD HH:mm:ss')}</div>
           </List.Item>
         )}
       />);
   }
+
   render() {
     const extraContent = (
       <div className={styles.extraContent}>
@@ -139,10 +150,10 @@ export default class Alarm extends PureComponent {
           bordered={false}
           extra={extraContent}
         >
-          <Tabs activeKey={values.alarmType} onChange={this.changeAlarmType}>
-            <TabPane tab="Application" key="APPLICATION">{this.renderList(data.applicationAlarmList)}</TabPane>
-            <TabPane tab="Server" key="SERVER">{this.renderList(data.serverAlarmList)}</TabPane>
-            <TabPane tab="Service" key="SERVICE">{this.renderList(data.serviceAlarmList)}</TabPane>
+          <Tabs activeKey={values.scope} onChange={this.changeScope}>
+            <TabPane tab="Service" key="Service">{this.renderList(data.serviceAlarmList)}</TabPane>
+            <TabPane tab="ServiceInstance" key="ServiceInstance">{this.renderList(data.serviceInstanceAlarmList)}</TabPane>
+            <TabPane tab="Endpoint" key="Endpoint">{this.renderList(data.endpointAlarmList)}</TabPane>
           </Tabs>
         </Card>
       </Panel>

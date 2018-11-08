@@ -23,6 +23,7 @@ import TraceSearch from './TraceSearch';
 import TraceTimeline from './TraceTimeline';
 
 @connect(state => ({
+  zone: state.global.zone,
   trace: state.trace,
   loading: state.loading.models.trace,
 }))
@@ -32,6 +33,7 @@ export default class Trace extends PureComponent {
       type: 'trace/hideTimeline',
     });
   }
+
   render() {
     const { trace: { data: { showTimeline } } } = this.props;
     return (
@@ -53,6 +55,7 @@ export default class Trace extends PureComponent {
               loading={this.props.loading}
               globalVariables={this.props.globalVariables}
               dispatch={this.props.dispatch}
+              zone={this.props.zone}
             />
           </Col>
           <Col span={showTimeline ? 24 : 0}>

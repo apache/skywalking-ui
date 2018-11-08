@@ -20,7 +20,6 @@ import React, { PureComponent } from 'react';
 import { List, Row, Col, Tag } from 'antd';
 import styles from './index.less';
 
-
 class RankList extends PureComponent {
   renderLabel = (item) => {
     const { renderLabel } = this.props;
@@ -29,6 +28,7 @@ class RankList extends PureComponent {
     }
     return renderLabel(item);
   }
+
   renderValue = (item) => {
     const { renderValue } = this.props;
     if (!renderValue) {
@@ -36,6 +36,7 @@ class RankList extends PureComponent {
     }
     return renderValue(item);
   }
+
   renderTitle = (item, maxValue) => {
     const { onClick, color = '#87CEFA' } = this.props;
     return (
@@ -68,6 +69,7 @@ class RankList extends PureComponent {
       </div>
     );
   }
+
   renderBadges = (item) => {
     const { renderBadge } = this.props;
     return (
@@ -88,6 +90,7 @@ class RankList extends PureComponent {
       </Row>
     );
   }
+
   render() {
     const { data, loading, renderBadge, listTitles } = this.props;
     let maxValue = 0;

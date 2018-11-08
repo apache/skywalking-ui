@@ -38,6 +38,7 @@ export default class TraceTimeLine extends PureComponent {
     });
     return formatDuration(maxEndTime - minStartTime);
   }
+
   getStartTime = (spans) => {
     let minStartTime = 0;
     spans.forEach((span) => {

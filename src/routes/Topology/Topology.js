@@ -18,16 +18,13 @@
 
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
-import { Row, Col, Card, Icon, Radio, Select, Button } from 'antd';
+import { Row, Col, Card, Icon, Radio, Avatar, Select, Input, Popover, Tag } from 'antd';
 import { ChartCard } from '../../components/Charts';
 import { AppTopology } from '../../components/Topology';
 import { Panel } from '../../components/Page';
-// import ApplicationLitePanel from '../../components/ApplicationLitePanel';
+import ApplicationLitePanel from '../../components/ApplicationLitePanel';
 import DescriptionList from '../../components/DescriptionList';
 import { redirect } from '../../utils/utils';
-import styles from './Topology.less';
-import ControlPanel from '../../components/ControlPanel';
-
 
 const { Description } = DescriptionList;
 const { Option } = Select;
@@ -75,80 +72,106 @@ export default class Topology extends PureComponent {
   static defaultProps = {
     graphHeight: 600,
   };
-  constructor(props) {
-    super(props);
-    this.state = { displayModal: false };
+
+  findValue = (id, values) => {
+    const v = values.find(_ => _.id === id);
+    if (v) {
+      return v.value;
+    }
+    return null;
   }
+
   handleChange = (variables) => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
       type: 'topology/fetchData',
       payload: { variables },
     });
   }
+
   handleLayoutChange = ({ target: { value } }) => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
       type: 'topology/saveData',
       payload: { layout: value },
     });
   }
+
+  handleLoadMetrics = (ids, idsS, idsC) => {
+    const { dispatch, globalVariables: { duration } } = this.props;
+    dispatch({
+      type: 'topology/fetchMetrics',
+      payload: { variables: {
+          duration,
+          ids,
+          idsS,
+          idsC,
+        }},
+    });
+  }
+
   handleSelectedApplication = (appInfo) => {
-    this.handleDisplayWayChange(true);
+    const { dispatch, topology: { data: { metrics: { sla, nodeCpm, nodeLatency } } } } = this.props;
     if (appInfo) {
-      this.props.dispatch({
+      dispatch({
         type: 'topology/saveData',
-        payload: { appInfo },
+        payload: { appInfo: { ...appInfo,
+            sla: this.findValue(appInfo.id, sla.values),
+            cpm: this.findValue(appInfo.id, nodeCpm.values),
+            avgResponseTime: this.findValue(appInfo.id, nodeLatency.values),
+          } },
       });
     } else {
-      this.props.dispatch({
+      dispatch({
         type: 'topology/saveData',
         payload: { appInfo: null },
       });
     }
   }
+
+  handleChangeLatencyStyle = (e) => {
+    const { value } = e.target;
+    const vArray = value.split(',');
+    if (vArray.length !== 2) {
+      return;
+    }
+    const latencyRange = vArray.map(_ => parseInt(_.trim(), 10)).filter(_ => !isNaN(_));
+    if (latencyRange.length !== 2) {
+      return;
+    }
+    const { dispatch } = this.props;
+    dispatch({
+      type: 'topology/setLatencyStyleRange',
+      payload: { latencyRange },
+    });
+  }
+
   handleFilterApplication = (aa) => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
       type: 'topology/filterApplication',
       payload: { aa },
     });
   }
-  filter = () => {
-    const { topology: { variables: { appRegExps }, data: { getClusterTopology } } } = this.props;
-    if (!appRegExps) {
-      return getClusterTopology;
-    }
-    const nn = getClusterTopology.nodes.filter(_ => appRegExps
-      .findIndex(r => _.name.match(r)) > -1);
-    const cc = getClusterTopology.calls.filter(_ => nn
-      .findIndex(n => n.id === _.source || n.id === _.target) > -1);
-    return {
-      nodes: getClusterTopology.nodes.filter(_ => cc
-        .findIndex(c => c.source === _.id || c.target === _.id) > -1),
-      calls: cc,
-    };
-  }
-  handleDisplayWayChange(flag) {
-    this.setState({ displayModal: flag });
-  }
-  closeModal() {
-    this.handleDisplayWayChange(false);
-  }
+
   renderActions = () => {
     const { data: { appInfo } } = this.props.topology;
     return [
-      <Icon type="appstore" onClick={() => redirect(this.props.history, '/monitor/application', { key: appInfo.id, label: appInfo.name })} />,
+      <Icon type="appstore" onClick={() => redirect(this.props.history, '/monitor/service', { key: appInfo.id, label: appInfo.name })} />,
       <Icon
         type="exception"
         onClick={() => redirect(this.props.history, '/trace',
-        { values: {
-            applicationId: appInfo.id,
-            duration: { ...this.props.duration, input: this.props.globalVariables.duration },
-          },
-          labels: { applicationId: appInfo.name },
-        })}
+          { values: {
+              serviceId: appInfo.id,
+              duration: { ...this.props.duration, input: this.props.globalVariables.duration },
+            },
+            labels: { applicationId: appInfo.name },
+          })}
       />,
       appInfo.isAlarm ? <Icon type="bell" onClick={() => redirect(this.props.history, '/monitor/alarm')} /> : null,
     ];
   }
+
   renderNodeType = (topologData) => {
     const typeMap = new Map();
     topologData.nodes.forEach((_) => {
@@ -160,137 +183,85 @@ export default class Topology extends PureComponent {
     });
     const result = [];
     typeMap.forEach((v, k) => result.push(<Description term={k}>{v}</Description>));
-    // typeMap.forEach((v, k) => result.push(<div> <span> {k} </span> <span> {v} </span> </div>));
     return result;
   }
-  renderNodeTypePanel = (topologData) => {
-    const typeMap = new Map();
-    topologData.nodes.forEach((_) => {
-      if (typeMap.has(_.type)) {
-        typeMap.set(_.type, typeMap.get(_.type) + 1);
-      } else {
-        typeMap.set(_.type, 1);
-      }
-    });
-    const result = [];
-    // typeMap.forEach((v, k) => result.push(<Description term={k}>{v}</Description>));
-    let i = 0;
-    typeMap.forEach((v, k) => {
-      i += 1;
-      result.push(
-        <div key={`${i}node`} className={styles.nodeItem}>
-          <span className={styles.text}> {k} </span>
-          <span className={styles.value}> {v} </span>
-        </div>);
-    });
 
-    return result;
-  }
   render() {
-    const { data, variables: { appFilters = [] } } = this.props.topology;
-    const { layout = 0 } = data;
-    const topologData = this.filter();
+    const { data, variables: { appRegExps, appFilters = [], latencyRange } } = this.props.topology;
+    const { metrics, layout = 0 } = data;
+    const { getGlobalTopology: topologData } = data;
+    const content = (
+      <div>
+        <p><Tag color="#40a9ff">Less than {latencyRange[0]} ms </Tag></p>
+        <p><Tag color="#d4b106">Between {latencyRange[0]} ms and {latencyRange[1]} ms</Tag></p>
+        <p><Tag color="#cf1322">More than {latencyRange[1]} ms</Tag></p>
+      </div>
+    );
     return (
       <Panel globalVariables={this.props.globalVariables} onChange={this.handleChange}>
-        <ControlPanel />
         <Row gutter={8}>
-          <Col {...{ ...colResponsiveProps, xl: 24, lg: 24 }}>
+          <Col {...{ ...colResponsiveProps, xl: 18, lg: 16 }}>
             <ChartCard
-              className={styles.topoWrapper}
+              title="Topology Map"
+              avatar={<Avatar icon="fork" style={{ color: '#1890ff', backgroundColor: '#ffffff' }} />}
+              action={(
+                <Radio.Group value={layout} onChange={this.handleLayoutChange} size="normal">
+                  {layouts.map((_, i) => (
+                    <Radio.Button value={i} key={_.name}>
+                      <img src={_.icon} alt={_.name} style={layoutButtonStyle} />
+                    </Radio.Button>))}
+                </Radio.Group>
+              )}
             >
-              <Select
-                mode="tags"
-                style={{ width: '100%', marginBottom: 20 }}
-                placeholder="Filter application"
-                onChange={this.handleFilterApplication}
-                tokenSeparators={[',']}
-                value={appFilters}
-              >
-                {data.getClusterTopology.nodes.filter(_ => _.sla)
-                  .map(_ => <Option key={_.name}>{_.name}</Option>)}
-              </Select>
-              <Radio.Group
-                value={layout}
-                onChange={this.handleLayoutChange}
-                size="normal"
-                className="clearfix"
-              >
-                {layouts.map((_, i) => (
-                  <Radio.Button value={i} key={_.name}>
-                    <img src={_.icon} alt={_.name} style={layoutButtonStyle} />
-                  </Radio.Button>))}
-              </Radio.Group>
               {topologData.nodes.length > 0 ? (
                 <AppTopology
                   height={this.props.graphHeight}
                   elements={topologData}
+                  metrics={metrics}
                   onSelectedApplication={this.handleSelectedApplication}
+                  onLoadMetircs={this.handleLoadMetrics}
                   layout={layouts[layout]}
+                  latencyRange={latencyRange}
+                  appRegExps={appRegExps}
                 />
               ) : null}
             </ChartCard>
           </Col>
-          {this.state.displayModal ? <div className={styles.modalShadow} /> : null}
-          {this.state.displayModal ? (
-            <Col {...{ ...colResponsiveProps, xl: 6, lg: 8 }} className={styles.applicationModal}>
-              {data.appInfo ? (
+          <Col {...{ ...colResponsiveProps, xl: 6, lg: 8 }}>
+            {data.appInfo ? (
                 <Card
                   title={data.appInfo.name}
                   bodyStyle={{ height: 568 }}
-                  // actions={this.renderActions()}
+                  actions={this.renderActions()}
                 >
-                  <span onClick={this.closeModal.bind(this, false)} className={styles.closeIcon}> <Icon type="close" theme="outlined" /> </span>
-                  {/* <ApplicationLitePanel appInfo={data.appInfo} /> */}
-                  <div className={styles.nodeItem}>
-                    <span className={styles.text}> SLA </span>
-                    <span className={styles.value}> {data.appInfo.sla} </span>
-                  </div>
-                  <div className={styles.nodeItem}>
-                    <span className={styles.text}> Calls Per Minute </span>
-                    <span className={styles.value}> {data.appInfo.cpm} </span>
-                  </div>
-                  <div className={styles.nodeItem}>
-                    <span className={styles.text}> Avg Response Time </span>
-                    <span className={styles.value}> {data.appInfo.avgResponseTime} </span>
-                  </div>
-                  <div className={styles.nodeItem}>
-                    <span className={styles.text}> Total Server </span>
-                    <span className={styles.value}> {data.appInfo.numOfServer} </span>
-                  </div>
-                  <hr className={styles.hLine} />
-                  <Button onClick={() => redirect(this.props.history, '/monitor/application', { key: data.appInfo.id, label: data.appInfo.name })} style={{ marginTop: 15, width: '100%', backgroundColor: 'rgb(35, 121, 201)', color: 'white' }}>查看更多</Button>
+                  <ApplicationLitePanel appInfo={data.appInfo} />
                 </Card>
-            )
-            : (
-              <Card title="Overview" style={{ height: 672 }}>
-                {/* <Select
-                  mode="tags"
-                  style={{ width: '100%', marginBottom: 20 }}
-                  placeholder="Filter application"
-                  onChange={this.handleFilterApplication}
-                  tokenSeparators={[',']}
-                  value={appFilters}
-                >
-                  {data.getClusterTopology.nodes.filter(_ => _.sla)
-                    .map(_ => <Option key={_.name}>{_.name}</Option>)}
-                </Select> */}
-                {/* <div className={styles.modalShadow} /> */}
-                <span onClick={this.closeModal.bind(this, false)} className={styles.closeIcon}> <Icon type="close" theme="outlined" /> </span>
-                <DescriptionList layout="vertical" >
-                  {/* <Description term="Total">{topologData.nodes.length}</Description> */}
-                  <div key="total" className={styles.nodeItem}>
-                    <span key="Total" className={styles.text}> Total </span>
-                    <span key={topologData.nodes.length} className={styles.value}>
-                      {topologData.nodes.length}
-                    </span>
-                  </div>
-                  {this.renderNodeTypePanel(topologData)}
-                </DescriptionList>
-              </Card>
-            )}
-            </Col>
-          ) : null
-          }
+              )
+              : (
+                <Card title="Overview" style={{ height: 672 }}>
+                  <Select
+                    mode="tags"
+                    style={{ width: '100%', marginBottom: 20 }}
+                    placeholder="Filter application"
+                    onChange={this.handleFilterApplication}
+                    tokenSeparators={[',']}
+                    value={appFilters}
+                  >
+                    {data.getGlobalTopology.nodes.filter(_ => _.sla)
+                      .map(_ => <Option key={_.name}>{_.name}</Option>)}
+                  </Select>
+                  <Popover content={content} title="Info">
+                    <h4>Latency coloring thresholds  <Icon type="info-circle-o" /></h4>
+                  </Popover>
+                  <Input style={{ width: '100%', marginBottom: 20 }} onChange={this.handleChangeLatencyStyle} value={latencyRange.join(',')} />
+                  <h4>Overview</h4>
+                  <DescriptionList layout="vertical">
+                    <Description term="Total">{topologData.nodes.length}</Description>
+                    {this.renderNodeType(topologData)}
+                  </DescriptionList>
+                </Card>
+              )}
+          </Col>
         </Row>
       </Panel>
     );

@@ -19,15 +19,10 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Row, Col, Card, Tooltip, Icon } from 'antd';
-// import {
-//   ChartCard, MiniChartCard, MiniArea, Field, HeatMap,
-// } from '../../components/Charts';
 import {
-  ChartCard, MiniChartCard, HeatMap,
+  ChartCard, HeatMap, Line,
 } from '../../components/Charts';
-// import { axis, generateDuration } from '../../utils/time';
-// import { avgTimeSeries, redirect } from '../../utils/utils';
-import { generateDuration } from '../../utils/time';
+import { generateDuration, axisMY } from '../../utils/time';
 import { redirect } from '../../utils/utils';
 import { Panel } from '../../components/Page';
 import RankList from '../../components/RankList';
@@ -40,35 +35,26 @@ import ControlPanel from '../../components/ControlPanel';
 }))
 export default class Dashboard extends PureComponent {
   handleDurationChange = (variables) => {
-    this.props.dispatch({
+    const { dispatch } = this.props;
+    dispatch({
       type: 'dashboard/fetchData',
       payload: { variables },
     });
-  }
+  };
+
   renderAction = (prompt, path) => {
+    const { history } = this.props;
     return (
       <Tooltip title={prompt}>
-        <Icon type="info-circle-o" onClick={() => redirect(this.props.history, path)} />
+        <Icon type="info-circle-o" onClick={() => redirect(history, path)}/>
       </Tooltip>
     );
-  }
+  };
+
   render() {
-    const { data } = this.props.dashboard;
-    // const { numOfAlarmRate } = data.getAlarmTrend;
-    // const accuracy = 100;
-    // let visitData = [];
-    // let avg = 0;
-    // let max = 0;
-    // let min = 0;
-    // if (numOfAlarmRate && numOfAlarmRate.length > 0) {
-    //   visitData = axis(this.props.duration,
-    //   numOfAlarmRate, ({ x, y }) => ({ x, y: y / accuracy }));
-    //   avg = avgTimeSeries(numOfAlarmRate) / accuracy;
-    //   max = numOfAlarmRate.reduce((acc, curr) => { return acc < curr ? curr : acc; }) / accuracy;
-    //   min = numOfAlarmRate.reduce((acc, curr) => { return acc > curr ? curr : acc; }) / accuracy;
-    // }
+    const { dashboard: { data }, globalVariables, duration, history } = this.props;
     return (
-      <Panel globalVariables={this.props.globalVariables} onChange={this.handleDurationChange}>
+      <Panel globalVariables={globalVariables} onChange={this.handleDurationChange}>
         <Row gutter={8}>
           <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginBottom: 8 }} >
             <ControlPanel />
@@ -76,118 +62,112 @@ export default class Dashboard extends PureComponent {
         </Row>
         <Row gutter={8}>
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
-            <MiniChartCard
-              runningStatus
-              title="应用程序"
-              action={this.renderAction('Show application details', '/monitor/application')}
-              avatar={<img style={{ width: 56, height: 56 }} src="img/icon/app.png" alt="app" />}
-              total={data.getClusterBrief.numOfApplication}
-            />
-          </Col>
-          <Col xs={24} sm={24} md={12} lg={6} xl={6}>
-            <MiniChartCard
-              runningStatus
-              title="服务"
+            <ChartCard
+              title="Service"
               action={this.renderAction('Show service details', '/monitor/service')}
-              avatar={<img style={{ width: 56, height: 56 }} src="img/icon/service.png" alt="service" />}
-              total={data.getClusterBrief.numOfService}
+              avatar={<img style={{ width: 56, height: 56 }} src="img/icon/app.png" alt="service"/>}
+              total={data.getGlobalBrief.numOfService}
             />
           </Col>
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
-            <MiniChartCard
-              title="数据与缓存"
-              avatar={<img style={{ width: 56, height: 56 }} src="img/icon/database.png" alt="database" />}
-              total={data.getClusterBrief.numOfDatabase
-                + data.getClusterBrief.numOfCache}
+            <ChartCard
+              title="Endpoint"
+              action={this.renderAction('Show endpoint details', '/monitor/endpoint')}
+              avatar={<img style={{ width: 56, height: 56 }} src="img/icon/service.png"
+                           alt="endpoint"/>}
+              total={data.getGlobalBrief.numOfEndpoint}
             />
           </Col>
           <Col xs={24} sm={24} md={12} lg={6} xl={6}>
-            <MiniChartCard
-              title="数据流量"
-              avatar={<img style={{ width: 56, height: 56 }} src="img/icon/mq.png" alt="mq" />}
-              total={data.getClusterBrief.numOfMQ}
+            <ChartCard
+              title="DB & Cache"
+              avatar={<img style={{ width: 56, height: 56 }} src="img/icon/database.png"
+                           alt="database"/>}
+              total={data.getGlobalBrief.numOfDatabase
+              + data.getGlobalBrief.numOfCache}
+            />
+          </Col>
+          <Col xs={24} sm={24} md={12} lg={6} xl={6}>
+            <ChartCard
+              title="MQ"
+              avatar={<img style={{ width: 56, height: 56 }} src="img/icon/mq.png" alt="mq"/>}
+              total={data.getGlobalBrief.numOfMQ}
             />
           </Col>
         </Row>
         <Row gutter={8}>
           <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginTop: 8 }}>
             <ChartCard
-              title="热力图（Calls HeatMap）"
+              title="Calls HeatMap"
               contentHeight={200}
             >
               <HeatMap
                 data={data.getThermodynamic}
-                duration={this.props.duration}
+                duration={duration}
                 height={200}
-                onClick={(duration, responseTimeRange) => redirect(this.props.history, '/trace', { values: { duration: generateDuration({
-                  from() {
-                    return duration.start;
-                  },
-                  to() {
-                    return duration.end;
-                  },
-                }),
-                minTraceDuration: responseTimeRange.min,
-                maxTraceDuration: responseTimeRange.max,
-              } })}
+                onClick={(d, responseTimeRange) => redirect(history, '/trace', {
+                  values: {
+                    duration: generateDuration({
+                      from() {
+                        return d.start;
+                      },
+                      to() {
+                        return d.end;
+                      },
+                    }),
+                    minTraceDuration: responseTimeRange.min,
+                    maxTraceDuration: responseTimeRange.max,
+                  }
+                })}
               />
             </ChartCard>
           </Col>
-          {/* <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 8 }}>
-            <ChartCard
-              title="Avg Application Alarm"
-              avatar={<img style={{ width: 56, height: 56 }} src="img/icon/alert.png" alt="app" />}
-              total={`${avg.toFixed(2)}%`}
-              footer={<div><Field label="Max" value={`${max}%`} />
-              <Field label="Min" value={`${min}%`} /></div>}
-              contentHeight={100}
-            >
-              <MiniArea
-                animate={false}
-                color="#D87093"
-                borderColor="#B22222"
-                line="true"
-                data={visitData}
-                yAxis={{
-                  formatter(val) {
-                      return `${val} %`;
-                  },
-                }}
-              />
-            </ChartCard>
-          </Col> */}
         </Row>
-        <Row gutter={8}>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 8 }}>
+        <Row>
+          <Col xs={24} sm={24} md={24} lg={24} xl={24} style={{ marginTop: 8 }}>
             <Card
-              title="Slow Service"
+              title="Response Time"
               bordered={false}
-              bodyStyle={{ padding: '0px 10px' }}
+              bodyStyle={{ padding: 5, height: 150 }}
             >
-              <RankList
-                listTitles={['类型', '耗时']}
-                color="rgb(131, 187, 77)"
-                data={data.getTopNSlowService.map(_ => ({ ..._.service, value: _.value }))}
-                renderValue={_ => `${_.value} ms`}
-                onClick={(key, item) => redirect(this.props.history, '/monitor/service', { key,
-                    label: item.label,
-                    applicationId: item.applicationId,
-                    applicationName: item.applicationName })}
+              <Line
+                data={axisMY(duration, [{ title: 'p99', value: data.getP99 }, {
+                  title: 'p95',
+                  value: data.getP95
+                }
+                  , { title: 'p90', value: data.getP90 }, {
+                    title: 'p75',
+                    value: data.getP75
+                  }, { title: 'p50', value: data.getP50 }])}
               />
             </Card>
           </Col>
-          <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 8 }}>
+        </Row>
+        <Row gutter={8}>
+          <Col xs={24} sm={24} md={24} lg={16} xl={16} style={{ marginTop: 8 }}>
             <Card
-              title="Application Throughput"
+              title="Slow Endpoint"
               bordered={false}
               bodyStyle={{ padding: '0px 10px' }}
             >
               <RankList
-                listTitles={['类型', '流量']}
-                data={data.getTopNApplicationThroughput}
+                data={data.getTopNSlowEndpoint}
+                renderValue={_ => `${_.value} ms`}
+                onClick={(key, { label }) => redirect(history, '/monitor/endpoint', { key, label })}
+              />
+            </Card>
+          </Col>
+          <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 8 }}>
+            <Card
+              title="Service Throughput"
+              bordered={false}
+              bodyStyle={{ padding: '0px 10px' }}
+            >
+              <RankList
+                data={data.getTopNServiceThroughput}
                 renderValue={_ => `${_.value} cpm`}
-                color="rgb(131, 187, 77)"
-                onClick={(key, item) => redirect(this.props.history, '/monitor/application', { key, label: item.label })}
+                color="#965fe466"
+                onClick={(key, { label }) => redirect(history, '/monitor/service', { key, label })}
               />
             </Card>
           </Col>

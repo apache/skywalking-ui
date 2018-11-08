@@ -15,11 +15,11 @@
  * limitations under the License.
  */
 
-
 import React, { PureComponent } from 'react';
 import { Button, Row, Col, Divider, Form, DatePicker, Select } from 'antd';
-import moment from 'moment';
+import moment from 'moment-timezone';
 import styles from './index.less';
+import CurrentTimePanel from './currentTimePanel';
 
 const { Option } = Select;
 const FormItem = Form.Item;
@@ -43,6 +43,7 @@ const { RangePicker } = DatePicker;
   },
 })
 class DurationPanel extends PureComponent {
+
   constructor(props) {
     super(props);
 
@@ -52,37 +53,43 @@ class DurationPanel extends PureComponent {
       },
     };
     this.shortcuts = [
-      { ...now,
+      {
+        ...now,
         from() {
           return moment().subtract(15, 'minutes');
         },
         label: 'Last 15 minutes',
       },
-      { ...now,
+      {
+        ...now,
         from() {
           return moment().subtract(30, 'minutes');
         },
         label: 'Last 30 minutes',
       },
-      { ...now,
+      {
+        ...now,
         from() {
           return moment().subtract(1, 'hours');
         },
         label: 'Last 1 hour',
       },
-      { ...now,
+      {
+        ...now,
         from() {
           return moment().subtract(6, 'hours');
         },
         label: 'Last 6 hours',
       },
-      { ...now,
+      {
+        ...now,
         from() {
           return moment().subtract(12, 'hours');
         },
         label: 'Last 12 hours',
       },
-      { ...now,
+      {
+        ...now,
         from() {
           return moment().subtract(24, 'hours');
         },
@@ -90,37 +97,43 @@ class DurationPanel extends PureComponent {
       },
     ];
     this.shortcutsDays = [
-      { ...now,
+      {
+        ...now,
         from() {
           return moment().subtract(2, 'days');
         },
         label: 'Last 2 days',
       },
-      { ...now,
+      {
+        ...now,
         from() {
           return moment().subtract(7, 'days');
         },
         label: 'Last 7 days',
       },
-      { ...now,
+      {
+        ...now,
         from() {
           return moment().subtract(14, 'days');
         },
         label: 'Last 14 days',
       },
-      { ...now,
+      {
+        ...now,
         from() {
           return moment().subtract(30, 'days');
         },
         label: 'Last 30 days',
       },
-      { ...now,
+      {
+        ...now,
         from() {
           return moment().subtract(6, 'months');
         },
         label: 'Last 6 months',
       },
-      { ...now,
+      {
+        ...now,
         from() {
           return moment().subtract(12, 'months');
         },
@@ -128,14 +141,17 @@ class DurationPanel extends PureComponent {
       },
     ];
   }
+
   componentDidMount() {
     const { onSelected } = this.props;
     onSelected(this.shortcuts[0]);
   }
-  disabledDate = (current) => {
+
+  disabledDate = current => {
     return current && current.valueOf() >= Date.now();
-  }
-  handleSubmit = (e) => {
+  };
+
+  handleSubmit = e => {
     e.preventDefault();
 
     const { form } = this.props;
@@ -159,13 +175,27 @@ class DurationPanel extends PureComponent {
         this.select(selectedTime);
       }
     });
+  };
+
+  handleTimeZone = (zone) => {
+    this.props.dispatch({
+      type: 'global/changeTimezone',
+      payload: zone,
+    });
+    this.props.dispatch({
+      type: 'trace/changeTimezone',
+      payload: zone,
+    });
+    this.select(this.props.selected);
   }
-  select = (newSelectedTime) => {
+
+  select = newSelectedTime => {
     const { onSelected, selected } = this.props;
     onSelected({ ...selected, ...newSelectedTime });
-  }
+  };
+
   render() {
-    const { collapsed, form } = this.props;
+    const { collapsed, form, zone } = this.props;
     if (collapsed) {
       return null;
     }
@@ -182,78 +212,71 @@ class DurationPanel extends PureComponent {
     };
     const { getFieldDecorator } = form;
     const content = (
-      <Row type="flex" justify="end">
-        <Col xs={24} sm={24} md={24} lg={15} xl={14}>
-          <Form
-            onSubmit={this.handleSubmit}
-            hideRequiredMark
-          >
-            <FormItem
-              {...formItemLayout}
-              label="Time Range"
-            >
-              {getFieldDecorator('range-time-picker')(
-                <RangePicker showTime disabledDate={this.disabledDate} format="YYYY-MM-DD HH:mm" />
-              )}
-            </FormItem>
-            <FormItem
-              {...formItemLayout}
-              label="Reloading every "
-            >
-              {getFieldDecorator('step')(
-                <Select style={{ width: 170 }}>
-                  <Option value="0">off</Option>
-                  <Option value="5000">5s</Option>
-                  <Option value="10000">10s</Option>
-                  <Option value="30000">30s</Option>
-                </Select>
-              )}
-            </FormItem>
-            <FormItem
-              wrapperCol={{ offset: 7 }}
-            >
-              <Button
-                type="primary"
-                htmlType="submit"
-              >
-                Apply
-              </Button>
-            </FormItem>
-          </Form>
-        </Col>
-        <Col xs={0} sm={0} md={0} lg={0} xl={1}><Divider type="vertical" style={{ height: 200 }} /></Col>
-        <Col xs={24} sm={24} md={4} lg={4} xl={4}>
-          <ul className={styles.list}>
-            {this.shortcutsDays.map(d => (
-              <li key={d.label}>
-                <a onClick={this.select.bind(this, d)}>
-                  {d.label}
-                </a>
-              </li>))
-            }
-          </ul>
-        </Col>
-        <Col xs={24} sm={24} md={4} lg={4} xl={4}>
-          <ul className={styles.list}>
-            {this.shortcuts.map(d => (
-              <li key={d.label}>
-                <a onClick={this.select.bind(this, d)}>
-                  {d.label}
-                </a>
-              </li>))
-            }
-          </ul>
-        </Col>
-      </Row>
+      <div>
+        <Row type="flex" justify="end">
+          <Select showSearch defaultValue={zone} size="small" style={{ width:150, marginRight: 10 }} onSelect={this.handleTimeZone}>
+            {moment.tz.names().map(_ => <Option key={_} value={_}>{_}</Option>)}
+          </Select>
+          <Button type="primary" icon="clock-circle" size="small" style={{ width:170 }}>
+            <CurrentTimePanel moment={moment} />
+          </Button>
+        </Row>
+        <Divider />
+        <Row type="flex" justify="end">
+          <Col xs={24} sm={24} md={24} lg={15} xl={14}>
+            <Form onSubmit={this.handleSubmit} hideRequiredMark>
+              <FormItem {...formItemLayout} label="Time Range">
+                {getFieldDecorator('range-time-picker')(
+                  <RangePicker showTime disabledDate={this.disabledDate} format="YYYY-MM-DD HH:mm" />
+                )}
+              </FormItem>
+              <FormItem {...formItemLayout} label="Reloading every ">
+                {getFieldDecorator('step')(
+                  <Select style={{ width: 170 }}>
+                    <Option value="0">off</Option>
+                    <Option value="5000">5s</Option>
+                    <Option value="10000">10s</Option>
+                    <Option value="30000">30s</Option>
+                  </Select>
+                )}
+              </FormItem>
+              <FormItem wrapperCol={{ offset: 7 }}>
+                <Button type="primary" htmlType="submit">
+                  Apply
+                </Button>
+              </FormItem>
+            </Form>
+          </Col>
+          <Col xs={0} sm={0} md={0} lg={0} xl={1}>
+            <Divider type="vertical" style={{ height: 200 }} />
+          </Col>
+          <Col xs={24} sm={24} md={4} lg={4} xl={4}>
+            <ul className={styles.list}>
+              {this.shortcutsDays.map(d => (
+                <li key={d.label}>
+                  <a onClick={this.select.bind(this, d)}>{d.label}</a>
+                </li>
+              ))}
+            </ul>
+          </Col>
+          <Col xs={24} sm={24} md={4} lg={4} xl={4}>
+            <ul className={styles.list}>
+              {this.shortcuts.map(d => (
+                <li key={d.label}>
+                  <a onClick={this.select.bind(this, d)}>{d.label}</a>
+                </li>
+              ))}
+            </ul>
+          </Col>
+        </Row>
+      </div>
     );
     return (
       <div className={styles.pageHeader}>
         <div className={styles.detail}>
           <div className={styles.main}>
             <div className={styles.row}>
-              <div className={styles.content}>
-                {content}
-              </div>
+              <div className={styles.content}>{content}</div>
             </div>
           </div>
         </div>
