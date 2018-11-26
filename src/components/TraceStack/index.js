@@ -26,14 +26,6 @@ import styles from './index.less';
 
 const { Description } = DescriptionList;
 
-const colors = [
-  '#1890FF',
-  '#F04864',
-  '#2FC25B',
-  '#FACC14',
-  '#13C2C2',
-  '#8543E0',
-];
 const height = 36;
 const margin = 10;
 const offX = 15;
@@ -51,12 +43,14 @@ class TraceStack extends PureComponent {
 
   componentWillMount() {
     const { spans } = this.props;
-    let colorIndex = 0;
+    const { colorMap } = this.state;
+    const serviceList = Array.from(new Set(spans.map(i => i.serviceCode)));
+    const sequentialScale = d3.scaleSequential()
+    .domain([0, serviceList.length])
+    .interpolator(d3.interpolateCool);
     spans.forEach((span) => {
-      const { colorMap } = this.state;
       if (!colorMap[span.serviceCode]) {
-        colorMap[span.serviceCode] = colors[colorIndex];
-        colorIndex = (colorIndex < colors.length - 1) ? (colorIndex + 1) : 0;
+        colorMap[span.serviceCode] = sequentialScale(serviceList.indexOf(span.serviceCode))
       }
       this.buildNode(span);
     });
@@ -67,6 +61,7 @@ class TraceStack extends PureComponent {
   }
 
   componentDidMount() {
+    
     this.state.width = this.axis.parentNode.clientWidth - 50;
     this.drawAxis();
     this.displayData();
@@ -171,7 +166,7 @@ class TraceStack extends PureComponent {
         .on('mouseout', () => { this.selectTimeline(container, false); })
         .on('click', () => { this.showSpanModal(node, position, container); });
 
-      bar.append('rect').attr('x', beginX).attr('y', beginY).attr('width', rectWith)
+      bar.append('rect').attr('x', beginX).attr('y', beginY).attr('width', rectWith + 0.1)
         .attr('height', rectHeight)
         .on('mouseover', () => { this.selectTimeline(container, true); })
         .on('mouseout', () => { this.selectTimeline(container, false); })
@@ -179,8 +174,13 @@ class TraceStack extends PureComponent {
         .style('fill', colorMap[serviceCode]);
 
       bar.append('text')
-        .attr('x', beginX + 5)
-        .attr('y', (index * height) + (height / 2))
+        .attr('x', () => {
+          if ((width - beginX) < (content.length * 5.2)) {
+            return beginX - content.length * 5.2 - 45
+          }
+          return beginX + 8;
+        })
+        .attr('y', (index * height) + (height / 2) - 2)
         .attr('class', styles.rectText)
         .on('mouseover', () => { this.selectTimeline(container, true); })
         .on('mouseout', () => { this.selectTimeline(container, false); })
