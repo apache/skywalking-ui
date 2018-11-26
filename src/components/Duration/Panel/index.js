@@ -178,15 +178,16 @@ class DurationPanel extends PureComponent {
   };
 
   handleTimeZone = (zone) => {
-    this.props.dispatch({
+    const {...propsData} = this.props;
+    propsData.dispatch({
       type: 'global/changeTimezone',
       payload: zone,
     });
-    this.props.dispatch({
+    propsData.dispatch({
       type: 'trace/changeTimezone',
       payload: zone,
     });
-    this.select(this.props.selected);
+    this.select(propsData.selected);
   }
 
   select = newSelectedTime => {

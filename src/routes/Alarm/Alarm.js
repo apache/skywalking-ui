@@ -44,9 +44,10 @@ const funcMap = {
 }))
 export default class Alarm extends PureComponent {
   componentDidMount() {
+    const {...propsData} = this.props;
     const { alarm: { variables: { values } } } = this.props;
     if (!values.scope) {
-      this.props.dispatch({
+      propsData.dispatch({
         type: 'alarm/saveVariables',
         payload: { values: {
           scope: 'Service',
@@ -57,7 +58,8 @@ export default class Alarm extends PureComponent {
   }
 
   handleSearch = (keyword) => {
-    this.props.dispatch({
+    const {...propsData} = this.props;
+    propsData.dispatch({
       type: 'alarm/saveVariables',
       payload: { values: {
         keyword,
@@ -67,7 +69,8 @@ export default class Alarm extends PureComponent {
   }
 
   handlePageChange = (pag) => {
-    this.props.dispatch({
+    const {...propsData} = this.props;
+    propsData.dispatch({
       type: 'alarm/saveVariables',
       payload: { values: {
         paging: {
@@ -80,7 +83,8 @@ export default class Alarm extends PureComponent {
   }
 
   changeScope = (scope) => {
-    this.props.dispatch({
+    const {...propsData} = this.props;
+    propsData.dispatch({
       type: 'alarm/saveVariables',
       payload: { values: {
         scope,
@@ -90,8 +94,9 @@ export default class Alarm extends PureComponent {
   }
 
   handleChange = (variables) => {
+    const {...propsData} = this.props;
     const { paging = defaultPaging } = variables;
-    this.props.dispatch({
+    propsData.dispatch({
       type: 'alarm/fetchData',
       payload: { variables: { ...variables, paging }, reducer: funcMap[variables.scope] },
     });
@@ -138,11 +143,12 @@ export default class Alarm extends PureComponent {
         />
       </div>
     );
+    const {...propsData} = this.props;
     const { alarm: { variables: { values }, data } } = this.props;
     return (
       <Panel
         variables={values}
-        globalVariables={this.props.globalVariables}
+        globalVariables={propsData.globalVariables}
         onChange={this.handleChange}
       >
         <Card

@@ -20,7 +20,7 @@ import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Row, Col, Form, Button, Icon, Select } from 'antd';
 import {
-  ChartCard, MiniArea, MiniBar, Sankey, Line, EndpointDeps,
+  ChartCard, MiniArea, MiniBar, Line, EndpointDeps,
 } from 'components/Charts';
 import { axisY, axisMY } from '../../utils/time';
 import { avgTS } from '../../utils/utils';
@@ -52,24 +52,27 @@ const { Option } = Select;
 })
 export default class Endpoint extends PureComponent {
   componentDidMount() {
-    this.props.dispatch({
+    const {...propsData} = this.props;
+    propsData.dispatch({
       type: 'endpoint/initOptions',
-      payload: { variables: this.props.globalVariables, reducer: 'saveServiceInfo' },
+      payload: { variables: propsData.globalVariables, reducer: 'saveServiceInfo' },
     });
   }
 
   componentWillUpdate(nextProps) {
-    if (nextProps.globalVariables.duration === this.props.globalVariables.duration) {
+    const {...propsData} = this.props;
+    if (nextProps.globalVariables.duration === propsData.globalVariables.duration) {
       return;
     }
-    this.props.dispatch({
+    propsData.dispatch({
       type: 'endpoint/initOptions',
       payload: { variables: nextProps.globalVariables, reducer: 'saveServiceInfo' },
     });
   }
 
   handleServiceSelect = (selected) => {
-    this.props.dispatch({
+    const {...propsData} = this.props;
+    propsData.dispatch({
       type: 'endpoint/save',
       payload: {
         variables: {
@@ -84,7 +87,8 @@ export default class Endpoint extends PureComponent {
   }
 
   handleSelect = (selected) => {
-    this.props.dispatch({
+    const {...propsData} = this.props;
+    propsData.dispatch({
       type: 'endpoint/save',
       payload: {
         variables: {
@@ -99,7 +103,8 @@ export default class Endpoint extends PureComponent {
   }
 
   handleChange = (variables) => {
-    const { variables: { values } } = this.props.endpoint;
+    const {...propsData} = this.props;
+    const { variables: { values } } = propsData.endpoint;
     if (!values.serviceId) {
       return;
     }
@@ -107,7 +112,7 @@ export default class Endpoint extends PureComponent {
     if (!endpointId) {
       return;
     }
-    this.props.dispatch({
+    propsData.dispatch({
       type: 'endpoint/fetchData',
       payload: { variables: {
         endpointId,
@@ -158,17 +163,18 @@ export default class Endpoint extends PureComponent {
   edgeWith = edge => edge.cpm;
 
   renderPanel = () => {
+    const {...propsData} = this.props;
     const { endpoint, duration } = this.props;
     const { variables: { values }, data } = endpoint;
     const { getEndpointResponseTimeTrend, getEndpointThroughputTrend,
-      getEndpointSLATrend, getEndpointTopology, queryBasicTraces } = data;
+      getEndpointSLATrend, queryBasicTraces } = data;
     if (!values.endpointId) {
       return null;
     }
     return (
       <Panel
         variables={data.endpointInfo}
-        globalVariables={this.props.globalVariables}
+        globalVariables={propsData.globalVariables}
         onChange={this.handleChange}
       >
         <Row gutter={8}>
@@ -216,7 +222,7 @@ export default class Endpoint extends PureComponent {
             >
               <Line
                 height={150}
-                data={axisMY(this.props.duration, [{ title: 'p99', value: data.getP99}, { title: 'p95', value: data.getP95}
+                data={axisMY(propsData.duration, [{ title: 'p99', value: data.getP99}, { title: 'p95', value: data.getP95}
                 , { title: 'p90', value: data.getP90}, { title: 'p75', value: data.getP75}, { title: 'p50', value: data.getP50}])}
               />
             </ChartCard>
@@ -244,7 +250,7 @@ export default class Endpoint extends PureComponent {
               <TraceList
                 data={queryBasicTraces.traces}
                 onClickTraceTag={this.handleShowTrace}
-                loading={this.props.loading}
+                loading={propsData.loading}
               />
             </ChartCard>
           </Col>

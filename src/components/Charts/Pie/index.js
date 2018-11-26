@@ -42,12 +42,14 @@ export default class Pie extends Component {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (this.props.data !== nextProps.data) {
+    const {...propsData} = this.props;
+    const {...stateData} = this.state;
+    if (propsData.data !== nextProps.data) {
       // because of charts data create when rendered
       // so there is a trick for get rendered time
       this.setState(
         {
-          legendData: [...this.state.legendData],
+          legendData: [...stateData.legendData],
         },
         () => {
           this.getLengendData();
@@ -84,28 +86,6 @@ export default class Pie extends Component {
     });
   };
 
-  // for window resize auto responsive legend
-  @Bind()
-  @Debounce(300)
-  resize() {
-    const { hasLegend } = this.props;
-    if (!hasLegend || !this.root) {
-      window.removeEventListener('resize', this.resize);
-      return;
-    }
-    if (this.root.parentNode.clientWidth <= 380) {
-      if (!this.state.legendBlock) {
-        this.setState({
-          legendBlock: true,
-        });
-      }
-    } else if (this.state.legendBlock) {
-      this.setState({
-        legendBlock: false,
-      });
-    }
-  }
-
   handleRoot = n => {
     this.root = n;
   };
@@ -127,6 +107,29 @@ export default class Pie extends Component {
       legendData,
     });
   };
+
+// for window resize auto responsive legend
+@Bind()
+@Debounce(300)
+resize() {
+  const {...stateData} = this.state;
+  const { hasLegend } = this.props;
+  if (!hasLegend || !this.root) {
+    window.removeEventListener('resize', this.resize);
+    return;
+  }
+  if (this.root.parentNode.clientWidth <= 380) {
+    if (!stateData.legendBlock) {
+      this.setState({
+        legendBlock: true,
+      });
+    }
+  } else if (stateData.legendBlock) {
+    this.setState({
+      legendBlock: false,
+    });
+  }
+}
 
   render() {
     const {
@@ -151,11 +154,11 @@ export default class Pie extends Component {
       [styles.hasLegend]: !!hasLegend,
       [styles.legendBlock]: legendBlock,
     });
-
+    const {...propsData} = this.props;
     const defaultColors = colors;
-    let data = this.props.data || [];
-    let selected = this.props.selected || true;
-    let tooltip = this.props.tooltip || true;
+    let data = propsData.data || [];
+    let selected = propsData.selected || true;
+    let tooltip = propsData.tooltip || true;
     let formatColor;
 
     const scale = {

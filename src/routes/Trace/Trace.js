@@ -29,13 +29,15 @@ import TraceTimeline from './TraceTimeline';
 }))
 export default class Trace extends PureComponent {
   handleGoBack = () => {
-    this.props.dispatch({
+    const {...propsData} = this.props;
+    propsData.dispatch({
       type: 'trace/hideTimeline',
     });
   }
 
   render() {
     const { trace: { data: { showTimeline } } } = this.props;
+    const {...propsData} = this.props;
     return (
       <div>
         {showTimeline ? (
@@ -50,22 +52,22 @@ export default class Trace extends PureComponent {
         <Row type="flex" justify="start">
           <Col span={showTimeline ? 0 : 24}>
             <TraceSearch
-              trace={this.props.trace}
-              duration={this.props.duration}
-              loading={this.props.loading}
-              globalVariables={this.props.globalVariables}
-              dispatch={this.props.dispatch}
-              zone={this.props.zone}
+              trace={propsData.trace}
+              duration={propsData.duration}
+              loading={propsData.loading}
+              globalVariables={propsData.globalVariables}
+              dispatch={propsData.dispatch}
+              zone={propsData.zone}
             />
           </Col>
           <Col span={showTimeline ? 24 : 0}>
             {showTimeline ? (
               <TraceTimeline
-                trace={this.props.trace}
-                duration={this.props.duration}
-                loading={this.props.loading}
-                globalVariables={this.props.globalVariables}
-                dispatch={this.props.dispatch}
+                trace={propsData.trace}
+                duration={propsData.duration}
+                loading={propsData.loading}
+                globalVariables={propsData.globalVariables}
+                dispatch={propsData.dispatch}
               />
             ) : null}
           </Col>

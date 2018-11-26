@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { PureComponent } from 'react';
+import { PureComponent } from 'react';
 
 class CurrentTimePanel extends PureComponent {
   state = {

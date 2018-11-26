@@ -36,14 +36,16 @@ export default class Search extends PureComponent {
   };
 
   componentDidMount() {
-    if (this.props.variables && Object.keys(this.props.variables).length > 0) {
-      this.originFetchServer('', this.props.value.key);
+    const {...propsData} = this.props;
+    if (propsData.variables && Object.keys(propsData.variables).length > 0) {
+      this.originFetchServer('', propsData.value.key);
     }
   }
 
   componentDidUpdate(prevProps) {
-    if (prevProps.variables !== this.props.variables) {
-      this.originFetchServer('', this.props.value.key);
+    const {...propsData} = this.props;
+    if (prevProps.variables !== propsData.variables) {
+      this.originFetchServer('', propsData.value.key);
     }
   }
 
@@ -52,6 +54,7 @@ export default class Search extends PureComponent {
       return;
     }
     const { url, query, variables = {}, transform } = this.props;
+    const {...stateData} = this.state;
     this.lastFetchId += 1;
     const fetchId = this.lastFetchId;
     this.setState({ data: [], fetching: true });
@@ -71,41 +74,43 @@ export default class Search extends PureComponent {
       }
       const list = body.data[Object.keys(body.data)[0]];
       this.setState({ data: transform ? list.map(transform) : list, fetching: false });
-      if (this.state.data.length < 1) {
+      if (stateData.data.length < 1) {
         return;
       }
       if (!key) {
-        this.handleSelect(this.state.data[0]);
+        this.handleSelect(stateData.data[0]);
         return;
       }
-      const option = this.state.data.find(_ => _.key === key);
+      const option = stateData.data.find(_ => _.key === key);
       if (!option) {
-        this.handleSelect(this.state.data[0]);
+        this.handleSelect(stateData.data[0]);
       }
     });
   };
 
   handleSelect = value => {
     const { onSelect } = this.props;
-    const selected = this.state.data.find(_ => _.key === value.key);
+    const { ...stateData } = this.state;
+    const selected = stateData.data.find(_ => _.key === value.key);
     onSelect(selected);
   };
 
   render() {
     const { placeholder, value } = this.props;
+    const { ...stateData } = this.state;
     return (
       <Select
         showSearch
         style={{ width: 600 }}
         placeholder={placeholder}
-        notFoundContent={this.state.fetching ? <Spin size="small" /> : null}
+        notFoundContent={stateData.fetching ? <Spin size="small" /> : null}
         filterOption={false}
         labelInValue
         onSelect={this.handleSelect.bind(this)}
         onSearch={this.fetchServer}
         value={value}
       >
-        {this.state.data.map(_ => {
+        {stateData.data.map(_ => {
           return (
             <Option key={_.key} value={_.key}>
               {_.label}

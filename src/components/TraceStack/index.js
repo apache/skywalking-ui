@@ -259,20 +259,22 @@ class TraceStack extends PureComponent {
   }
 
   selectTimeline = (container, isOver) => {
-    if (this.state.container === container) {
+    const {...stateData} = this.state;
+    if (stateData.container === container) {
       return;
     }
     container.attr('class', isOver ? styles.backgroud : styles.backgroudHide);
   }
 
   showSpanModal = (span, position, container) => {
+    const {...stateData} = this.state;
     const { container: old } = this.state;
     if (old) {
       old.attr('class', styles.backgroudHide);
     }
     container.attr('class', styles.backgroudSelected);
     this.setState({
-      ...this.state,
+      ...stateData,
       span,
       key: 'tags',
       position,
@@ -282,29 +284,31 @@ class TraceStack extends PureComponent {
 
   hideSpanModal = () => {
     const { container: old } = this.state;
+    const {...stateData} = this.state;
     if (old) {
       old.attr('class', styles.backgroudHide);
     }
     this.setState({
-      ...this.state,
+      ...stateData,
       span: {},
       container: undefined,
     });
   }
 
   resize = () => {
+    const {...stateData} = this.state;
     if (!this.axis) {
       return;
     }
-    this.state.width = this.axis.parentNode.clientWidth - 50;
-    if (!this.axis || this.state.width <= 0) {
+    this.setState({width:this.axis.parentNode.clientWidth - 50});
+    if (!this.axis || stateData.width <= 0) {
       return;
     }
     this.axis.innerHTML = '';
     this.duration.innerHTML = '';
     this.drawAxis();
     this.displayData();
-    this.setState({ ...this.state, span: {} });
+    this.setState({ ...stateData, span: {} });
   }
 
   renderTitle = (items) => {
@@ -400,7 +404,7 @@ class TraceStack extends PureComponent {
         </DescriptionList>);
     }
     const { top, left, width } = position;
-
+    const {...stateData} = this.state;
     const toolTipStyle = { position: 'absolute', top: top + 86 };
     if (contentList.logs) {
       toolTipStyle.left = 0;
@@ -440,7 +444,7 @@ class TraceStack extends PureComponent {
             style={toolTipStyle}
             extra={<Button type="primary" shape="circle" icon="close" ghost onClick={this.hideSpanModal} />}
           >
-            {contentList[this.state.key]}
+            {contentList[stateData.key]}
           </Card>
         ) : null}
       </div>
