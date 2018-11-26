@@ -25,21 +25,23 @@ export default class PromiseRender extends React.PureComponent {
   };
 
   async componentDidMount() {
-    this.props.promise
+    const {...propsData} =  this.props;
+      propsData.promise
       .then(() => {
         this.setState({
-          component: this.props.ok,
+          component: propsData.ok,
         });
       })
       .catch(() => {
         this.setState({
-          component: this.props.error,
+          component: propsData.error,
         });
       });
   }
 
   render() {
-    const C = this.state.component;
+    const {...stateData} =  this.state;
+    const C = stateData.component;
     return C ? (
       <C {...this.props} />
     ) : (

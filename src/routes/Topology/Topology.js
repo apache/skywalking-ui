@@ -155,20 +155,21 @@ export default class Topology extends PureComponent {
   }
 
   renderActions = () => {
-    const { data: { appInfo } } = this.props.topology;
+    const {...propsData} = this.props;
+    const { data: { appInfo } } = propsData.topology;
     return [
-      <Icon type="appstore" onClick={() => redirect(this.props.history, '/monitor/service', { key: appInfo.id, label: appInfo.name })} />,
+      <Icon type="appstore" onClick={() => redirect(propsData.history, '/monitor/service', { key: appInfo.id, label: appInfo.name })} />,
       <Icon
         type="exception"
-        onClick={() => redirect(this.props.history, '/trace',
+        onClick={() => redirect(propsData.history, '/trace',
         { values: {
             serviceId: appInfo.id,
-            duration: { ...this.props.duration, input: this.props.globalVariables.duration },
+            duration: { ...propsData.duration, input: propsData.globalVariables.duration },
           },
           labels: { applicationId: appInfo.name },
         })}
       />,
-      appInfo.isAlarm ? <Icon type="bell" onClick={() => redirect(this.props.history, '/monitor/alarm')} /> : null,
+      appInfo.isAlarm ? <Icon type="bell" onClick={() => redirect(propsData.history, '/monitor/alarm')} /> : null,
     ];
   }
 
@@ -187,7 +188,8 @@ export default class Topology extends PureComponent {
   }
 
   render() {
-    const { data, variables: { appRegExps, appFilters = [], latencyRange } } = this.props.topology;
+    const {...propsData} = this.props;
+    const { data, variables: { appRegExps, appFilters = [], latencyRange } } = propsData.topology;
     const { metrics, layout = 0 } = data;
     const { getGlobalTopology: topologData } = data;
     const content = (
@@ -198,7 +200,7 @@ export default class Topology extends PureComponent {
       </div>
     );
     return (
-      <Panel globalVariables={this.props.globalVariables} onChange={this.handleChange}>
+      <Panel globalVariables={propsData.globalVariables} onChange={this.handleChange}>
         <Row gutter={8}>
           <Col {...{ ...colResponsiveProps, xl: 18, lg: 16 }}>
             <ChartCard
@@ -215,7 +217,7 @@ export default class Topology extends PureComponent {
             >
               {topologData.nodes.length > 0 ? (
                 <AppTopology
-                  height={this.props.graphHeight}
+                  height={propsData.graphHeight}
                   elements={topologData}
                   metrics={metrics}
                   onSelectedApplication={this.handleSelectedApplication}

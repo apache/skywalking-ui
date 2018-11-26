@@ -90,7 +90,7 @@ export default class AppTopology extends Base {
     const layer = cy.cyCanvas();
     const canvas = layer.getCanvas();
     
-    cy.on('render cyCanvas.resize', (evt) => {
+    cy.on('render cyCanvas.resize', () => {
       const ctx = canvas.getContext('2d');
       layer.resetTransform(ctx);
       layer.clear(ctx);

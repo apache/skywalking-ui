@@ -40,8 +40,10 @@ function generator({ defaultProps, defaultRules, type }) {
       }
 
       componentDidMount() {
-        if (this.context.updateActive) {
-          this.context.updateActive(this.props.name);
+        const {...contextData} = this.context;
+        const {...propsData} = this.props;
+        if (contextData.updateActive) {
+          contextData.updateActive(propsData.name);
         }
       }
 
@@ -51,9 +53,10 @@ function generator({ defaultProps, defaultRules, type }) {
 
       onGetCaptcha = () => {
         let count = 59;
+        const {...propsData} = this.props;
         this.setState({ count });
-        if (this.props.onGetCaptcha) {
-          this.props.onGetCaptcha();
+        if (propsData.onGetCaptcha) {
+          propsData.onGetCaptcha();
         }
         this.interval = setInterval(() => {
           count -= 1;
@@ -65,7 +68,8 @@ function generator({ defaultProps, defaultRules, type }) {
       };
 
       render() {
-        const { getFieldDecorator } = this.context.form;
+        const {...contextData} = this.context;
+        const { getFieldDecorator } = contextData.form;
         const options = {};
         let otherProps = {};
         const { onChange, defaultValue, rules, name, ...restProps } = this.props;

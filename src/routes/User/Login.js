@@ -30,8 +30,9 @@ const { UserName, Password, Submit } = Login;
 }))
 export default class LoginPage extends Component {
   handleSubmit = (err, values) => {
+    const {...propsData} = this.props;
     if (!err) {
-      this.props.dispatch({
+      propsData.dispatch({
         type: 'login/login',
         payload: {
           ...values,
