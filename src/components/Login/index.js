@@ -46,26 +46,28 @@ class Login extends Component {
   };
 
   state = {
-    type: this.props.defaultActiveKey,
+    type: '',
     tabs: [],
     active: {},
   };
 
   getChildContext() {
+    const {...stateData} = this.state;
+    const {...propsData} = this.props;
     return {
       tabUtil: {
         addTab: (id) => {
           this.setState({
-            tabs: [...this.state.tabs, id],
+            tabs: [...stateData.tabs, id],
           });
         },
         removeTab: (id) => {
           this.setState({
-            tabs: this.state.tabs.filter(currentId => currentId !== id),
+            tabs: stateData.tabs.filter(currentId => currentId !== id),
           });
         },
       },
-      form: this.props.form,
+      form: propsData.form,
       updateActive: (activeItem) => {
         const { type, active } = this.state;
         if (active[type]) {
@@ -80,19 +82,26 @@ class Login extends Component {
     };
   }
 
+  componentWillMount() {
+    const {...propsData} = this.props;
+    this.setState({ type: propsData.defaultActiveKey });
+  };
+
   onSwitch = (type) => {
+    const {...propsData} = this.props;
     this.setState({
       type,
     });
-    this.props.onTabChange(type);
+    propsData.onTabChange(type);
   };
 
   handleSubmit = (e) => {
     e.preventDefault();
+    const {...propsData} = this.props;
     const { active, type } = this.state;
     const activeFileds = active[type];
-    this.props.form.validateFields(activeFileds, { force: true }, (err, values) => {
-      this.props.onSubmit(err, values);
+    propsData.form.validateFields(activeFileds, { force: true }, (err, values) => {
+      propsData.onSubmit(err, values);
     });
   };
 

@@ -27,11 +27,12 @@ export default class Panel extends Component {
   }
 
   shouldComponentUpdate(nextProps) {
+    const {...propsData} = this.props;
     const { globalVariables, variables, onChange } = nextProps;
     if (!this.isRender(nextProps)) {
       return false;
     }
-    if (globalVariables !== this.props.globalVariables || variables !== this.props.variables) {
+    if (globalVariables !== propsData.globalVariables || variables !== propsData.variables) {
       onChange({ ...globalVariables, ...variables });
       return false;
     }

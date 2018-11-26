@@ -56,6 +56,7 @@ class HeatMap extends Component {
     reducedData.map((count, i) => ({ datetime, responseTime: i, count }));
 
   handlePlotClick = (dtStart, dtEnd, responseTime) => {
+    const {...propsData} = this.props
     const removedUnit = responseTime.slice(0, responseTime.indexOf('ms'));
     let min;
     let max;
@@ -66,7 +67,7 @@ class HeatMap extends Component {
       min = value - 100 < 0 ? 0 : value - 100;
       max = value;
     }
-    this.props.onClick({ start: dtStart, end: dtEnd }, { min, max });
+    propsData.onClick({ start: dtStart, end: dtEnd }, { min, max });
   };
 
   render() {

@@ -52,7 +52,8 @@ export default class SiderMenu extends PureComponent {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.location.pathname !== this.props.location.pathname) {
+    const {...propsData} = this.props;
+    if (nextProps.location.pathname !== propsData.location.pathname) {
       this.setState({
         openKeys: this.getDefaultCollapsedSubMenus(nextProps),
       });
@@ -126,6 +127,7 @@ export default class SiderMenu extends PureComponent {
   * @memberof SiderMenu
   */
   getMenuItemPath = (item) => {
+    const {...propsData} = this.props;
     const itemPath = this.conversionPath(item.path);
     const icon = getIcon(item.icon);
     const { target, name } = item;
@@ -141,8 +143,8 @@ export default class SiderMenu extends PureComponent {
       <Link
         to={itemPath}
         target={target}
-        replace={itemPath === this.props.location.pathname}
-        onClick={() => this.props.onCollapse(true)}
+        replace={itemPath === propsData.location.pathname}
+        onClick={() => propsData.onCollapse(true)}
       >
         {icon}<span>{name}</span>
       </Link>
@@ -206,8 +208,9 @@ export default class SiderMenu extends PureComponent {
 
   // permission to check
   checkPermissionItem = (authority, ItemDom) => {
-    if (this.props.Authorized && this.props.Authorized.check) {
-      const { check } = this.props.Authorized;
+    const {...propsData} = this.props;
+    if (propsData.Authorized && propsData.Authorized.check) {
+      const { check } = propsData.Authorized;
       return check(
         authority,
         ItemDom

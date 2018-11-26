@@ -90,6 +90,7 @@ class BasicLayout extends React.PureComponent {
   }
 
   componentWillUpdate(nextProps) {
+    const {...propsData} = this.props;
     const { globalVariables: { duration }, isMonitor } = nextProps;
     if (!isMonitor) {
       return;
@@ -101,7 +102,7 @@ class BasicLayout extends React.PureComponent {
     if (duration === preDuration) {
       return;
     }
-    this.props.dispatch({
+    propsData.dispatch({
       type: 'global/fetchNotice',
       payload: { variables: { duration } },
     });
@@ -133,20 +134,23 @@ class BasicLayout extends React.PureComponent {
   }
 
   handleDurationToggle = () => {
-    this.props.dispatch({
+    const {...propsData} = this.props;
+    propsData.dispatch({
       type: 'global/changeDurationCollapsed',
-      payload: this.props.duration.collapsed,
+      payload: propsData.duration.collapsed,
     });
   }
 
   handleDurationReload = () => {
-    this.props.dispatch({
+    const {...propsData} = this.props;
+    propsData.dispatch({
       type: 'global/reloadDuration',
     });
   }
 
   handleDurationSelected = (selectedDuration) => {
-    this.props.dispatch({
+    const {...propsData} = this.props;
+    propsData.dispatch({
       type: 'global/changeDuration',
       payload: selectedDuration,
     });
@@ -161,27 +165,30 @@ class BasicLayout extends React.PureComponent {
   }
 
   handleMenuCollapse = (collapsed) => {
-    this.props.dispatch({
+    const {...propsData} = this.props;
+    propsData.dispatch({
       type: 'global/changeLayoutCollapsed',
       payload: collapsed,
     });
   }
 
   handleMenuClick = ({ key }) => {
+    const {...propsData} = this.props;
     if (key === 'triggerError') {
-      this.props.dispatch(routerRedux.push('/exception/trigger'));
+      propsData.dispatch(routerRedux.push('/exception/trigger'));
       return;
     }
     if (key === 'logout') {
-      this.props.dispatch({
+      propsData.dispatch({
         type: 'login/logout',
       });
     }
   }
 
   handleNoticeVisibleChange = (visible) => {
+    const {...propsData} = this.props;
     if (visible) {
-      this.props.dispatch({
+      propsData.dispatch({
         type: 'global/fetchNotices',
       });
     }
@@ -196,6 +203,7 @@ class BasicLayout extends React.PureComponent {
   }
 
   render() {
+    const {...propsData} = this.props;
     const {
       isMonitor, collapsed, fetching, notices, routerData, match, location, zone,
       duration: { selected: dSelected, collapsed: dCollapsed },
@@ -235,7 +243,7 @@ class BasicLayout extends React.PureComponent {
               onSelected={this.handleDurationSelected}
               collapsed={dCollapsed}
               zone={zone}
-              dispatch={this.props.dispatch}
+              dispatch={propsData.dispatch}
             />
           ) : null}
           <Content style={{ margin: '24px 24px 0', height: '100%' }}>

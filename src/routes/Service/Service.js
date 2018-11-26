@@ -57,24 +57,27 @@ const middleColResponsiveProps = {
 })
 export default class Service extends PureComponent {
   componentDidMount() {
-    this.props.dispatch({
+    const {...propsData} = this.props;
+    propsData.dispatch({
       type: 'service/initOptions',
-      payload: { variables: this.props.globalVariables },
+      payload: { variables: propsData.globalVariables },
     });
   }
 
   componentWillUpdate(nextProps) {
-    if (nextProps.globalVariables.duration === this.props.globalVariables.duration) {
+    const {...propsData} = this.props;
+    if (nextProps.globalVariables.duration === propsData.globalVariables.duration) {
       return;
     }
-    this.props.dispatch({
+    propsData.dispatch({
       type: 'service/initOptions',
       payload: { variables: nextProps.globalVariables },
     });
   }
 
   handleSelect = (selected) => {
-    this.props.dispatch({
+    const {...propsData} = this.props;
+    propsData.dispatch({
       type: 'service/saveVariables',
       payload: {
         values: { serviceId: selected.key },
@@ -84,11 +87,12 @@ export default class Service extends PureComponent {
   }
 
   handleChange = (variables) => {
-    const { data: { serviceInstanceInfo, showServiceInstance } } = this.props.service;
+    const {...propsData} = this.props;
+    const { data: { serviceInstanceInfo, showServiceInstance } } = propsData.service;
     if (showServiceInstance) {
       this.handleSelectServiceInstance(serviceInstanceInfo.key, serviceInstanceInfo);
     } else {
-      this.props.dispatch({
+      propsData.dispatch({
         type: 'service/fetchData',
         payload: { variables, reducer: 'saveService' },
       });
@@ -96,28 +100,32 @@ export default class Service extends PureComponent {
   }
 
   handleGoService = () => {
-    this.props.dispatch({
+    const {...propsData} = this.props;
+    propsData.dispatch({
       type: 'service/hideServiceInstance',
     });
   }
 
   handleGoServiceInstance = () => {
-    this.props.dispatch({
+    const {...propsData} = this.props;
+    propsData.dispatch({
       type: 'service/showServiceInstance',
     });
   }
 
   handleSelectServiceInstance = (serviceInstanceId, serviceInstanceInfo) => {
+    const {...propsData} = this.props;
     const { globalVariables: { duration } } = this.props;
-    this.props.dispatch({
+    propsData.dispatch({
       type: 'service/fetchServiceInstance',
       payload: { variables: { duration, serviceInstanceId }, serviceInstanceInfo },
     });
   }
 
   renderApp = () => {
-    const { getFieldDecorator } = this.props.form;
-    const { variables: { values, options, labels }, data } = this.props.service;
+    const {...propsData} = this.props;
+    const { getFieldDecorator } = propsData.form;
+    const { variables: { values, options, labels }, data } = propsData.service;
     return (
       <div>
         <Form layout="inline">
@@ -139,7 +147,7 @@ export default class Service extends PureComponent {
         </Form>
         <Panel
           variables={values}
-          globalVariables={this.props.globalVariables}
+          globalVariables={propsData.globalVariables}
           onChange={this.handleChange}
         >
           <Row gutter={0}>
@@ -168,7 +176,7 @@ export default class Service extends PureComponent {
                 <ServiceInstanceLitePanel
                   data={data}
                   serviceInstanceList={data.getServiceInstances}
-                  duration={this.props.duration}
+                  duration={propsData.duration}
                   onSelectServiceInstance={this.handleSelectServiceInstance}
                   onMoreServiceInstance={this.handleGoServiceInstance}
                 />
@@ -183,7 +191,7 @@ export default class Service extends PureComponent {
                 bodyStyle={{ padding: 5, height: 150}}
               >
                 <Line
-                  data={axisMY(this.props.duration, [{ title: 'p99', value: data.getP99}, { title: 'p95', value: data.getP95}
+                  data={axisMY(propsData.duration, [{ title: 'p99', value: data.getP99}, { title: 'p95', value: data.getP95}
                   , { title: 'p90', value: data.getP90}, { title: 'p75', value: data.getP75}, { title: 'p50', value: data.getP50}])}
                 />
               </Card>
@@ -212,7 +220,7 @@ export default class Service extends PureComponent {
                 <RankList
                   data={data.getSlowEndpoint}
                   renderValue={_ => `${_.value} ms`}
-                  onClick={(key, item) => redirect(this.props.history, '/monitor/endpoint', { key,
+                  onClick={(key, item) => redirect(propsData.history, '/monitor/endpoint', { key,
                     label: item.label,
                     serviceId: values.serviceId,
                     serviceName: labels.serviceId })}
@@ -226,7 +234,7 @@ export default class Service extends PureComponent {
   }
 
   render() {
-    const { service, duration } = this.props;
+    const { globalVariables, service, duration } = this.props;
     const { variables, data } = service;
     const { showServiceInstance, serviceInstanceInfo } = data;
     return (
@@ -244,7 +252,7 @@ export default class Service extends PureComponent {
             </Breadcrumb>
             <Panel
               variables={variables.values}
-              globalVariables={this.props.globalVariables}
+              globalVariables={globalVariables}
               onChange={this.handleChange}
             >
               <ServiceInstance data={data} duration={duration} />

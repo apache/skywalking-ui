@@ -53,9 +53,10 @@ const initPaging = {
 })
 export default class Trace extends PureComponent {
   componentDidMount() {
+    const {...propsData} = this.props;
     const { trace: { variables: { values } } } = this.props;
     const { duration } = values;
-    this.props.dispatch({
+    propsData.dispatch({
       type: 'trace/initOptions',
       payload: { variables: { duration: duration.input } },
     });
@@ -103,7 +104,8 @@ export default class Trace extends PureComponent {
   }
 
   fetchData = (queryCondition, paging = initPaging) => {
-    this.props.dispatch({
+    const {...propsData} = this.props;
+    propsData.dispatch({
       type: 'trace/fetchData',
       payload: {
         variables: {
@@ -212,7 +214,8 @@ export default class Trace extends PureComponent {
   }
 
   renderForm() {
-    const { getFieldDecorator } = this.props.form;
+    const {...propsData} = this.props;
+    const { getFieldDecorator } = propsData.form;
     const { trace: { variables: { options } }, zone } = this.props;
     return (
       <Form onSubmit={this.handleSearch} layout="vertical">

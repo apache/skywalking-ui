@@ -35,8 +35,9 @@ export default class DurationIcon extends PureComponent {
   };
 
   renderLoad() {
+    const {...stateData} = this.state;
     const { loading, className, onReload } = this.props;
-    if (!loading && this.state.innerLoading < 1) {
+    if (!loading && stateData.innerLoading < 1) {
       this.state.innerLoading = -1;
       return (
         <span className={className} onClick={onReload}>
@@ -45,7 +46,7 @@ export default class DurationIcon extends PureComponent {
         </span>
       );
     }
-    if (this.state.innerLoading < 0) {
+    if (stateData.innerLoading < 0) {
       this.state.innerLoading = 1;
       lodash.delay(() => this.setState({ innerLoading: 0 }), 1000);
     }

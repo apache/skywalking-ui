@@ -42,6 +42,14 @@ class Area extends Component {
     window.removeEventListener('resize', this.resize);
   }
 
+  handleRoot = n => {
+    this.root = n;
+  };
+
+  handleRef = n => {
+    this.node = n;
+  };
+
   @Bind()
   @Debounce(200)
   resize() {
@@ -67,15 +75,7 @@ class Area extends Component {
       });
     }
   }
-
-  handleRoot = n => {
-    this.root = n;
-  };
-
-  handleRef = n => {
-    this.node = n;
-  };
-
+  
   render() {
     const { height, title, forceFit = true, data, color, limitColor } = this.props;
 
