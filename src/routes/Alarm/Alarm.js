@@ -112,7 +112,7 @@ export default class Alarm extends PureComponent {
     };
     return (
       <List
-        className="demo-loadmore-list"
+        className={styles.demoLoadmoreList}
         loading={loading}
         itemLayout="horizontal"
         dataSource={msgs}
@@ -135,13 +135,11 @@ export default class Alarm extends PureComponent {
 
   render() {
     const extraContent = (
-      <div className={styles.extraContent}>
-        <Search
-          className={styles.extraContentSearch}
-          placeholder="Search..."
-          onSearch={this.handleSearch}
-        />
-      </div>
+      <Search
+        className={styles.extraContentSearch}
+        placeholder="Search..."
+        onSearch={this.handleSearch}
+      />
     );
     const {...propsData} = this.props;
     const { alarm: { variables: { values }, data } } = this.props;
