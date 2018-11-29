@@ -15,25 +15,24 @@
  * limitations under the License.
  */
 
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { Select, Spin } from 'antd';
 import debounce from 'lodash.debounce';
 import request from '../../../utils/request';
 
 const { Option } = Select;
 
-export default class Search extends PureComponent {
+export default class Search extends Component {
   constructor(props) {
     super(props);
     this.lastFetchId = 0;
     this.originFetchServer = this.fetchServer;
     this.fetchServer = debounce(this.fetchServer, 800);
+    this.state = {
+      data: [],
+      fetching: false,
+    };
   }
-
-  state = {
-    data: [],
-    fetching: false,
-  };
 
   componentDidMount() {
     const {...propsData} = this.props;
@@ -54,7 +53,6 @@ export default class Search extends PureComponent {
       return;
     }
     const { url, query, variables = {}, transform } = this.props;
-    const {...stateData} = this.state;
     this.lastFetchId += 1;
     const fetchId = this.lastFetchId;
     this.setState({ data: [], fetching: true });
@@ -73,25 +71,26 @@ export default class Search extends PureComponent {
         return;
       }
       const list = body.data[Object.keys(body.data)[0]];
+      const that = this;
       this.setState({ data: transform ? list.map(transform) : list, fetching: false });
-      if (stateData.data.length < 1) {
+      if (that.state.data.length < 1) {
         return;
       }
       if (!key) {
-        this.handleSelect(stateData.data[0]);
+        this.handleSelect(that.state.data[0]);
         return;
       }
-      const option = stateData.data.find(_ => _.key === key);
+      const option = that.state.data.find(_ => _.key === key);
       if (!option) {
-        this.handleSelect(stateData.data[0]);
+        this.handleSelect(that.state.data[0]);
       }
     });
   };
 
   handleSelect = value => {
     const { onSelect } = this.props;
-    const { ...stateData } = this.state;
-    const selected = stateData.data.find(_ => _.key === value.key);
+    const that = this;
+    const selected = that.state.data.find(_ => _.key === value.key);
     onSelect(selected);
   };
 
