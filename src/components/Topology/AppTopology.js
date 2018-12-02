@@ -104,7 +104,7 @@ export default class AppTopology extends Base {
         const colors = ["#cf1322", "#40a9ff"];
         const nodeId = node.id();
         const nodeSla = slaValues.find(_ => _.id === nodeId);
-        let sla = 100;
+        let sla = 10000;
         if (nodeSla) {
           sla = nodeSla.value;
         }
@@ -119,7 +119,7 @@ export default class AppTopology extends Base {
 
         ctx.translate(pos.x, pos.y);
 
-        const arcs = pie([100 - sla, sla]);
+        const arcs = pie([10000 - sla, sla]);
 
         arcs.forEach((d, i) => {
           ctx.beginPath();
