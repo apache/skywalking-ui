@@ -20,13 +20,13 @@ import React, { PureComponent } from 'react';
 import { connect } from 'dva';
 import { Row, Col, Select, Card, Form, Breadcrumb } from 'antd';
 import { AppTopology } from 'components/Topology';
-import { Line } from 'components/Charts';
+import { Line, ChartCard, MiniArea, MiniBar } from 'components/Charts';
 import { Panel } from 'components/Page';
 import RankList from 'components/RankList';
 import ServiceInstanceLitePanel from 'components/ServiceInstanceLitePanel';
 import ServiceInstance from './ServiceInstance';
-import { getServiceInstanceId, redirect } from '../../utils/utils';
-import { axisMY } from '../../utils/time';
+import { getServiceInstanceId, redirect, avgTS } from '../../utils/utils';
+import { axisY, axisMY } from '../../utils/time';
 
 const { Option } = Select;
 const { Item: FormItem } = Form;
@@ -124,8 +124,10 @@ export default class Service extends PureComponent {
 
   renderApp = () => {
     const {...propsData} = this.props;
+    const { duration } = this.props;
     const { getFieldDecorator } = propsData.form;
     const { variables: { values, options, labels }, data } = propsData.service;
+    const { getResponseTimeTrend, getThroughputTrend, getSLATrend } = data;
     return (
       <div>
         <Form layout="inline">
@@ -181,6 +183,44 @@ export default class Service extends PureComponent {
                   onMoreServiceInstance={this.handleGoServiceInstance}
                 />
               </Card>
+            </Col>
+          </Row>
+          <Row gutter={8}>
+            <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 8 }}>
+              <ChartCard
+                title="Avg Throughput"
+                total={`${avgTS(getThroughputTrend.values)} cpm`}
+                contentHeight={46}
+              >
+                <MiniArea
+                  color="#975FE4"
+                  data={axisY(duration, getThroughputTrend.values)}
+                />
+              </ChartCard>
+            </Col>
+            <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 8 }}>
+              <ChartCard
+                title="Avg Response Time"
+                total={`${avgTS(getResponseTimeTrend.values)} ms`}
+                contentHeight={46}
+              >
+                <MiniArea
+                  data={axisY(duration, getResponseTimeTrend.values)}
+                />
+              </ChartCard>
+            </Col>
+            <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 8 }}>
+              <ChartCard
+                title="Avg SLA"
+                total={`${(avgTS(getSLATrend.values) / 100).toFixed(2)} %`}
+              >
+                <MiniBar
+                  animate={false}
+                  height={46}
+                  data={axisY(duration, getSLATrend.values,
+                    ({ x, y }) => ({ x, y: y / 100 }))}
+                />
+              </ChartCard>
             </Col>
           </Row>
           <Row>

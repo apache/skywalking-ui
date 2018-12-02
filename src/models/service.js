@@ -76,6 +76,30 @@ const dataQuery = `
         detectPoint
       }
     }
+    getResponseTimeTrend: getLinearIntValues(metric: {
+      name: "service_resp_time"
+      id: $serviceId
+    }, duration: $duration) {
+      values {
+        value
+      }
+    }
+    getThroughputTrend: getLinearIntValues(metric: {
+      name: "service_cpm"
+      id: $serviceId
+    }, duration: $duration) {
+      values {
+        value
+      }
+    }
+    getSLATrend: getLinearIntValues(metric: {
+      name: "service_sla"
+      id: $serviceId
+    }, duration: $duration) {
+      values {
+        value
+      }
+    }
     getP99: getLinearIntValues(metric: {
       name: "service_p99"
       id: $serviceId
@@ -221,6 +245,15 @@ export default base({
     getServiceTopology: {
       nodes: [],
       calls: [],
+    },
+    getResponseTimeTrend: {
+      values: [],
+    },
+    getThroughputTrend: {
+      values: [],
+    },
+    getSLATrend: {
+      values: [],
     },
     getP99: {
       values: [],
