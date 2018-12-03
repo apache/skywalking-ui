@@ -161,7 +161,7 @@ export default class Service extends PureComponent {
               >
                 <AppTopology
                   elements={data.getServiceTopology}
-                  height={335}
+                  height={460}
                   layout={{
                     name: 'dagre',
                     rankDir: 'LR',
@@ -173,7 +173,7 @@ export default class Service extends PureComponent {
             <Col {...{ ...middleColResponsiveProps, xl: 8, lg: 12, md: 24 }}>
               <Card
                 bordered={false}
-                bodyStyle={{ padding: '10px 10px', height: 391 }}
+                bodyStyle={{ padding: '10px 10px', height: 516 }}
               >
                 <ServiceInstanceLitePanel
                   data={data}
@@ -213,10 +213,10 @@ export default class Service extends PureComponent {
               <ChartCard
                 title="Avg SLA"
                 total={`${(avgTS(getSLATrend.values) / 100).toFixed(2)} %`}
+                contentHeight={46}
               >
                 <MiniBar
                   animate={false}
-                  height={46}
                   data={axisY(duration, getSLATrend.values,
                     ({ x, y }) => ({ x, y: y / 100 }))}
                 />

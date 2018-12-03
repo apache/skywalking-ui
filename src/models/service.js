@@ -161,6 +161,14 @@ query ServiceInstance($serviceInstanceId: ID!, $duration: Duration!) {
       value
     }
   }
+  getServiceInstanceSLA: getLinearIntValues(metric: {
+    name: "service_instance_sla"
+    id: $serviceInstanceId
+  }, duration: $duration) {
+    values {
+      value
+    }
+  }
   getCPUTrend: getLinearIntValues(metric: {
     name: "instance_jvm_cpu"
     id: $serviceInstanceId
@@ -277,6 +285,9 @@ export default base({
       values: [],
     },
     getServiceInstanceThroughputTrend: {
+      values: [],
+    },
+    getServiceInstanceSLA: {
       values: [],
     },
     getCPUTrend: {

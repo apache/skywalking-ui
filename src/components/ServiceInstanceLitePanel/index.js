@@ -36,7 +36,7 @@ export default class ServiceInstanceLitePanel extends PureComponent {
     if (serviceInstanceList.length < 1) {
       return null;
     }
-    const { serviceInstanceInfo, getServiceInstanceResponseTimeTrend, getServiceInstanceThroughputTrend } = data;
+    const { serviceInstanceInfo, getServiceInstanceResponseTimeTrend, getServiceInstanceThroughputTrend, getServiceInstanceSLA } = data;
     if (!serviceInstanceInfo.key) {
       onSelectServiceInstance(serviceInstanceList[0].key, serviceInstanceList[0]);
     }
@@ -64,7 +64,7 @@ export default class ServiceInstanceLitePanel extends PureComponent {
           </Col>
           <Col span={24}>
             <ChartCard
-              title="Avg Throughput"
+              title={`Ins:${serviceInstanceInfo.name} Throughput`}
               total={`${avgTS(getServiceInstanceThroughputTrend.values)} cpm`}
               contentHeight={46}
               bordered={false}
@@ -78,7 +78,7 @@ export default class ServiceInstanceLitePanel extends PureComponent {
           </Col>
           <Col span={24}>
             <ChartCard
-              title="Avg Response Time"
+              title={`Ins:${serviceInstanceInfo.name} Response Time`}
               total={`${avgTS(getServiceInstanceResponseTimeTrend.values)} ms`}
               contentHeight={46}
               bordered={false}
@@ -89,6 +89,23 @@ export default class ServiceInstanceLitePanel extends PureComponent {
                   animate={false}
                   color="#87cefa"
                   data={axisY(duration, getServiceInstanceResponseTimeTrend.values)}
+                />
+              ) : (<span style={{ display: 'none' }} />)}
+            </ChartCard>
+          </Col>
+          <Col span={24}>
+            <ChartCard
+              title={`Ins:${serviceInstanceInfo.name} SLA`}
+              total={`${(avgTS(getServiceInstanceSLA.values) / 100).toFixed(2)} %`}
+              contentHeight={46}
+              bordered={false}
+              bodyStyle={{ padding: 5 }}
+            >
+              {getServiceInstanceSLA.values.length > 0 ? (
+                <MiniBar
+                  animate={false}
+                  data={axisY(duration, getServiceInstanceSLA.values,
+                    ({ x, y }) => ({ x, y: y / 100 }))}
                 />
               ) : (<span style={{ display: 'none' }} />)}
             </ChartCard>

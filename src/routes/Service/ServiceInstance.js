@@ -33,7 +33,7 @@ export default class ServiceInstance extends PureComponent {
 
   render() {
     const { duration, data } = this.props;
-    const { serviceInstanceInfo, getServiceInstanceResponseTimeTrend, getServiceInstanceThroughputTrend,
+    const { serviceInstanceInfo, getServiceInstanceResponseTimeTrend, getServiceInstanceThroughputTrend, getServiceInstanceSLA,
       getCPUTrend, heap, maxHeap, noheap, maxNoheap, youngGCCount, oldGCCount, youngGCTime, oldGCTime } = data;
     const { attributes } = serviceInstanceInfo;
     return (
@@ -51,7 +51,7 @@ export default class ServiceInstance extends PureComponent {
           </Col>
           <Col xs={24} sm={24} md={24} lg={18} xl={18} style={{ marginTop: 8 }}>
             <Row gutter={8}>
-              <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 8 }}>
+              <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 8 }}>
                 <ChartCard
                   title="Avg Throughput"
                   total={`${avgTS(getServiceInstanceThroughputTrend.values)} cpm`}
@@ -63,7 +63,7 @@ export default class ServiceInstance extends PureComponent {
                   />
                 </ChartCard>
               </Col>
-              <Col xs={24} sm={24} md={24} lg={12} xl={12} style={{ marginTop: 8 }}>
+              <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 8 }}>
                 <ChartCard
                   title="Avg Response Time"
                   total={`${avgTS(getServiceInstanceResponseTimeTrend.values)} ms`}
@@ -74,6 +74,19 @@ export default class ServiceInstance extends PureComponent {
                       data={axisY(duration, getServiceInstanceResponseTimeTrend.values)}
                     />
                   ) : (<span style={{ display: 'none' }} />)}
+                </ChartCard>
+              </Col>
+              <Col xs={24} sm={24} md={24} lg={8} xl={8} style={{ marginTop: 8 }}>
+                <ChartCard
+                  title="Avg SLA"
+                  total={`${(avgTS(getServiceInstanceSLA.values) / 100).toFixed(2)} %`}
+                >
+                  <MiniBar
+                    animate={false}
+                    height={46}
+                    data={axisY(duration, getServiceInstanceSLA.values,
+                      ({ x, y }) => ({ x, y: y / 100 }))}
+                  />
                 </ChartCard>
               </Col>
             </Row>
