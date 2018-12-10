@@ -328,23 +328,6 @@ export default base({
       return history.listen(({ pathname, state }) => {
         if (pathname === '/monitor/endpoint' && state) {
           dispatch({
-            type: 'saveVariables',
-            payload: {
-              values: {
-                endpointId: state.key,
-              },
-              labels: {
-                endpointId: state.label,
-              },
-            },
-          });
-          dispatch({
-            type: 'saveData',
-            payload: {
-              endpointInfo: { key: state.key, label: state.label },
-            },
-          });
-          dispatch({
             type: 'fetchInfo',
             payload: {
               variables: {

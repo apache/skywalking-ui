@@ -264,6 +264,12 @@ export default class Endpoint extends PureComponent {
     const { getFieldDecorator } = form;
     const { variables: { options }, data } = endpoint;
     const { showTimeline, queryTrace, currentTraceId } = data;
+    if (!this.serviceInfo) {
+      this.serviceInfo = data.serviceInfo;
+    }
+    if (data.serviceInfo && this.serviceInfo.serviceId !== data.serviceInfo.serviceId) {
+      this.serviceInfo = data.serviceInfo;
+    }
     return (
       <div>
         {showTimeline ? (
@@ -293,14 +299,14 @@ export default class Endpoint extends PureComponent {
                   </Select>
                 )}
               </FormItem>
-              {data.serviceInfo && data.serviceInfo.serviceId  ? (
+              {this.serviceInfo && this.serviceInfo.serviceId  ? (
                 <FormItem>
                   {getFieldDecorator('endpointId')(
                     <Search
                       placeholder="Search a endpoint"
                       onSelect={this.handleSelect.bind(this)}
                       url="/graphql"
-                      variables={data.serviceInfo}
+                      variables={this.serviceInfo}
                       query={`
                         query SearchEndpoint($serviceId: ID!, $keyword: String!) {
                           searchEndpoint(serviceId: $serviceId, keyword: $keyword, limit: 10) {

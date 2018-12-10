@@ -31,7 +31,7 @@ export default {
     return data.array;
   },
   getAllEndpointTopN: () => {
-    const data =  mockjs.mock({ 'array|10': [{ 'id|+1': 1, name: '@name', 'value|200-1000': 1 }]});
+    const data =  mockjs.mock({ 'array|10': [{ 'id|+1': 100, name: '@name', 'value|200-1000': 1 }]});
     return data.array;
   },
 };
