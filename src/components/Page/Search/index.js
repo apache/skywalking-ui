@@ -37,53 +37,61 @@ export default class Search extends Component {
   componentDidMount() {
     const {...propsData} = this.props;
     if (propsData.variables && Object.keys(propsData.variables).length > 0) {
-      this.originFetchServer('', propsData.value.key);
+      this.originFetchServer('', propsData.value);
     }
   }
 
   componentDidUpdate(prevProps) {
     const {...propsData} = this.props;
     if (prevProps.variables !== propsData.variables) {
-      this.originFetchServer('', propsData.value.key);
+      this.originFetchServer('', propsData.value);
     }
   }
 
-  fetchServer = (value, key) => {
-    if (value === undefined) {
+  fetchServer = (keyword, value) => {
+    if (keyword === undefined) {
       return;
     }
     const { url, query, variables = {}, transform } = this.props;
-    this.lastFetchId += 1;
-    const fetchId = this.lastFetchId;
+    const that = this;
+    that.lastFetchId += 1;
+    const fetchId = that.lastFetchId;
     this.setState({ data: [], fetching: true });
     request(`/api${url}`, {
       method: 'POST',
       body: {
         variables: {
           ...variables,
-          keyword: value,
+          keyword,
         },
         query,
       },
     }).then(body => {
-      if (!body.data || fetchId !== this.lastFetchId) {
+      if (!body.data || fetchId !== that.lastFetchId) {
         // for fetch callback order
         return;
       }
       const list = body.data[Object.keys(body.data)[0]];
-      const that = this;
       this.setState({ data: transform ? list.map(transform) : list, fetching: false });
       if (that.state.data.length < 1) {
         return;
       }
-      if (!key) {
+      if (!value) {
+        return;
+      }
+      const { key, label } = value;
+      if (!key || key.length < 1) {
         this.handleSelect(that.state.data[0]);
         return;
       }
       const option = that.state.data.find(_ => _.key === key);
-      if (!option) {
-        this.handleSelect(that.state.data[0]);
+      if (option) {
+        return;
       }
+      const target = {key, label};
+      const newList = [...that.state.data, target];
+      this.setState({data: newList});
+      this.handleSelect(target);
     });
   };
 
