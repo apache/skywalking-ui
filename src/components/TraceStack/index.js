@@ -23,9 +23,11 @@ import moment from 'moment';
 import { formatDuration } from '../../utils/time';
 import DescriptionList from "../DescriptionList";
 import styles from './index.less';
+import TraceTree from '../TraceTree';
+
+const ButtonGroup = Button.Group;
 
 const { Description } = DescriptionList;
-
 const height = 36;
 const margin = 10;
 const offX = 15;
@@ -39,6 +41,7 @@ class TraceStack extends PureComponent {
     bap: [],
     span: {},
     key: 'tags',
+    treeMode: true,
   }
 
   componentWillMount() {
@@ -329,12 +332,14 @@ class TraceStack extends PureComponent {
   }
 
   render() {
+    const { spans } = this.props;
     const { colorMap, span = {}, position = { width: 100, top: 0 } } = this.state;
     const legendButtons = Object.keys(colorMap).map(key =>
       (<Tag color={colorMap[key]} key={key}>{key}</Tag>));
     const tabList = [];
     const contentList = {};
     if (span.content) {
+      
       tabList.push({
         key: 'tags',
         tab: 'Tags',
@@ -422,10 +427,20 @@ class TraceStack extends PureComponent {
     return (
       <div className={styles.stack}>
         <div style={{ paddingBottom: 10 }}>
+          <ButtonGroup>
+            <Button type={stateData.treeMode ? "primary": ""} onClick={() => this.setState({treeMode:true})}>TreeMode</Button>
+            <Button type={stateData.treeMode ? "": "primary"} onClick={() => this.setState({treeMode: false})}>ListMode</Button>
+          </ButtonGroup>
+        </div>
+       
+        <div style={{ paddingBottom: 10 }}>
           { legendButtons }
         </div>
-        <div className={styles.duration} ref={(el) => { this.duration = el; }} />
-        <div ref={(el) => { this.axis = el; }} />
+        <div style={{display: stateData.treeMode?'none':'block'}} className={styles.duration} ref={(el) => { this.duration = el; }} />
+        <div style={{display: stateData.treeMode?'none':'block'}} ref={(el) => { this.axis = el; }} />
+        <div style={{display: stateData.treeMode?'block':'none'}}>
+          <TraceTree showSpanModal={this.showSpanModal} data={spans} id="" />
+        </div>
         {tabList.length > 0 ? (
           <Card
             type="inner"
