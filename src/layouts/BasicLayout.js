@@ -275,7 +275,7 @@ class BasicLayout extends React.PureComponent {
             links={[{
               key: 'SkyWalking',
               title: 'Apache SkyWalking',
-              href: 'http://skywalking.io',
+              href: 'http://skywalking.apache.org',
               blankTarget: true,
             }, {
               key: 'GitHub',
