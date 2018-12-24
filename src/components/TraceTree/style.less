@@ -14,30 +14,79 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- :global(.trace-tree .node) {
+
+:global(.trace-tree) {
+  height: 1000px;
+}
+:global(.trace-tree .node) {
   cursor: pointer;
 }
- :global(.trace-tree .node circle) {
-    stroke: #8543e0aa;
-    stroke-width: 1.5px;
+:global(.trace-tree .node circle) {
+  stroke: #ddd;
+  stroke-width: 1.5px;
+}
+:global(.trace-tree .time-inner) {
+  cursor: pointer;
+}
+:global(.trace-tree .time-bg) {
+  fill: #fff;
+  cursor: pointer;
+}
+:global(.trace-tree .time:hover) {
+  :global(.time-bg){
+  fill: rgba(0, 0, 0, 0.1);
   }
+}
 :global(.trace-tree .node text) {
-    font: 12px sans-serif;
-    stroke-width: 0.5;
-  }
+  font-size: 12px;
+  font-family: 'Courier New', Courier, monospace;
+  stroke-width: 0.5;
+}
 :global(.trace-tree .node .block) {
-    width: 150px;
-    height: 34px;
-  }
+  width: 158px;
+  height: 40px;
+}
+:global(.trace-tree .node .content) {
+  width: 158px;
+  height: 20px;
+}
+:global(.trace-tree .node .service) {
+  width: 7px;
+  height: 41px;
+}
 :global(.trace-tree .link) {
-    fill: none;
-    stroke: #8543e055;
-    stroke-width: 2px;
-  }
+  fill: none;
+  stroke: #ddd;
+  stroke-width: 1.5px;
+}
 :global(.trace-tree .domain) {
-    opacity: 0;
-  }
-:global(.trace-tree .tooltip-box) {
-    fill: #333;
-    height: 20px !important;
-  }
+  opacity: 0;
+}
+:global(.d3-tip) {
+  line-height: 1;
+  padding: 6px;
+  background: rgba(0, 0, 0, 0.8);
+  color: #fff;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+/* Creates a small triangle extender for the tooltip */
+:global(.d3-tip:after) {
+  box-sizing: border-box;
+  display: inline;
+  font-size: 10px;
+  width: 100%;
+  line-height: 1;
+  color: rgba(0, 0, 0, 0.8);
+  content: '\25BC';
+  position: absolute;
+  text-align: center;
+}
+
+/* Style northward tooltips specifically */
+:global(.d3-tip.n:after) {
+  margin: -2px 0 0 0;
+  top: 100%;
+  left: 0;
+}

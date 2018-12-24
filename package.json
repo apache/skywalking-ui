@@ -43,6 +43,7 @@
     "cytoscape-cose-bilkent": "^4.0.0",
     "cytoscape-dagre": "^2.2.1",
     "d3": "^5.7.0",
+    "d3-tip": "^0.9.1",
     "dva": "^2.2.3",
     "dva-loading": "^2.0.3",
     "enquire-js": "^0.2.1",
