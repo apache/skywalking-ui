@@ -16,8 +16,11 @@
  */
 
 import React, { Component } from 'react';
+import { Button } from 'antd';
 import './style.less';
 import Tree from './d3-trace';
+
+const ButtonGroup = Button.Group;
 
 export default class Trace extends Component {
   constructor(props) {
@@ -94,23 +97,50 @@ export default class Trace extends Component {
       if(segmentGroup[i].refs.length ===0 )
       this.segmentId.push(segmentGroup[i]);
     }
-    this.tree = new Tree(this.echartsElement)
-    this.tree.draw({label:`${this.traceId}`, children: this.segmentId}, rowData,  propsData.showSpanModal);
+    this.topSlow = [];
+    this.topChild = [];
+
+    this.collapse(this.segmentId[0]);
+    this.topSlowMax = this.topSlow.sort().reverse()[0];
+    this.topSlowMin = this.topSlow.sort().reverse()[4];
+
+    this.topChildMax = this.topChild.sort().reverse()[0];
+    this.topChildMin = this.topChild.sort().reverse()[4];
+    this.tree = new Tree(this.echartsElement, propsData.showSpanModal, this.topSlowMax,this.topSlowMin,this.topChildMax,this.topChildMin)
+    this.tree.init({label:`${this.traceId}`, children: this.segmentId}, rowData);
+    this.tree.draw();
     this.resize = this.tree.resize.bind(this.tree);
   }
-
+  collapse(d) {
+    if(d.children){
+      const dur = d.endTime - d.startTime;
+      d.children.forEach(i => dur - i.endTime + i.startTime)
+      d.dur = dur;
+      this.topSlow.push(dur);
+      this.topChild.push(d.children.length);
+      d.childrenLength = d.children.length
+      d.children.forEach((i) => this.collapse(i));
+    }
+  }
   
   render() {
     const newStyle = {
-      height: 700,
+      height: 800,
       // ...style,
     };
     return (
-      <div
-        ref={(e) => { this.echartsElement = e; }}
-        style={newStyle}
-        className="trace-tree"
-      />
+      <div>
+        <ButtonGroup>
+            <Button onClick={() => {this.tree.setDefault();}}>Default</Button>
+            <Button onClick={() => {this.tree.topSlow();}}>TopSlow 5</Button>
+            <Button onClick={() => {this.tree.topChild();}}>TopSpan 5</Button>
+        </ButtonGroup>
+        <div
+          ref={(e) => { this.echartsElement = e; }}
+          style={newStyle}
+          className="trace-tree"
+        />
+      </div>
     )
   }
 }
