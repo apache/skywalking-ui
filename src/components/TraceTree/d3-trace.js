@@ -124,6 +124,7 @@ export default class TraceMap {
       return d.id|| (d.id = ++this.i);
     });
     // node
+    const that = this;
     const nodeEnter = node
       .enter()
       .append('g')
@@ -169,6 +170,16 @@ export default class TraceMap {
       .attr('x', '-0.5')
       .attr('y', '-20.5')
       .style('fill', d => `${this.sequentialScale(this.list.indexOf(d.data.serviceCode))}`);
+    nodeEnter
+      .append('rect')
+      .attr('class', 'service')
+      .attr('x', '-0.5')
+      .attr('y', '-20.5')
+      .style(
+        'fill',
+        d =>
+          `${this.sequentialScale(this.list.indexOf(d.data.serviceCode))}`
+      );
     nodeEnter
       .append('text')
       .attr('dy', 13)
@@ -384,7 +395,9 @@ export default class TraceMap {
       .on('zoom', () => {
         g.attr(
           'transform',
-          `translate(${d3.event.transform.x},${d3.event.transform.y})scale(${d3.event.transform.k})`
+          `translate(${d3.event.transform.x},${d3.event.transform.y})scale(${
+            d3.event.transform.k
+          })`
         );
       });
   }
