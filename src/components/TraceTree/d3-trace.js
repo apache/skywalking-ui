@@ -118,7 +118,6 @@ export default class TraceMap {
     this.update(this.root);
   }
   update(source) {
-    const that = this;
     const links = this.nodes.slice(1);
     const node = this.svg.selectAll('g.node').data(this.nodes, d => {
       return d.id|| (d.id = ++this.i);
