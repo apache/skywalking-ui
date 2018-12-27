@@ -45,11 +45,11 @@ export default class TraceMap {
       .attr('height', this.height);
     this.tip = d3tip()
       .attr('class', 'd3-tip')
-      .offset([-10, 0])
+      .offset([10, 0])
       .html(d => d.data.label);
     this.timeTip = d3tip()
       .attr('class', 'd3-tip')
-      .offset([-10, 0])
+      .offset([-8, 0])
       .html(d => d.data.label);
     this.body.call(this.timeTip);
     this.body.call(this.tip);
@@ -151,7 +151,44 @@ export default class TraceMap {
         );
         d3.event.stopPropagation();
       });
-
+    const nodeSelfDur = nodeEnter
+      .append('g')
+      .style('opacity', 0)
+      .attr('class','trace-tree-node-selfdur')
+      .attr('transform', 'translate(0,-39)')
+    nodeSelfDur
+      .append('rect')
+      .attr('width', 65)
+      .attr('height', 16)
+      .attr('rx', 3)
+      .attr('ry', 3)
+      .attr('fill', '#333')
+    nodeSelfDur
+      .append('text')
+      .attr('dx', 5)
+      .attr('dy', 11)
+      .text(d=> {
+        return d.data.dur + ' ms'
+      })
+      .attr('fill', '#fff');
+    const nodeSelfChild = nodeEnter
+      .append('g')
+      .style('opacity', 0)
+      .attr('class','trace-tree-node-selfchild')
+      .attr('transform', 'translate(0,-39)')
+      nodeSelfChild
+      .append('rect')
+      .attr('width', 110)
+      .attr('height', 16)
+      .attr('rx', 3)
+      .attr('ry', 3)
+      .attr('fill', '#333')
+      nodeSelfChild
+      .append('text')
+      .attr('dx', 5)
+      .attr('dy', 11)
+      .text(d=> `children: ${d.data.childrenLength}`)
+      .attr('fill', '#fff') 
     nodeEnter
       .append('rect')
       .attr('class', 'block')
@@ -342,6 +379,23 @@ export default class TraceMap {
       )
       .attr('y', -3)
       .style('fill', d => `${this.sequentialScale(this.list.indexOf(d.data.serviceCode))}`);
+    timeEnter
+      .append('rect')
+      .style('opacity',0)
+      .attr('class', 'time-inner-duration')
+      .attr('height', 8)
+      .attr('width', d => {
+        if (!d.data.dur) return 1;
+        return this.xScale(d.data.dur) + 1;
+      })
+      .attr('rx', 2)
+      .attr('ry', 2)
+      .attr(
+        'x',
+        d => (!d.data.endTime || !d.data.startTime ? 0 : this.xScale(d.data.startTime - this.min))
+      )
+      .attr('y', -3)
+      .style('fill', d => `${this.sequentialScale(this.list.indexOf(d.data.serviceCode))}`);
 
     this.timeUpdate = timeEnter.merge(timeNode);
     this.timeUpdate
@@ -357,22 +411,34 @@ export default class TraceMap {
       .remove();
   }
   setDefault() {
+    d3.selectAll('.time-inner').style('opacity', 1);
+    d3.selectAll('.time-inner-duration').style('opacity', 0);
+    d3.selectAll('.trace-tree-node-selfdur').style('opacity', 0);
+    d3.selectAll('.trace-tree-node-selfchild').style('opacity', 0);
     this.nodeUpdate._groups[0].forEach(i => {
       d3.select(i).style('opacity', 1);
     })
   }
   topChild() {
+    d3.selectAll('.time-inner').style('opacity', 1);
+    d3.selectAll('.time-inner-duration').style('opacity', 0);
+    d3.selectAll('.trace-tree-node-selfdur').style('opacity', 0);
+    d3.selectAll('.trace-tree-node-selfchild').style('opacity', 1);
     this.nodeUpdate._groups[0].forEach(i => {
       d3.select(i).style('opacity', .2);
-      if(i.__data__.data.childrenLength >= this.cmin || i.__data__.data.childrenLength <= this.cmax){
+      if(i.__data__.data.childrenLength >= this.cmin && i.__data__.data.childrenLength <= this.cmax){
         d3.select(i).style('opacity', 1);
       }
     })
   }
   topSlow() {
+    d3.selectAll('.time-inner').style('opacity', 0);
+    d3.selectAll('.time-inner-duration').style('opacity', 1);
+    d3.selectAll('.trace-tree-node-selfchild').style('opacity', 0);
+    d3.selectAll('.trace-tree-node-selfdur').style('opacity', 1);
     this.nodeUpdate._groups[0].forEach(i => {
       d3.select(i).style('opacity', .2);
-      if(i.__data__.data.dur >= this.smin || i.__data__.data.dur <= this.smax){
+      if(i.__data__.data.dur >= this.smin && i.__data__.data.dur <= this.smax){
         d3.select(i).style('opacity', 1);
       }
     })

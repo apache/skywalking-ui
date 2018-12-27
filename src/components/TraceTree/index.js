@@ -25,7 +25,18 @@ const ButtonGroup = Button.Group;
 export default class Trace extends Component {
   constructor(props) {
     super(props);
-    this.state = {}
+    this.cache = 0;
+    this.db = 0;
+    this.http = 0;
+    this.mq = 0;
+    this.rpc = 0;
+    this.state = {
+      cache: 0,
+      db: 0,
+      http: 0,
+      mq: 0,
+      rpc: 0,
+    };
   }
 
   componentDidMount() {
@@ -99,13 +110,14 @@ export default class Trace extends Component {
     }
     this.topSlow = [];
     this.topChild = [];
+    this.segmentId.forEach((_, i) => {
+      this.collapse(this.segmentId[i]);
+    })
+    this.topSlowMax = this.topSlow.sort((a,b) => b - a)[0];
+    this.topSlowMin = this.topSlow.sort((a,b) => b - a)[4];
 
-    this.collapse(this.segmentId[0]);
-    this.topSlowMax = this.topSlow.sort().reverse()[0];
-    this.topSlowMin = this.topSlow.sort().reverse()[4];
-
-    this.topChildMax = this.topChild.sort().reverse()[0];
-    this.topChildMin = this.topChild.sort().reverse()[4];
+    this.topChildMax = this.topChild.sort((a,b) => b - a)[0];
+    this.topChildMin = this.topChild.sort((a,b) => b - a)[4];
     this.tree = new Tree(this.echartsElement, propsData.showSpanModal, this.topSlowMax,this.topSlowMin,this.topChildMax,this.topChildMin)
     this.tree.init({label:`${this.traceId}`, children: this.segmentId}, rowData);
     this.tree.draw();
@@ -113,9 +125,31 @@ export default class Trace extends Component {
   }
   collapse(d) {
     if(d.children){
-      const dur = d.endTime - d.startTime;
-      d.children.forEach(i => dur - i.endTime + i.startTime)
-      d.dur = dur;
+      let dur = d.endTime - d.startTime;
+      d.children.forEach(i => {
+        dur -= (i.endTime - i.startTime);
+      })
+      if(d.layer === "Http"){
+        this.http += dur
+        this.setState({http: this.http});
+      }
+      if(d.layer === "RPCFramework"){
+        this.rpc += dur
+        this.setState({rpc: this.rpc});
+      }
+      if(d.layer === "Database"){
+        this.db += dur
+        this.setState({db: this.db});
+      }
+      if(d.layer === "Cache"){
+        this.cache += dur
+        this.setState({cache: this.cache});
+      }
+      if(d.layer === "MQ"){
+        this.mq += dur
+        this.setState({mq: this.mq});
+      }
+      d.dur = dur < 0 ? 0 : dur;
       this.topSlow.push(dur);
       this.topChild.push(d.children.length);
       d.childrenLength = d.children.length
@@ -132,9 +166,16 @@ export default class Trace extends Component {
       <div>
         <ButtonGroup>
             <Button onClick={() => {this.tree.setDefault();}}>Default</Button>
-            <Button onClick={() => {this.tree.topSlow();}}>TopSlow 5</Button>
-            <Button onClick={() => {this.tree.topChild();}}>TopSpan 5</Button>
+            <Button onClick={() => {this.tree.topSlow();}}>Top 5 of slow span</Button>
+            <Button onClick={() => {this.tree.topChild();}}>Top 5 of children span number</Button>
         </ButtonGroup>
+        <div style={{marginTop:10,marginBottom: 10}}>
+        {this.state.cache ? (<span class="ant-tag">Cache: {this.state.cache} ms</span>): null}
+        {this.state.db ? (<span class="ant-tag">DB: {this.state.db} ms</span>): null}
+        {this.state.mq ? (<span class="ant-tag">MQ: {this.state.mq} ms</span>): null}
+        {this.state.http ? (<span class="ant-tag">Http: {this.state.http} ms</span>): null}
+        {this.state.rpc ? (<span class="ant-tag">RPCFramework: {this.state.rpc} ms</span>): null}
+        </div>
         <div
           ref={(e) => { this.echartsElement = e; }}
           style={newStyle}
