@@ -42,7 +42,7 @@ const config = {
 
 if (process.env.NO_MOCK) {
   config.proxy['/api'] =  {
-    target: 'http://localhost:12800',
+    target: 'http://106.75.237.45:12800',
     changeOrigin: true,
     pathRewrite: path => {
       console.log(path);
