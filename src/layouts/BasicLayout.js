@@ -285,7 +285,7 @@ class BasicLayout extends React.PureComponent {
             }]}
             copyright={
               <div>
-                Copyright <Icon type="copyright" /> 2017 - 2018 The Apache Software Foundation, Licensed under the Apache License, Version 2.0.
+                Copyright <Icon type="copyright" /> 2017 - 2019 The Apache Software Foundation, Licensed under the Apache License, Version 2.0.
               </div>
             }
           />

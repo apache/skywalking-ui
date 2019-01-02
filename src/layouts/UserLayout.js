@@ -25,7 +25,7 @@ import styles from './UserLayout.less';
 import logo from '../assets/sw-2.png';
 import { getRoutes } from '../utils/utils';
 
-const copyright = <div>Copyright <Icon type="copyright" /> 2017 - 2018 The Apache Software Foundation, Licensed under the Apache License, Version 2.0.</div>;
+const copyright = <div>Copyright <Icon type="copyright" /> 2017 - 2019 The Apache Software Foundation, Licensed under the Apache License, Version 2.0.</div>;
 
 class UserLayout extends React.PureComponent {
   getPageTitle() {
