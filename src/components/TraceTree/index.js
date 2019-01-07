@@ -118,7 +118,7 @@ export default class Trace extends Component {
 
     this.topChildMax = this.topChild.sort((a,b) => b - a)[0];
     this.topChildMin = this.topChild.sort((a,b) => b - a)[4];
-    this.tree = new Tree(this.echartsElement, propsData.showSpanModal, this.topSlowMax,this.topSlowMin,this.topChildMax,this.topChildMin)
+    this.tree = new Tree(this.echartsElement,rowData, propsData.showSpanModal, this.topSlowMax,this.topSlowMin,this.topChildMax,this.topChildMin)
     this.tree.init({label:`${this.traceId}`, children: this.segmentId}, rowData);
     this.tree.draw();
     this.resize = this.tree.resize.bind(this.tree);
@@ -158,10 +158,6 @@ export default class Trace extends Component {
   }
   
   render() {
-    const newStyle = {
-      height: 800,
-      // ...style,
-    };
     return (
       <div>
         <ButtonGroup>
@@ -178,7 +174,6 @@ export default class Trace extends Component {
         </div>
         <div
           ref={(e) => { this.echartsElement = e; }}
-          style={newStyle}
           className="trace-tree"
         />
       </div>
