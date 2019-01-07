@@ -19,7 +19,7 @@
 import * as d3 from 'd3';
 import d3tip from 'd3-tip';
 export default class TraceMap {
-  constructor(el, showSpanModal,smax,smin,cmax,cmin) {
+  constructor(el,row, showSpanModal,smax,smin,cmax,cmin) {
     this.type = {
       MQ: '#bf99f8',
       Http: '#72a5fd',
@@ -37,9 +37,10 @@ export default class TraceMap {
     this.i = 0;
     this.j = 0;
     this.width = el.clientWidth;
-    this.height = el.clientHeight;
+    this.height = (row.length - 1) * 80;
     this.body = d3
       .select(this.el)
+      .style('height', this.height + 'px')
       .append('svg')
       .attr('width', this.width)
       .attr('height', this.height);
@@ -53,7 +54,7 @@ export default class TraceMap {
       .html(d => d.data.label);
     this.body.call(this.timeTip);
     this.body.call(this.tip);
-    this.treemap = d3.tree().size([this.height * 0.7, this.width]);
+    this.treemap = d3.tree().size([this.height * 0.8, this.width]);
   }
   init(data, row) {
     this.row = row;
@@ -65,7 +66,7 @@ export default class TraceMap {
       .scaleSequential()
       .domain([0, this.list.length])
       .interpolator(d3.interpolateCool);
-    this.svg = this.body.append('g').attr('transform', d => `translate(0, ${this.row.length * 10})`).append('g');
+    this.svg = this.body.append('g').attr('transform', d => `translate(0, ${this.row.length * 14})`).append('g');
     this.timeGroup = this.body.append('g').attr('class','timeGroup').attr('transform', d => 'translate(5,30)');
     this.body.call(this.getZoomBehavior(this.svg));
     this.root = d3.hierarchy(this.data, d => d.children);
