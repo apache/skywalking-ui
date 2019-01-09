@@ -249,7 +249,7 @@ export default class Topology extends PureComponent {
                   tokenSeparators={[',']}
                   value={appFilters}
                 >
-                  {data.getGlobalTopology.nodes.filter(_ => _.sla)
+                  {data.getGlobalTopology.nodes.filter(_ => _.isReal)
                     .map(_ => <Option key={_.name}>{_.name}</Option>)}
                 </Select>
                 <Popover content={content} title="Info">
