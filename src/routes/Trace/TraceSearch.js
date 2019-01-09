@@ -16,7 +16,7 @@
  */
 
 import React, { PureComponent } from 'react';
-import { Form, Input, Select, Button, Card, InputNumber, Row, Col, Pagination, DatePicker } from 'antd';
+import { Form, Input, Select, Button, Card, InputNumber, Row, Col, Pagination, DatePicker,notification } from 'antd';
 import { Chart, Geom, Axis, Tooltip, Legend } from 'bizcharts';
 import { DataSet } from '@antv/data-set';
 import moment from 'moment';
@@ -53,6 +53,7 @@ const initPaging = {
 })
 export default class Trace extends PureComponent {
   componentDidMount() {
+    this.timer = false;
     const {...propsData} = this.props;
     const { trace: { variables: { values } } } = this.props;
     const { duration } = values;
@@ -64,6 +65,18 @@ export default class Trace extends PureComponent {
     condition.queryDuration = values.duration.input;
     delete condition.duration;
     this.fetchData(condition, initPaging);
+  }
+
+  componentDidUpdate(prevProps){
+    clearTimeout(this.timer);
+    this.timer = setTimeout(() => {
+      if (prevProps.trace.data.queryBasicTraces.total>10000) {
+        notification.open({
+          message: "Query Warning",
+          description: "Don't allow to query rows after 10000, please change your query conditions.",
+        });
+      }
+    }, 100);
   }
 
   getDefaultDuration = () => {
@@ -314,7 +327,7 @@ export default class Trace extends PureComponent {
             size="small"
             current={currentPageNum}
             pageSize={currentPageSize}
-            total={total}
+            total={total> 10000 ? 10000 : total}
             defaultPageSize={20}
             showSizeChanger
             pageSizeOptions={['20', '50', '100', '200']}
