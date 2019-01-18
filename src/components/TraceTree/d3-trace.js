@@ -37,7 +37,7 @@ export default class TraceMap {
     this.i = 0;
     this.j = 0;
     this.width = el.clientWidth;
-    this.height = (row.length - 1) * 80;
+    this.height = row.length * 80 + 20;
     this.body = d3
       .select(this.el)
       .style('height', this.height + 'px')
@@ -66,7 +66,7 @@ export default class TraceMap {
       .scaleSequential()
       .domain([0, this.list.length])
       .interpolator(d3.interpolateCool);
-    this.svg = this.body.append('g').attr('transform', d => `translate(0, ${this.row.length * 14})`).append('g');
+    this.svg = this.body.append('g').attr('transform', d => `translate(0, ${this.row.length * 14 + 20})`).append('g');
     this.timeGroup = this.body.append('g').attr('class','timeGroup').attr('transform', d => 'translate(5,30)');
     this.body.call(this.getZoomBehavior(this.svg));
     this.root = d3.hierarchy(this.data, d => d.children);
