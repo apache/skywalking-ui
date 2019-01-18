@@ -64,7 +64,7 @@ class TraceStack extends PureComponent {
   }
 
   componentDidMount() {
-    
+
     this.state.width = this.axis.parentNode.clientWidth - 50;
     this.drawAxis();
     this.displayData();
@@ -339,7 +339,7 @@ class TraceStack extends PureComponent {
     const tabList = [];
     const contentList = {};
     if (span.content) {
-      
+
       tabList.push({
         key: 'tags',
         tab: 'Tags',
@@ -428,11 +428,11 @@ class TraceStack extends PureComponent {
       <div className={styles.stack}>
         <div style={{ paddingBottom: 10 }}>
           <ButtonGroup>
-            <Button type={stateData.treeMode ? "primary": ""} onClick={() => this.setState({treeMode:true})}>TreeMode</Button>
-            <Button type={stateData.treeMode ? "": "primary"} onClick={() => this.setState({treeMode: false})}>ListMode</Button>
+            <Button type={stateData.treeMode ? "primary": ""} onClick={async () => {await this.setState({treeMode:true}); this.hideSpanModal();}}>TreeMode</Button>
+            <Button type={stateData.treeMode ? "": "primary"} onClick={async () => {await this.setState({treeMode: false}); this.hideSpanModal();}}>ListMode</Button>
           </ButtonGroup>
         </div>
-       
+
         <div style={{ paddingBottom: 10 }}>
           { legendButtons }
         </div>
