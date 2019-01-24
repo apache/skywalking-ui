@@ -222,7 +222,12 @@ export default class TraceMap {
       .attr('text-anchor', 'start')
       .attr('fill', d => this.type[d.data.layer])
       .attr('stroke', d => this.type[d.data.layer])
-      .text(d => {return d.data.type == 'Local' ? '' : d.data.layer;});
+      .text(d => {
+        if(d.data.type == 'Local' && d.data.layer == 'Unknown'){
+          return 'Local';
+        }
+        return d.data.layer;
+      });
 
     nodeEnter
       .append('text')
