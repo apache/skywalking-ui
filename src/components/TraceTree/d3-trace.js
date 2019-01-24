@@ -104,7 +104,7 @@ export default class TraceMap {
       .scaleLinear()
       .domain([0, this.max])
       .range([0, this.width - 10]);
-      
+
     this.xAxis = d3.axisTop(this.xScale).tickFormat(d => {
       if (d === 0) return 0;
       if (d >= 1000) return d / 1000 + 's';
@@ -189,7 +189,7 @@ export default class TraceMap {
       .attr('dx', 5)
       .attr('dy', 11)
       .text(d=> `children: ${d.data.childrenLength}`)
-      .attr('fill', '#fff') 
+      .attr('fill', '#fff')
     nodeEnter
       .append('rect')
       .attr('class', 'block')
@@ -222,7 +222,12 @@ export default class TraceMap {
       .attr('text-anchor', 'start')
       .attr('fill', d => this.type[d.data.layer])
       .attr('stroke', d => this.type[d.data.layer])
-      .text(d => d.data.layer);
+      .text(d => {
+        if(d.data.type == 'Local' && d.data.layer == 'Unknown'){
+          return 'Local';
+        }
+        return d.data.layer;
+      });
 
     nodeEnter
       .append('text')
