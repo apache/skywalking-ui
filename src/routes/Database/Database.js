@@ -99,7 +99,11 @@ export default class Database extends Component {
                 onSelect={this.handleSelect.bind(this)}
               >
                 {options.databaseId && options.databaseId.map(db =>
-                  <Option key={db.key} value={db.key}>{db.label}</Option>)}
+                  db.key ?
+                    <Option key={db.key} value={db.key}>{db.type}: {db.label}</Option>
+                    :
+                    null
+                )}
               </Select>
             )}
           </FormItem>

@@ -20,7 +20,7 @@ import mockjs from 'mockjs';
 export default {
   getAllDatabases: () => {
     const data = mockjs.mock({
-      'databaseId|20-50': [{ 'id|+1': 3, name: function() { return `database-${this.id}`; } }], // eslint-disable-line
+      'databaseId|20-50': [{ 'id|+1': 3, name: function() { return `database-${this.id}`; }, type: function() { return `type-${this.id}`; } }], // eslint-disable-line
     });
     return data.databaseId;
   },

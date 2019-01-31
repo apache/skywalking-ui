@@ -24,6 +24,7 @@ const optionsQuery = `
     databaseId: getAllDatabases(duration: $duration) {
       key: id
       label: name
+      type
     }
   }
 `;
