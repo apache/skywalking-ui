@@ -136,7 +136,7 @@ export default class Service extends PureComponent {
               <Select
                 showSearch
                 optionFilterProp="children"
-                style={{ width: 200 }}
+                style={{ minWidth: 250, maxWidth: 400 }}
                 placeholder="Select a service"
                 labelInValue
                 onSelect={this.handleSelect.bind(this)}

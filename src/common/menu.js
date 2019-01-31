@@ -37,6 +37,9 @@ const menuData = [{
       name: 'Endpoint',
       path: 'endpoint',
     }, {
+      name: 'Database',
+      path: 'database',
+    }, {
       name: 'Alarm',
       path: 'alarm',
     },

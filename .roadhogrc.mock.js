@@ -3,6 +3,7 @@ import { delay } from 'roadhog-api-doc';
 import { getGlobalTopology, getServiceTopology, getEndpointTopology } from './mock/topology';
 import { Alarms, AlarmTrend } from './mock/alarm';
 import { TraceBrief, Trace } from './mock/trace'
+import { getAllDatabases } from './mock/database'
 import { makeExecutableSchema, addMockFunctionsToSchema } from 'graphql-tools';
 import { graphql } from 'graphql';
 import { ClusterBrief, getServiceInstances, getAllServices, searchEndpoint, EndpointInfo } from './mock/metadata';
@@ -14,6 +15,7 @@ const noMock = process.env.NO_MOCK === 'true';
 const resolvers = {
   Query: {
     getAllServices,
+    getAllDatabases,
     getServiceInstances,
     getServiceTopN,
     getAllEndpointTopN,
@@ -30,6 +32,7 @@ const schema = makeExecutableSchema({ typeDefs: [
   "scalar Long",
   fs.readFileSync('query-protocol/common.graphqls', 'utf8'),
   fs.readFileSync('query-protocol/metadata.graphqls', 'utf8'),
+  fs.readFileSync('query-protocol/database.graphqls', 'utf8'),
   fs.readFileSync('query-protocol/alarm.graphqls', 'utf8'),
   fs.readFileSync('query-protocol/metric.graphqls', 'utf8'),
   fs.readFileSync('query-protocol/aggregation.graphqls', 'utf8'),

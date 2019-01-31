@@ -103,6 +103,9 @@ export const getRouterData = (app) => {
     '/monitor/endpoint': {
       component: dynamicWrapper(app, ['endpoint'], () => import('../routes/Endpoint/Endpoint')),
     },
+    '/monitor/database': {
+      component: dynamicWrapper(app, ['database'], () => import('../routes/Database/Database')),
+    },
     '/trace': {
       component: dynamicWrapper(app, ['trace'], () => import('../routes/Trace/Trace')),
     },
