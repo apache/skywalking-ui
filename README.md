@@ -1,7 +1,7 @@
 Apache SkyWalking UI
 ===============
 
-<img src="https://skywalkingtest.github.io/page-resources/3.0/skywalking.png" alt="Sky Walking logo" height="90px" align="right" />
+<img src="http://skywalking.apache.org/assets/logo.svg" alt="Sky Walking logo" height="90px" align="right" />
 
 The UI for [Apache SkyWalking](https://github.com/apache/incubator-skywalking).
 
