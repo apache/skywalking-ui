@@ -16,7 +16,7 @@
  */
 
 import React, { PureComponent } from 'react';
-import {List, Button } from 'antd';
+import {List, Button, message } from 'antd';
 import Ellipsis from 'ant-design-pro/lib/Ellipsis';
 import styles from './index.less';
 
@@ -33,6 +33,14 @@ class TraceList extends PureComponent {
           }}
         />
         <div className={styles.mainInfo}>
+          <a 
+            style={{
+              margin: '0 10px',
+            }}
+            onClick={this.handleClick.bind(this, opName)}
+          >
+            Copy
+          </a>
           <Ellipsis length={100} tooltip style={{ width: 'initial' }}>
             {opName}
           </Ellipsis>
@@ -41,6 +49,18 @@ class TraceList extends PureComponent {
       </div>
     );
   };
+
+  handleClick = (i) => {
+    const input = document.createElement('input');
+    input.value = i;
+    message.info('Copyed');
+    document.body.appendChild(input);
+    input.select();
+    if (document.execCommand('Copy')) {
+        document.execCommand('Copy');
+    }
+    input.style.display = 'none';
+  }
 
   renderDescription = (start, traceIds) => {
     const { onClickTraceTag } = this.props;
