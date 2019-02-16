@@ -3,7 +3,7 @@ import { delay } from 'roadhog-api-doc';
 import { getGlobalTopology, getServiceTopology, getEndpointTopology } from './mock/topology';
 import { Alarms, AlarmTrend } from './mock/alarm';
 import { TraceBrief, Trace } from './mock/trace'
-import { getAllDatabases } from './mock/database'
+import { getAllDatabases, getTopNRecords } from './mock/database'
 import { makeExecutableSchema, addMockFunctionsToSchema } from 'graphql-tools';
 import { graphql } from 'graphql';
 import { ClusterBrief, getServiceInstances, getAllServices, searchEndpoint, EndpointInfo } from './mock/metadata';
@@ -16,6 +16,7 @@ const resolvers = {
   Query: {
     getAllServices,
     getAllDatabases,
+    getTopNRecords,
     getServiceInstances,
     getServiceTopN,
     getAllEndpointTopN,

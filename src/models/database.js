@@ -17,7 +17,7 @@
 
 
 import { base } from '../utils/models';
-// import { exec } from '../services/graphql';
+import { exec } from '../services/graphql';
 
 const optionsQuery = `
   query DatabaseOption($duration: Duration!) {
@@ -28,6 +28,53 @@ const optionsQuery = `
     }
   }
 `;
+
+const TopNRecordsQuery = `
+  query TopNRecords($condition: TopNRecordsCondition!) {
+    getTopNRecords(condition: $condition) {
+      statement 
+      latency
+      traceId
+    }
+  }
+`;
+
+const spanQuery = `query Spans($traceId: ID!) {
+  queryTrace(traceId: $traceId) {
+    spans {
+      traceId
+      segmentId
+      spanId
+      parentSpanId
+      refs {
+        traceId
+        parentSegmentId
+        parentSpanId
+        type
+      }
+      serviceCode
+      startTime
+      endTime
+      endpointName
+      type
+      peer
+      component
+      isError
+      layer
+      tags {
+        key
+        value
+      }
+      logs {
+        time
+        data {
+          key
+          value
+        }
+      }
+    }
+  }
+}`;
 
 const dataQuery = `
   query Database($databaseId: ID!, $duration: Duration!) {
@@ -127,24 +174,64 @@ export default base({
     getP50: {
       values: [],
     },
+    getTopNRecords: [],
   },
   optionsQuery,
   dataQuery,
   effects: {
-    // *fetchServiceInstance({ payload }, { call, put }) {
-    //   const { variables, serviceInstanceInfo } = payload;
-    //   const response = yield call(exec, { variables, query: serviceInstanceQuery });
-    //   if (!response.data) {
-    //     return;
-    //   }
-    //   yield put({
-    //     type: 'saveServiceInstance',
-    //     payload: response.data,
-    //     serviceInstanceInfo,
-    //   });
-    // },
+    *fetchTraces({ payload }, { call, put }) {
+      const { variables } = payload;
+      const response = yield call(exec, { variables, query: TopNRecordsQuery });
+      if (!response.data) {
+        return;
+      }
+      yield put({
+        type: 'saveTraces',
+        payload: response.data,
+      });
+    },
+    *fetchSpans({ payload }, { call, put }) {
+      const response = yield call(exec, { query: spanQuery, variables: payload.variables });
+      yield put({
+        type: 'saveSpans',
+        payload: response,
+        traceId: payload.variables.traceId,
+      });
+    },
   },
   reducers: {
+    saveSpans(state, { payload, traceId }) {
+      const { data } = state;
+      return {
+        ...state,
+        data: {
+          ...data,
+          queryTrace: payload.data.queryTrace,
+          currentTraceId: traceId,
+          showTimeline: true,
+        },
+      };
+    },
+    saveTraces(state, { payload }) {
+      const { data } = state;
+      return {
+        ...state,
+        data: {
+          ...data,
+          getTopNRecords: payload.getTopNRecords,
+        },
+      };
+    },
+    hideTimeline(state) {
+      const { data } = state;
+      return {
+        ...state,
+        data: {
+          ...data,
+          showTimeline: false,
+        },
+      };
+    },
     saveDatabase(preState, { payload }) {
       const { data } = preState;
       return {
