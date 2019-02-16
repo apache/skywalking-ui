@@ -1,4 +1,4 @@
-/**
+/*
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -15,19 +15,38 @@
  * limitations under the License.
  */
 
-import mockjs from 'mockjs';
+@import '~antd/lib/style/themes/default.less';
 
-  export const getAllDatabases = () => {
-    const data = mockjs.mock({
-      'databaseId|20-50': [{ 'id|+1': 3, name: function() { return `database-${this.id}`; }, type: function() { return `type-${this.id}`; } }], // eslint-disable-line
-    });
-    return data.databaseId;
-  };
-
-  export const getTopNRecords = () => {
-    const data = mockjs.mock({
-      'getTopNRecords|20-50': [
-        { 'traceId|+1': '@natural(200, 300).@natural(200, 300).@natural(200, 300).@natural(200, 300)', statement: function() { return `select * from database where complex = @natural(200, 300)`; }, latency: '@natural(200, 300)' }], // eslint-disable-line
-    });
-    return data.getTopNRecords;
-  };
+.traceList {
+  padding: 5px 0;
+  position: relative;
+  width: 100%;
+  .progressWrap {
+    background-color: @background-color-base;
+    position: relative;
+    height: 25px;
+  }
+  .progress {
+    position: absolute;
+    z-index: 10;
+    transition: all 0.4s cubic-bezier(0.08, 0.82, 0.17, 1) 0s;
+    border-radius: 1px 0 0 1px;
+    background-color: @primary-color;
+    width: 0;
+    height: 100%;
+  }
+  .mainInfo {
+    position: absolute;
+    z-index: 20;
+    width: 100%;
+    .duration {
+      float: right;
+    }
+  }
+  .startTime {
+    float: right;
+  }
+  .content {
+    width: 30%;
+  }
+}
