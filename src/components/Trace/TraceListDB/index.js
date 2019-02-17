@@ -53,7 +53,7 @@ class TraceList extends PureComponent {
   handleClick = (i) => {
     const input = document.createElement('input');
     input.value = i;
-    message.info('Copyed');
+    message.info('copied');
     document.body.appendChild(input);
     input.select();
     if (document.execCommand('Copy')) {
