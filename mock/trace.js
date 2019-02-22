@@ -19,6 +19,13 @@
 import mockjs from 'mockjs';
 
 export default {
+  
+  getServiceInstances: () => {
+    const data = mockjs.mock({
+      'instanceId|20-50': [{ 'id|+1': 3, name: function() { return `service-${this.id}`; } }], // eslint-disable-line
+    });
+    return data.instanceId;
+  },
   TraceBrief: () => {
     let offset = 0;
     return mockjs.mock({

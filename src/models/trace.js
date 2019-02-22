@@ -29,6 +29,15 @@ const optionsQuery = `
   }
 `;
 
+const serviceInstanceQuery = `
+  query ServiceInstanceOption($duration: Duration!, $serviceId: ID!) {
+    instanceId: getServiceInstances(duration: $duration, serviceId: $serviceId) {
+      key: id
+      label: name
+    }
+  }
+`;
+
 const dataQuery = `
   query BasicTraces($condition: TraceQueryCondition) {
     queryBasicTraces(condition: $condition) {
@@ -85,6 +94,7 @@ const spanQuery = `query Spans($traceId: ID!) {
 export default base({
   namespace: 'trace',
   state: {
+    instances: [],
     queryBasicTraces: {
       traces: [],
       total: 0,
@@ -116,6 +126,13 @@ export default base({
   },
   dataQuery,
   effects: {
+    *fetchInstances({ payload }, { call, put }) {
+      const response = yield call(exec, { query: serviceInstanceQuery, variables: payload.variables });
+      yield put({
+        type: 'saveInstances',
+        payload: response,
+      });
+    },
     *fetchSpans({ payload }, { call, put }) {
       const response = yield call(exec, { query: spanQuery, variables: payload.variables });
       yield put({
@@ -135,6 +152,16 @@ export default base({
           queryTrace: payload.data.queryTrace,
           currentTraceId: traceId,
           showTimeline: true,
+        },
+      };
+    },
+    saveInstances(state, { payload }) {
+      const { data } = state;
+      return {
+        ...state,
+        data: {
+          ...data,
+          instances: payload.data.instanceId,
         },
       };
     },
