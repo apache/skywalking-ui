@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { PureComponent } from 'react';
+import React, { Component } from 'react';
 import { Form, Input, Select, Button, Card, InputNumber, Row, Col, Pagination, DatePicker,notification } from 'antd';
 import { Chart, Geom, Axis, Tooltip, Legend } from 'bizcharts';
 import { DataSet } from '@antv/data-set';
@@ -51,7 +51,15 @@ const initPaging = {
     return result;
   },
 })
-export default class Trace extends PureComponent {
+export default class Trace extends Component {
+  constructor(props){
+    super(props);
+    this.state = {
+      serviceId: '',
+      serviceInstanceId: '',
+    }
+  }
+
   componentDidMount() {
     this.timer = false;
     const {...propsData} = this.props;
@@ -118,12 +126,20 @@ export default class Trace extends PureComponent {
 
   fetchData = (queryCondition, paging = initPaging) => {
     const {...propsData} = this.props;
+    const { serviceId, serviceInstanceId } = this.state;
+    const newData = {...queryCondition, serviceId, serviceInstanceId}
+    if (!serviceId) {
+      delete newData.serviceId;
+    }
+    if (!serviceInstanceId) {
+      delete newData.serviceInstanceId;
+    }
     propsData.dispatch({
       type: 'trace/fetchData',
       payload: {
         variables: {
           condition: {
-            ...queryCondition,
+            ...newData,
             paging,
           },
         },
@@ -159,6 +175,42 @@ export default class Trace extends PureComponent {
       type: 'trace/fetchSpans',
       payload: { variables: { traceId } },
     });
+  }
+
+  handleSelectInstance = (serviceInstanceId) => {
+    this.setState({ serviceInstanceId });
+  }
+  
+  handleRefreshServiceInstances = () => {
+    const { dispatch } = this.props;
+    const { ...propsData } = this.props;
+    const { serviceId } = this.state;
+    propsData.form.validateFields((err, fieldsValue) => {
+      if (err || !serviceId) return;
+      const rangeTime = fieldsValue['range-time-picker'];
+      const duration = generateDuration({ from: () => rangeTime[0], to: () => rangeTime[1] }).input;
+      dispatch({
+        type: 'trace/fetchInstances',
+        payload: { variables: { duration, serviceId } },
+      });
+    });
+    return true;
+  }
+  
+  handleShowServiceInstances = (serviceId) => {
+    const { dispatch } = this.props;
+    const { ...propsData } = this.props;
+    this.setState({ serviceId });
+    propsData.form.validateFields((err, fieldsValue) => {
+      if (err || !serviceId) return;
+      const rangeTime = fieldsValue['range-time-picker'];
+      const duration = generateDuration({ from: () => rangeTime[0], to: () => rangeTime[1] }).input;
+      dispatch({
+        type: 'trace/fetchInstances',
+        payload: { variables: { duration, serviceId } },
+      });
+    });
+    return true;
   }
 
   renderPointChart = (traces) => {
@@ -240,6 +292,7 @@ export default class Trace extends PureComponent {
             }],
           })(
             <RangePicker
+              onCalendarChange={this.handleRefreshServiceInstances} 
               showTime
               disabledDate={current => current && current.valueOf() >= Date.now()}
               format="YYYY-MM-DD HH:mm"
@@ -248,16 +301,29 @@ export default class Trace extends PureComponent {
           )}
         </FormItem>
         <FormItem label="Service">
-          {getFieldDecorator('serviceId')(
-            <Select placeholder="All service" style={{ width: '100%' }}>
-              {options.serviceId && options.serviceId.map((service) => {
-                  return (
-                    <Option key={service.key ? service.key : -1} value={service.key}>
-                      {service.label}
-                    </Option>);
-                })}
-            </Select>
-          )}
+          <Select placeholder="All services" onChange={this.handleShowServiceInstances} style={{ width: '100%' }}>
+            {options.serviceId && options.serviceId.map((service) => {
+               if (service.key) {
+                return (
+                  <Option key={service.key ? service.key : -1} value={service.key? service.key : ''}>
+                    {service.label}
+                  </Option>);
+               }
+                return (
+                  <Option value="">All Services</Option>
+            )})}
+          </Select>
+        </FormItem>
+        <FormItem label="ServiceInstance">
+          <Select placeholder="All Service Instances" onChange={this.handleSelectInstance} style={{ width: '100%' }}>
+            <Option value="">All Service Instances</Option>
+            {propsData.trace.data.instances && propsData.trace.data.instances.map((instance) => {
+                return (
+                  <Option key={instance.key ? instance.key : -1} value={instance.key}>
+                    {instance.label}
+                  </Option>);
+              })}
+          </Select>
         </FormItem>
         <FormItem label="Trace State">
           {getFieldDecorator('traceState')(

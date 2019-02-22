@@ -33,7 +33,7 @@ const schema = makeExecutableSchema({ typeDefs: [
   "scalar Long",
   fs.readFileSync('query-protocol/common.graphqls', 'utf8'),
   fs.readFileSync('query-protocol/metadata.graphqls', 'utf8'),
-  fs.readFileSync('query-protocol/database.graphqls', 'utf8'),
+  fs.readFileSync('query-protocol/top-n-records.graphqls', 'utf8'),
   fs.readFileSync('query-protocol/alarm.graphqls', 'utf8'),
   fs.readFileSync('query-protocol/metric.graphqls', 'utf8'),
   fs.readFileSync('query-protocol/aggregation.graphqls', 'utf8'),
