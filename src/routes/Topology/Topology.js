@@ -136,6 +136,13 @@ export default class Topology extends PureComponent {
       return;
     }
     const latencyRange = vArray.map(_ => parseInt(_.trim(), 10)).filter(_ => !isNaN(_));
+    if(latencyRange[1] < 0) {
+      latencyRange[1] = 0;
+    }
+    if(latencyRange[0] > latencyRange[1]) {
+      const temp = latencyRange[1];
+      latencyRange[0] = temp;
+    }
     if (latencyRange.length !== 2) {
       return;
     }
