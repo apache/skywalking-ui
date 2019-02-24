@@ -213,7 +213,7 @@ export default class Database extends Component {
                       <Option value={50}>50</Option>
                       <Option value={100}>100</Option>
                     </Select>
-                    <span> Slow Traces</span>
+                    <span> Slow SQL</span>
                     <TraceList
                       data={data.getTopNRecords}
                       onClickTraceTag={this.handleShowTrace}
