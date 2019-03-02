@@ -89,7 +89,7 @@ export default class TraceTimeLine extends PureComponent {
           ])
         }
       >
-        <Tag style={{ marginBottom: 20 }}>{currentTraceId}</Tag>
+        <Tag style={{ marginBottom: 20 }}>{currentTraceId.split("_")[0]}</Tag>
         <TraceStack spans={spans} />
       </Card>
     );
