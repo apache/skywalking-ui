@@ -1,6 +1,9 @@
 Apache SkyWalking UI
 ===============
 
+**This UI has been replaced by [SkyWalking RocketBot UI](https://github.com/apache/skywalking-rocketbot-ui) since SkyWalking 6.1 release.**
+===============
+
 <img src="http://skywalking.apache.org/assets/logo.svg" alt="Sky Walking logo" height="90px" align="right" />
 
 The UI for [Apache SkyWalking](https://github.com/apache/incubator-skywalking).
